@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>寒玉 Blog - SVN</title><link href="xixuebin.github.io/" rel="alternate"></link><link href="xixuebin.github.io/feeds/svn.atom.xml" rel="self"></link><id>xixuebin.github.io/</id><updated>2017-06-27T10:27:02+08:00</updated><entry><title>GIT</title><link href="xixuebin.github.io/git-ch.html" rel="alternate"></link><published>2017-06-27T10:27:02+08:00</published><updated>2017-06-27T10:27:02+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2017-06-27:xixuebin.github.io/git-ch.html</id><summary type="html"></summary><content type="html">&lt;h2&gt;GIT常用命令&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;远程仓库命令&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;检出远程仓库 &lt;code&gt;git clone git://github/jquery/jquery.git&lt;/code&gt;
+查看远程仓库 &lt;code&gt;git remote -v&lt;/code&gt;
+添加远程仓库 &lt;code&gt;git remote add [name] [url]&lt;/code&gt;
+删除远程仓库 &lt;code&gt;git remote rm [name]&lt;/code&gt;
+修改远程仓库 &lt;code&gt;git remote set-url --push[name][newUrl]&lt;/code&gt;
+拉取远程仓库 &lt;code&gt;git pull [remoteName][localBranchName]&lt;/code&gt;
+推送远程仓库 &lt;code&gt;git push [remoteName][localBranchName]&lt;/code&gt;&lt;/p&gt;
+&lt;h2&gt;aaa&lt;/h2&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;git reset --soft 83ab9932edbe2b78f88668b7d15061747bb5514f
+&lt;/pre&gt;&lt;/div&gt;</content><category term="git"></category></entry></feed>

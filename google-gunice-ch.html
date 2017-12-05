@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8"> 
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="kevin.xi" />
+        <meta name="copyright" content="kevin.xi" />
+
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
+
+<meta name="keywords" content="gunice, misc, " />
+
+<meta property="og:title" content="Google Gunice "/>
+<meta property="og:url" content="xixuebin.github.io/google-gunice-ch.html" />
+<meta property="og:description" content="" />
+<meta property="og:site_name" content="寒玉 Blog" />
+<meta property="og:article:author" content="kevin.xi" />
+<meta property="og:article:published_time" content="2017-06-27T10:27:02+08:00" />
+<meta name="twitter:title" content="Google Gunice ">
+<meta name="twitter:description" content="">
+
+        <title>Google Gunice  · 寒玉 Blog
+</title>
+        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="xixuebin.github.io/theme/css/pygments.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="xixuebin.github.io/theme/tipuesearch/tipuesearch.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="xixuebin.github.io/theme/css/elegant.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="xixuebin.github.io/theme/css/custom.css" media="screen">
+        <link href="xixuebin.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="寒玉 Blog - Full Atom Feed" />
+        <script src="http://code.jquery.com/jquery.min.js"></script>
+    </head>
+    <body class="tex2jax_ignore">
+        <div id="content-sans-footer">
+        <div class="navbar navbar-static-top">
+            <div class="navbar-inner">
+                <div class="container-fluid">
+                    <div class="span1"></div>
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="xixuebin.github.io/"><span class=site-name>寒玉 Blog</span></a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav pull-right top-menu">
+                            <li ><a href="xixuebin.github.io">Home</a></li>
+                            <li ><a href="xixuebin.github.io/pages/about-date-2015-05-10-1010-ch.html">About</a></li>
+                            <li ><a href="xixuebin.github.io/categories.html">Categories</a></li>
+                            <li ><a href="xixuebin.github.io/tags.html">Tags</a></li>
+                            <li ><a href="xixuebin.github.io/archives.html">Archives</a></li>
+                            <li><form class="navbar-search" action="xixuebin.github.io/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span1"></div>
+                <div class="span10">
+<article>
+<div class="row-fluid">
+    <header class="page-header span10 offset2">
+    <h1><a href="xixuebin.github.io/google-gunice-ch.html"> Google Gunice  </a></h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset2 article-content">
+
+            
+            <!-- MarkdownTOC -->
+
+<ul>
+<li><a href="#google-guice">Google Guice</a><ul>
+<li><a href="#guice%E6%A6%82%E8%BF%B0">Guice概述</a></li>
+<li><a href="#guice%E7%89%B9%E7%82%B9">Guice特点</a></li>
+<li><a href="#%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5">最佳实践</a></li>
+<li><a href="#guice%E6%96%87%E6%A1%A3">Guice文档</a></li>
+<li><a href="#guice-vs-spring">Guice vs Spring</a></li>
+</ul>
+</li>
+<li><a href="#this-is-a-test">this is a test!</a><ul>
+<li><a href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99">参考资料</a></li>
+</ul>
+</li>
+</ul>
+<!-- /MarkdownTOC -->
+
+<h1>Google Guice</h1>
+<p>Guice是google开源的一个依赖注入类库,相比Spring Ioc来说更小更快,Elasticsearch,Druid大量使用了Guice.</p>
+<h2>Guice概述</h2>
+<ul>
+<li>Guice是google开源的依赖注入类库,通过Guice减少了对工厂方法和new的使用,使得代码更容易交付,测试和重用</li>
+<li>Guice可以帮助我们更好地设计API,它是一个轻量级的非侵入式的类库</li>
+<li>对开发友好,当异常发生的时候能提供更多有用的信息用于分析</li>
+</ul>
+<h2>Guice特点</h2>
+<ul>
+<li>注入定义简单</li>
+<li>支持多种注入方式</li>
+<li>可扩展</li>
+<li>效率高</li>
+<li>自定义注解</li>
+</ul>
+<h2>最佳实践</h2>
+<ul>
+<li>最小化可变性</li>
+</ul>
+<blockquote>
+<p>尽可能注入的是不可变对象</p>
+</blockquote>
+<ul>
+<li>只注入直接依赖</li>
+</ul>
+<blockquote>
+<p>不用注入一个实例来获取真正需要的实例,增加复杂性且不易测试</p>
+</blockquote>
+<ul>
+<li>避免循环依赖</li>
+<li>避免静态状态</li>
+<li>采用@Nullable</li>
+<li>模块的处理必须要快并且无副作用</li>
+<li>在Providers绑定中当心IO问题</li>
+<li>不用在模块中处理分支模块</li>
+<li>尽可能不要暴露构造器</li>
+</ul>
+<h2>Guice文档</h2>
+<ul>
+<li><a href="https://github.com/google/guice/wiki/Motivation">用户指南</a></li>
+<li><a href="http://google.github.io/guice/api-docs/4.0/javadoc/index.html">最新版API</a></li>
+<li><a href="https://www.youtube.com/watch?v=hBVJbzAagfs">Bob Lee视频教程</a></li>
+</ul>
+<h2>Guice vs Spring</h2>
+<table>
+<thead>
+<tr>
+<th align="left"></th>
+<th align="left">Spring</th>
+<th align="left">Guice</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">使用xml</td>
+<td align="left">使用将类与类之间的关系隔离到xml中，由容器负责注入被调用的对象，因此叫做依赖注入</td>
+<td align="left">不使用xml,将类与类之间的关系隔离到Module中，声名何处需要注入，由容器根据Module里的描述，注入被调用的对象</td>
+</tr>
+<tr>
+<td align="left">使用Annotation</td>
+<td align="left"></td>
+<td align="left">使用支持自定义Annotation标注，对于相同的接口定义的对象引用，为它们标注上不同的自定义Annotation注释，就可以达到同一个类里边的同一个接口的引用，注射给不同的实现，在Module里用标注做区分，灵活性大大增加</td>
+</tr>
+<tr>
+<td align="left">运行效率</td>
+<td align="left">装载spring配置文件时，需解析xml，效率低，getBean效率也不高，不过使用环境不会涉及到getBean，只有生产环境的时候会用到getBean,在装载spring应用程序的时候，已经完成全部的注射，所以这个低效率的问题不是问题</td>
+<td align="left">使用Annotation，cglib, 效率高与spring最明显的一个区别，spring是在装载spring配置文件的时候把该注入的地方都注入完，而Guice呢，则是在使用的时候去注射，运行效率和灵活性高。</td>
+</tr>
+<tr>
+<td align="left">类耦合度</td>
+<td align="left">耦合度低，强调类非侵入，以外部化的方式处理依赖关系，类里边是很干净的，在配置文件里做文章，对类的依赖性极低。</td>
+<td align="left">耦合度低，强调类非侵入，以外部化的方式处理依赖关系，类里边是很干净的，在配置文件里做文章，对类的依赖性极低。</td>
+</tr>
+<tr>
+<td align="left">类编写时</td>
+<td align="left">需要编写xml，配置Bean，配置注入</td>
+<td align="left">只需声明为@inject,等着被注入,最后在统一的Module里声明注入方式</td>
+</tr>
+<tr>
+<td align="left">仅支持IOC</td>
+<td align="left">否，spring目前已经涉猎很多部分</td>
+<td align="left">是，目前仅仅是个DI容器</td>
+</tr>
+<tr>
+<td align="left">是否易于代码重构</td>
+<td align="left">统一的xml配置入口，更改容易</td>
+<td align="left">配置工作是在Module里进行，和spring异曲同功</td>
+</tr>
+<tr>
+<td align="left">配置复杂度</td>
+<td align="left">在xml中定位类与类之间的关系,难度低</td>
+<td align="left">代码级定位类与类之间的关系,难度稍高</td>
+</tr>
+</tbody>
+</table>
+<h1>this is a test!</h1>
+<div class="highlight"><pre><span></span><span class="nb">echo</span> <span class="s1">&#39;xixuebin&#39;</span>
+</pre></div>
+
+
+<h2>参考资料</h2>
+<ul>
+<li><a href="http://tech.it168.com/zt/guice/">http://tech.it168.com/zt/guice/</a></li>
+<li><a href="http://ginobefunny.com/post/learning_guice/">http://ginobefunny.com/post/learning_guice/</a></li>
+<li><a href="http://hao.jobbole.com/guice/">http://hao.jobbole.com/guice/</a></li>
+<li><a href="https://github.com/greengerong/guice-demo">https://github.com/greengerong/guice-demo</a></li>
+<li><a href="http://blog.itpub.net/13270562/viewspace-217874/">http://blog.itpub.net/13270562/viewspace-217874/</a></li>
+</ul>
+            
+            
+            <hr/>
+        </div>
+        <section>
+        <div class="span2" style="float:right;font-size:0.9em;">
+            <h4>Published</h4>
+            <time pubdate="pubdate" datetime="2017-06-27T10:27:02+08:00"> 6 27, 2017</time>
+            <h4>Category</h4>
+            <a class="category-link" href="xixuebin.github.io/categories.html#misc-ref">misc</a>
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article">
+                <li><a href="xixuebin.github.io/tags.html#gunice-ref">gunice
+                    <span>1</span>
+</a></li>
+            </ul>
+<h4>Contact</h4>
+    <a href="#" title="My You can add links in your config file Profile" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-you can add links in your config file sidebar-social-links"></i></a>
+    <a href="#" title="My Another social link Profile" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-another social link sidebar-social-links"></i></a>
+        </div>
+        </section>
+</div>
+</article>
+                </div>
+                <div class="span1"></div>
+            </div>
+        </div>
+        <div id="push"></div>
+    </div>
+<footer>
+<div id="footer">
+    <ul class="footer-content">
+        <li class="elegant-power">Powered by <a href="http://getpelican.com/" title="Pelican Home Page">Pelican</a>. Theme: <a href="http://oncrashreboot.com/pelican-elegant" title="Theme Elegant Home Page">Elegant</a> by <a href="http://oncrashreboot.com" title="Talha Mansoor Home Page">Talha Mansoor</a></li>
+    </ul>
+</div>
+</footer>            <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+    
+    </body>
+    <!-- Theme: Elegant built for Pelican
+    License : http://oncrashreboot.com/pelican-elegant -->
+</html>

@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8"> 
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="kevin.xi" />
+        <meta name="copyright" content="kevin.xi" />
+
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
+
+<meta name="keywords" content="java, solr, JAVA, " />
+
+<meta property="og:title" content="JAVA Solr "/>
+<meta property="og:url" content="xixuebin.github.io/java-solr-ch.html" />
+<meta property="og:description" content="" />
+<meta property="og:site_name" content="寒玉 Blog" />
+<meta property="og:article:author" content="kevin.xi" />
+<meta property="og:article:published_time" content="2017-06-27T10:27:02+08:00" />
+<meta name="twitter:title" content="JAVA Solr ">
+<meta name="twitter:description" content="">
+
+        <title>JAVA Solr  · 寒玉 Blog
+</title>
+        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="xixuebin.github.io/theme/css/pygments.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="xixuebin.github.io/theme/tipuesearch/tipuesearch.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="xixuebin.github.io/theme/css/elegant.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="xixuebin.github.io/theme/css/custom.css" media="screen">
+        <link href="xixuebin.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="寒玉 Blog - Full Atom Feed" />
+        <script src="http://code.jquery.com/jquery.min.js"></script>
+    </head>
+    <body class="tex2jax_ignore">
+        <div id="content-sans-footer">
+        <div class="navbar navbar-static-top">
+            <div class="navbar-inner">
+                <div class="container-fluid">
+                    <div class="span1"></div>
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="xixuebin.github.io/"><span class=site-name>寒玉 Blog</span></a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav pull-right top-menu">
+                            <li ><a href="xixuebin.github.io">Home</a></li>
+                            <li ><a href="xixuebin.github.io/pages/about-date-2015-05-10-1010-ch.html">About</a></li>
+                            <li ><a href="xixuebin.github.io/categories.html">Categories</a></li>
+                            <li ><a href="xixuebin.github.io/tags.html">Tags</a></li>
+                            <li ><a href="xixuebin.github.io/archives.html">Archives</a></li>
+                            <li><form class="navbar-search" action="xixuebin.github.io/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span1"></div>
+                <div class="span10">
+<article>
+<div class="row-fluid">
+    <header class="page-header span10 offset2">
+    <h1><a href="xixuebin.github.io/java-solr-ch.html"> JAVA Solr  </a></h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset2 article-content">
+
+            
+            <h2>Solr</h2>
+<blockquote>
+<p>Apache Solr 是一个功能强大的搜素服务器,它支持Rest风格的API.Solr是基于Lucene的.Lucene支持强大的匹配能力,如短语,通配符,链接,分组和更多不同类型的数据.它使用Zookeeper特别针对高流量进行优化.Apache Solr提供各种各式各样的功能</p>
+</blockquote>
+<ul>
+<li>先进的全文检索功能</li>
+<li>XML,JSON和HTTP 基于开放接口标准</li>
+<li>高度课扩展和容错</li>
+<li>同时支持模式和无模式的支持</li>
+<li>分页搜索和过滤</li>
+<li>支持多种语言</li>
+<li>丰富的文档</li>
+</ul>
+<h2>Install Solr</h2>
+<p>从以下位置下载最新版本的Apache Solr:
+<a href="http://lucene.apache.org/solr/downloads.html">http://lucene.apache.org/solr/downloads.html</a></p>
+<p>我下载到的是solr-6.6.0版本</p>
+<p>安装的话直接解压即可,该版本需要JDK8支持</p>
+<div class="highlight"><pre><span></span>tar -zxf solr-6.6.0.tgz
+</pre></div>
+
+
+<p>Apache Solr带有一个内置的Jetty服务器。但在我们开始之前，我们必须验证JAVA_HOME已经配置。</p>
+<p>启动Solr</p>
+<div class="highlight"><pre><span></span>root@ubuntu:/opt/solr# ./bin/solr start -force
+Waiting up to <span class="m">180</span> seconds to see Solr running on port <span class="m">8983</span> <span class="o">[</span>-<span class="o">]</span>
+Started Solr server on port <span class="m">8983</span> <span class="o">(</span><span class="nv">pid</span><span class="o">=</span><span class="m">12376</span><span class="o">)</span>. Happy searching!
+</pre></div>
+
+
+<p>可以通过该地址访问
+<a href="http://localhost:8983/solr/">http://localhost:8983/solr/</a></p>
+<p>访问截图</p>
+<p>![截图](solr02.png Solr控制台)</p>
+<h2>Solr原理</h2>
+<p>Solr对外提供标准的HTTP接口来实现对数据索引的增加,删除,修改和查询.在Solr中,用户通过向部署在servlet容器中的Solr Web应用程序发送HTTP请求来启动索引和搜索.Solr接收请求,确定要使用的适当的SolrRequestHandler,然后处理请求.通过HTTP以同样的方式返回响应.默认配置返回Solr的标准XML响应,也可以配置Solr的备用响应格式.</p>
+<p>可以向Solr索引servlet传递四个不同的索引请求
+- add/update 允许向Solr添加文档或者更新文档.直到提交后才能搜索到这些添加的更新
+- commint 告诉Solr应该使上次提交以来所做的所有的更改都可以被搜索到
+- optimize 重构Lucene的文件以改进搜索性能.索引完成周执行一下优化通常比较好</p>
+<blockquote>
+<p>如果更新比较频繁,则应该使用频率较低的时候安排优化,一个索引无需优化也可以运行,优化是一个耗时较多的过程</p>
+</blockquote>
+<ul>
+<li>delete可以通过id或查询来指定.按id删除将删除具有指定id的文档;按查询删除将删除查询返回的所有的文档</li>
+</ul>
+<p>一个典型的Add请求报文</p>
+<div class="highlight"><pre><span></span><span class="nt">&lt;add&gt;</span>  
+  <span class="nt">&lt;doc&gt;</span>  
+    <span class="nt">&lt;field</span> <span class="na">name=</span><span class="s">&quot;id&quot;</span><span class="nt">&gt;</span>TWINX2048-3200PRO<span class="nt">&lt;/field&gt;</span>  
+    <span class="nt">&lt;field</span> <span class="na">name=</span><span class="s">&quot;name&quot;</span><span class="nt">&gt;</span>CORSAIR  XMS 2GB (2 x 1GB) 184-Pin DDR SDRAM Unbuffered DDR 400 (PC 3200) Dual Channel Kit System Memory - Retail<span class="nt">&lt;/field&gt;</span>  
+    <span class="nt">&lt;field</span> <span class="na">name=</span><span class="s">&quot;manu&quot;</span><span class="nt">&gt;</span>Corsair Microsystems Inc.<span class="nt">&lt;/field&gt;</span>  
+    <span class="nt">&lt;field</span> <span class="na">name=</span><span class="s">&quot;cat&quot;</span><span class="nt">&gt;</span>electronics<span class="nt">&lt;/field&gt;</span>  
+    <span class="nt">&lt;field</span> <span class="na">name=</span><span class="s">&quot;cat&quot;</span><span class="nt">&gt;</span>memory<span class="nt">&lt;/field&gt;</span>  
+    <span class="nt">&lt;field</span> <span class="na">name=</span><span class="s">&quot;features&quot;</span><span class="nt">&gt;</span>CAS latency 2, 2-3-3-6 timing, 2.75v, unbuffered, heat-spreader<span class="nt">&lt;/field&gt;</span>  
+    <span class="nt">&lt;field</span> <span class="na">name=</span><span class="s">&quot;price&quot;</span><span class="nt">&gt;</span>185<span class="nt">&lt;/field&gt;</span>  
+    <span class="nt">&lt;field</span> <span class="na">name=</span><span class="s">&quot;popularity&quot;</span><span class="nt">&gt;</span>5<span class="nt">&lt;/field&gt;</span>  
+    <span class="nt">&lt;field</span> <span class="na">name=</span><span class="s">&quot;inStock&quot;</span><span class="nt">&gt;</span>true<span class="nt">&lt;/field&gt;</span>  
+  <span class="nt">&lt;/doc&gt;</span>  
+  <span class="nt">&lt;doc&gt;</span>  
+    <span class="nt">&lt;field</span> <span class="na">name=</span><span class="s">&quot;id&quot;</span><span class="nt">&gt;</span>VS1GB400C3<span class="nt">&lt;/field&gt;</span>  
+    <span class="nt">&lt;field</span> <span class="na">name=</span><span class="s">&quot;name&quot;</span><span class="nt">&gt;</span>CORSAIR ValueSelect 1GB 184-Pin DDR SDRAM Unbuffered DDR 400 (PC 3200) System Memory - Retail<span class="nt">&lt;/field&gt;</span>  
+    <span class="nt">&lt;field</span> <span class="na">name=</span><span class="s">&quot;manu&quot;</span><span class="nt">&gt;</span>Corsair Microsystems Inc.<span class="nt">&lt;/field&gt;</span>  
+    <span class="nt">&lt;field</span> <span class="na">name=</span><span class="s">&quot;cat&quot;</span><span class="nt">&gt;</span>electronics<span class="nt">&lt;/field&gt;</span>  
+    <span class="nt">&lt;field</span> <span class="na">name=</span><span class="s">&quot;cat&quot;</span><span class="nt">&gt;</span>memory<span class="nt">&lt;/field&gt;</span>  
+    <span class="nt">&lt;field</span> <span class="na">name=</span><span class="s">&quot;price&quot;</span><span class="nt">&gt;</span>74.99<span class="nt">&lt;/field&gt;</span>  
+    <span class="nt">&lt;field</span> <span class="na">name=</span><span class="s">&quot;popularity&quot;</span><span class="nt">&gt;</span>7<span class="nt">&lt;/field&gt;</span>  
+    <span class="nt">&lt;field</span> <span class="na">name=</span><span class="s">&quot;inStock&quot;</span><span class="nt">&gt;</span>true<span class="nt">&lt;/field&gt;</span>  
+  <span class="nt">&lt;/doc&gt;</span>  
+<span class="nt">&lt;/add&gt;</span> 
+</pre></div>
+
+
+<p>一个典型的搜索结果报文</p>
+<div class="highlight"><pre><span></span><span class="nt">&lt;response&gt;</span>  
+    <span class="nt">&lt;lst</span> <span class="na">name=</span><span class="s">&quot;responseHeader&quot;</span><span class="nt">&gt;</span>  
+        <span class="nt">&lt;int</span> <span class="na">name=</span><span class="s">&quot;status&quot;</span><span class="nt">&gt;</span>0<span class="nt">&lt;/int&gt;</span>  
+        <span class="nt">&lt;int</span> <span class="na">name=</span><span class="s">&quot;QTime&quot;</span><span class="nt">&gt;</span>6<span class="nt">&lt;/int&gt;</span>  
+        <span class="nt">&lt;lst</span> <span class="na">name=</span><span class="s">&quot;params&quot;</span><span class="nt">&gt;</span>  
+            <span class="nt">&lt;str</span> <span class="na">name=</span><span class="s">&quot;rows&quot;</span><span class="nt">&gt;</span>10<span class="nt">&lt;/str&gt;</span>  
+            <span class="nt">&lt;str</span> <span class="na">name=</span><span class="s">&quot;start&quot;</span><span class="nt">&gt;</span>0<span class="nt">&lt;/str&gt;</span>  
+            <span class="nt">&lt;str</span> <span class="na">name=</span><span class="s">&quot;fl&quot;</span><span class="nt">&gt;</span>*,score<span class="nt">&lt;/str&gt;</span>  
+            <span class="nt">&lt;str</span> <span class="na">name=</span><span class="s">&quot;hl&quot;</span><span class="nt">&gt;</span>true<span class="nt">&lt;/str&gt;</span>  
+            <span class="nt">&lt;str</span> <span class="na">name=</span><span class="s">&quot;q&quot;</span><span class="nt">&gt;</span>content:&quot;faceted browsing&quot;<span class="nt">&lt;/str&gt;</span>  
+        <span class="nt">&lt;/lst&gt;</span>  
+    <span class="nt">&lt;/lst&gt;</span>  
+
+    <span class="nt">&lt;result</span> <span class="na">name=</span><span class="s">&quot;response&quot;</span> <span class="na">numFound=</span><span class="s">&quot;1&quot;</span> <span class="na">start=</span><span class="s">&quot;0&quot;</span> <span class="na">maxScore=</span><span class="s">&quot;1.058217&quot;</span><span class="nt">&gt;</span>  
+        <span class="nt">&lt;doc&gt;</span>  
+            <span class="nt">&lt;float</span> <span class="na">name=</span><span class="s">&quot;score&quot;</span><span class="nt">&gt;</span>1.058217<span class="nt">&lt;/float&gt;</span>  
+            <span class="nt">&lt;arr</span> <span class="na">name=</span><span class="s">&quot;all&quot;</span><span class="nt">&gt;</span>  
+                <span class="nt">&lt;str&gt;</span>http://localhost/myBlog/solr-rocks-again.html<span class="nt">&lt;/str&gt;</span>  
+                <span class="nt">&lt;str&gt;</span>Solr is Great<span class="nt">&lt;/str&gt;</span>  
+                <span class="nt">&lt;str&gt;</span>solr,lucene,enterprise,search,greatness<span class="nt">&lt;/str&gt;</span>  
+                <span class="nt">&lt;str&gt;</span>Solr has some really great features, like faceted browsing and replication<span class="nt">&lt;/str&gt;</span>  
+            <span class="nt">&lt;/arr&gt;</span>  
+            <span class="nt">&lt;arr</span> <span class="na">name=</span><span class="s">&quot;content&quot;</span><span class="nt">&gt;</span>  
+                <span class="nt">&lt;str&gt;</span>Solr has some really great features, like faceted browsing and replication<span class="nt">&lt;/str&gt;</span>  
+            <span class="nt">&lt;/arr&gt;</span>  
+            <span class="nt">&lt;date</span> <span class="na">name=</span><span class="s">&quot;creationDate&quot;</span><span class="nt">&gt;</span>2007-01-07T05:04:00.000Z<span class="nt">&lt;/date&gt;</span>  
+            <span class="nt">&lt;arr</span> <span class="na">name=</span><span class="s">&quot;keywords&quot;</span><span class="nt">&gt;</span>  
+                <span class="nt">&lt;str&gt;</span>solr,lucene,enterprise,search,greatness<span class="nt">&lt;/str&gt;</span>  
+            <span class="nt">&lt;/arr&gt;</span>  
+            <span class="nt">&lt;int</span> <span class="na">name=</span><span class="s">&quot;rating&quot;</span><span class="nt">&gt;</span>8<span class="nt">&lt;/int&gt;</span>  
+            <span class="nt">&lt;str</span> <span class="na">name=</span><span class="s">&quot;title&quot;</span><span class="nt">&gt;</span>Solr is Great<span class="nt">&lt;/str&gt;</span>  
+            <span class="nt">&lt;str</span> <span class="na">name=</span><span class="s">&quot;url&quot;</span><span class="nt">&gt;</span>http://localhost/myBlog/solr-rocks-again.html<span class="nt">&lt;/str&gt;</span>  
+        <span class="nt">&lt;/doc&gt;</span>  
+    <span class="nt">&lt;/result&gt;</span>  
+
+    <span class="nt">&lt;lst</span> <span class="na">name=</span><span class="s">&quot;highlighting&quot;</span><span class="nt">&gt;</span>  
+        <span class="nt">&lt;lst</span> <span class="na">name=</span><span class="s">&quot;http://localhost/myBlog/solr-rocks-again.html&quot;</span><span class="nt">&gt;</span>  
+            <span class="nt">&lt;arr</span> <span class="na">name=</span><span class="s">&quot;content&quot;</span><span class="nt">&gt;</span>  
+                <span class="nt">&lt;str&gt;</span>Solr has some really great features, like <span class="nt">&lt;em&gt;</span>faceted<span class="nt">&lt;/em&gt;</span>  
+                <span class="nt">&lt;em&gt;</span>browsing<span class="nt">&lt;/em&gt;</span> and replication<span class="nt">&lt;/str&gt;</span>  
+            <span class="nt">&lt;/arr&gt;</span>  
+        <span class="nt">&lt;/lst&gt;</span>  
+    <span class="nt">&lt;/lst&gt;</span>  
+<span class="nt">&lt;/response&gt;</span> 
+</pre></div>
+
+
+<h3>配置Solr</h3>
+<h4>建立Core</h4>
+<p>Solr的服务器在独立模式启动下启动的配置称为核心(Core),当它在SolrCloud模式启动的配置称为集合.</p>
+<p>创建一个核心的索引数据,Slor的创建命令有以下选项</p>
+<blockquote>
+<p>-c <name> 要创建核心或者集合的名称
+    -d <confdir> 配置目录,在SolrCloud模式非常有用
+    -n <configName> 配置名称.这将默认为核心或者集合的名称
+    -p <port> 本地Solr实例的端口,发送create命令,默认脚本试图通过寻找运行Solr的实例来检测端口
+    -s <shards> Number of shards to split a collection into ,default is  1
+    -rf <replicas> 集合中每个文件的份数,default is 1</p>
+</blockquote>
+<p>在solr/bin运行</p>
+<div class="highlight"><pre><span></span>root@ubuntu:/opt/solr/bin# ./solr create -c jcg -d basic_configs -force
+
+Copying configuration to new core instance directory:
+/opt/solr/server/solr/jcg
+
+Creating new core <span class="s1">&#39;jcg&#39;</span> using command:
+http://localhost:8983/solr/admin/cores?action<span class="o">=</span>CREATE<span class="p">&amp;</span><span class="nv">name</span><span class="o">=</span>jcg<span class="p">&amp;</span><span class="nv">instanceDir</span><span class="o">=</span>jcg
+
+<span class="o">{</span>
+  <span class="s2">&quot;responseHeader&quot;</span>:<span class="o">{</span>
+    <span class="s2">&quot;status&quot;</span>:0,
+    <span class="s2">&quot;QTime&quot;</span>:43042<span class="o">}</span>,
+  <span class="s2">&quot;core&quot;</span>:<span class="s2">&quot;jcg&quot;</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>在Solr的页面上,可以看到JCG核心被填充在核心选择器上,还可以看到相关统计信息</p>
+<p><a href=""></a></p>
+<h4>修改Schema.xml文件</h4>
+<p>修改schema.xml，server\solr\jcg\conf包含的字段。我们将使用随Solr的安装索引附带的示例文件“books.csv”之一。该文件所在的文件夹下  的solr-5.0.0\example\exampledocs</p>
+<p>现在，我们定位到该文件夹  server\solr目录。你会看到一个名为JCG的文件夹被创建。子文件夹conf和data分别拥有核心的配置和索引的数据。</p>
+<p>现在编辑\server\solr\jcg\conf\server\solr\jcg\conf\schema.xml文件，设置唯一元素后添加以下内容。</p>
+<h4>索引数据</h4>
+<p>Apache Solr带有一个叫做SimplePostTool独立的Java程序。这个程序被打包成JAR,在安装目录下 example\exampledocs可看到。</p>
+<p>现在，我们在命令行定位到example\exampledocs文件夹，然后键入以下命令。你会看到一堆选项，使用的工具。</p>
+<p>Java -jar post.jar -h</p>
+<p>在一般的使用格式如下用途：</p>
+<p>Usage: java [SystemProperties] -jar post.jar [-h|-] [<file|folder|url|arg></p>
+<p>[<file|folder|url|arg>...]]</p>
+<p>正如我们前面所说，我们将索引“books.csv”文件中的数据。我们将导航到solr-5.0.0\example\exampledocs在命令提示符并发出以下命令。</p>
+<div class="highlight"><pre><span></span>root@ubuntu:/opt/solr/example/exampledocs# java -Dtype<span class="o">=</span>text/csv -Durl<span class="o">=</span>http://localhost:8983/solr/jcg/update  -jar post.jar   books.csv
+SimplePostTool version <span class="m">5</span>.0.0
+Posting files to <span class="o">[</span>base<span class="o">]</span> url http://localhost:8983/solr/jcg/update using content-type text/csv...
+POSTing file books.csv to <span class="o">[</span>base<span class="o">]</span>
+SimplePostTool: WARNING: Solr returned an error <span class="c1">#400 (Bad Request) for url: http://localhost:8983/solr/jcg/update</span>
+SimplePostTool: WARNING: Response: &lt;?xml <span class="nv">version</span><span class="o">=</span><span class="s2">&quot;1.0&quot;</span> <span class="nv">encoding</span><span class="o">=</span><span class="s2">&quot;UTF-8&quot;</span>?&gt;
+&lt;response&gt;
+&lt;lst <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;responseHeader&quot;</span>&gt;&lt;int <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;status&quot;</span>&gt;400&lt;/int&gt;&lt;int <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;QTime&quot;</span>&gt;177&lt;/int&gt;&lt;/lst&gt;&lt;lst <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;error&quot;</span>&gt;&lt;lst <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;metadata&quot;</span>&gt;&lt;str <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;error-class&quot;</span>&gt;org.apache.solr.common.SolrException&lt;/str&gt;&lt;str <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;root-error-class&quot;</span>&gt;org.apache.solr.common.SolrException&lt;/str&gt;&lt;/lst&gt;&lt;str <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;msg&quot;</span>&gt;ERROR: <span class="o">[</span><span class="nv">doc</span><span class="o">=</span><span class="m">0553573403</span><span class="o">]</span> unknown field <span class="s1">&#39;cat&#39;</span>&lt;/str&gt;&lt;int <span class="nv">name</span><span class="o">=</span><span class="s2">&quot;code&quot;</span>&gt;400&lt;/int&gt;&lt;/lst&gt;
+&lt;/response&gt;
+SimplePostTool: WARNING: IOException <span class="k">while</span> reading response: java.io.IOException: Server returned HTTP response code: <span class="m">400</span> <span class="k">for</span> URL: http://localhost:8983/solr/jcg/update
+<span class="m">1</span> files indexed.
+COMMITting Solr index changes to http://localhost:8983/solr/jcg/update...
+Time spent: <span class="m">0</span>:00:00.501
+</pre></div>
+
+
+<h3>索引Solr的XML文件</h3>
+<p>Solr可以为各种输入格式的结构化数据建立索引。在历史上，将格式化内容导入Solr的主要格式就是Solr的XML格式[3]。很多的Solr索引器都可以将域内容转换为Solr的XML输出，通常支持直接提交的HTTP请求至Solr的/update端点。</p>
+<p>Solr支持示例数据中的几种Solr XML格式的文件。注意：示例中的科技产品的数据含有更加特定于域的配置，包括数据模式和浏览器界面。如果你想要bin/solr脚本提供对这种数据的内建支持，那么你可以运行<code>bin/solr start -e techproducts</code>命令，这个命令不仅仅会启动Solr，而且还会为这些数据创建索引（在运行这个命令之前，请务必先运行<code>bin/solr stop -all</code>命令）。然而，下面的示例假定使用<code>bin/solr start -e cloud</code>命令来启动Solr，这样才能和本文中的所有示例保持一致，因此，示例使用的集合是“gettingstarted”，而不是“techproducts”。</p>
+<p>使用bin/post脚本，为示例的Solr XML文件创建索引，这些文件在</p>
+<div class="highlight"><pre><span></span>ubuntu@ubuntu:/opt/solr$ bin/solr start -e cloud -noprompt
+
+Welcome to the SolrCloud example!
+
+Starting up <span class="m">2</span> Solr nodes <span class="k">for</span> your example SolrCloud cluster.
+
+Creating Solr home directory /opt/solr/example/cloud/node1/solr
+Cloning /opt/solr/example/cloud/node1 into
+   /opt/solr/example/cloud/node2
+
+Starting up Solr on port <span class="m">8983</span> using command:
+<span class="s2">&quot;/opt/solr/bin/solr&quot;</span> start -cloud -p <span class="m">8983</span> -s <span class="s2">&quot;/opt/solr/example/cloud/node1/solr&quot;</span>
+
+Waiting up to <span class="m">180</span> seconds to see Solr running on port <span class="m">8983</span> <span class="o">[</span><span class="se">\]</span>
+Started Solr server on port <span class="m">8983</span> <span class="o">(</span><span class="nv">pid</span><span class="o">=</span><span class="m">17115</span><span class="o">)</span>. Happy searching!
+
+
+Starting up Solr on port <span class="m">7574</span> using command:
+<span class="s2">&quot;/opt/solr/bin/solr&quot;</span> start -cloud -p <span class="m">7574</span> -s <span class="s2">&quot;/opt/solr/example/cloud/node2/solr&quot;</span> -z localhost:9983
+
+Waiting up to <span class="m">180</span> seconds to see Solr running on port <span class="m">7574</span> <span class="o">[</span><span class="se">\]</span>
+Started Solr server on port <span class="m">7574</span> <span class="o">(</span><span class="nv">pid</span><span class="o">=</span><span class="m">17333</span><span class="o">)</span>. Happy searching!
+
+INFO  - <span class="m">2017</span>-07-06 <span class="m">09</span>:00:56.877<span class="p">;</span> org.apache.solr.client.solrj.impl.ZkClientClusterStateProvider<span class="p">;</span> Cluster at localhost:9983 ready
+
+Connecting to ZooKeeper at localhost:9983 ...
+INFO  - <span class="m">2017</span>-07-06 <span class="m">09</span>:00:56.997<span class="p">;</span> org.apache.solr.client.solrj.impl.ZkClientClusterStateProvider<span class="p">;</span> Cluster at localhost:9983 ready
+Uploading /opt/solr/server/solr/configsets/data_driven_schema_configs/conf <span class="k">for</span> config gettingstarted to ZooKeeper at localhost:9983
+
+Creating new collection <span class="s1">&#39;gettingstarted&#39;</span> using command:
+http://localhost:8983/solr/admin/collections?action<span class="o">=</span>CREATE<span class="p">&amp;</span><span class="nv">name</span><span class="o">=</span>gettingstarted<span class="p">&amp;</span><span class="nv">numShards</span><span class="o">=</span><span class="m">2</span><span class="p">&amp;</span><span class="nv">replicationFactor</span><span class="o">=</span><span class="m">2</span><span class="p">&amp;</span><span class="nv">maxShardsPerNode</span><span class="o">=</span><span class="m">2</span><span class="p">&amp;</span>collection.configName<span class="o">=</span>gettingstarted
+
+<span class="o">{</span>
+  <span class="s2">&quot;responseHeader&quot;</span>:<span class="o">{</span>
+    <span class="s2">&quot;status&quot;</span>:0,
+    <span class="s2">&quot;QTime&quot;</span>:13927<span class="o">}</span>,
+  <span class="s2">&quot;success&quot;</span>:<span class="o">{</span>
+    <span class="s2">&quot;127.0.1.1:8983_solr&quot;</span>:<span class="o">{</span>
+      <span class="s2">&quot;responseHeader&quot;</span>:<span class="o">{</span>
+        <span class="s2">&quot;status&quot;</span>:0
+        <span class="s2">&quot;QTime&quot;</span>:12395<span class="o">}</span>,
+      <span class="s2">&quot;core&quot;</span>:<span class="s2">&quot;gettingstarted_shard1_replica2&quot;</span><span class="o">}</span>,
+    <span class="s2">&quot;127.0.1.1:7574_solr&quot;</span>:<span class="o">{</span>
+      <span class="s2">&quot;responseHeader&quot;</span>:<span class="o">{</span>
+        <span class="s2">&quot;status&quot;</span>:0,
+        <span class="s2">&quot;QTime&quot;</span>:12408<span class="o">}</span>,
+      <span class="s2">&quot;core&quot;</span>:<span class="s2">&quot;gettingstarted_shard2_replica1&quot;</span><span class="o">}}}</span>
+
+Enabling auto soft-commits with maxTime <span class="m">3</span> secs using the Config API
+
+POSTing request to Config API: http://localhost:8983/solr/gettingstarted/config
+<span class="o">{</span><span class="s2">&quot;set-property&quot;</span>:<span class="o">{</span><span class="s2">&quot;updateHandler.autoSoftCommit.maxTime&quot;</span>:<span class="s2">&quot;3000&quot;</span><span class="o">}}</span>
+Successfully set-property updateHandler.autoSoftCommit.maxTime to <span class="m">3000</span>
+
+
+SolrCloud example running, please visit: http://localhost:8983/solr
+
+ubuntu@ubuntu:/opt/solr$
+</pre></div>
+
+
+<h3>Solr的客户端API的</h3>
+<p>有不同的客户端API的可用来连接到Solr的服务器。我们列出了一些广泛使用的Solr客户端API的。</p>
+<ul>
+<li>SolRuby – To connect from Ruby</li>
+<li>SolPHP – To connect from PHP</li>
+<li>PySolr – To connect from Python</li>
+<li>SolPerl – To connect from Perl</li>
+<li>SolrJ – To connect from Java</li>
+<li>SolrSharp – To connect from C#</li>
+</ul>
+<p>此外，Solr还提供了JavaScript可以直接使用的基于REST的API。</p>
+<h3>参考</h3>
+<ul>
+<li><a href="http://ghoulich.xninja.org/2016/04/22/solr-quick-start/">Solr快速入门教程</a></li>
+<li><a href="https://www.ibm.com/developerworks/cn/java/j-solr1/index.html">基本特性和 Solr 模式</a></li>
+</ul>
+            
+            
+            <hr/>
+        </div>
+        <section>
+        <div class="span2" style="float:right;font-size:0.9em;">
+            <h4>Published</h4>
+            <time pubdate="pubdate" datetime="2017-06-27T10:27:02+08:00"> 6 27, 2017</time>
+            <h4>Category</h4>
+            <a class="category-link" href="xixuebin.github.io/categories.html#java-ref">JAVA</a>
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article">
+                <li><a href="xixuebin.github.io/tags.html#java-ref">java
+                    <span>2</span>
+</a></li>
+                <li><a href="xixuebin.github.io/tags.html#solr-ref">solr
+                    <span>1</span>
+</a></li>
+            </ul>
+<h4>Contact</h4>
+    <a href="#" title="My You can add links in your config file Profile" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-you can add links in your config file sidebar-social-links"></i></a>
+    <a href="#" title="My Another social link Profile" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-another social link sidebar-social-links"></i></a>
+        </div>
+        </section>
+</div>
+</article>
+                </div>
+                <div class="span1"></div>
+            </div>
+        </div>
+        <div id="push"></div>
+    </div>
+<footer>
+<div id="footer">
+    <ul class="footer-content">
+        <li class="elegant-power">Powered by <a href="http://getpelican.com/" title="Pelican Home Page">Pelican</a>. Theme: <a href="http://oncrashreboot.com/pelican-elegant" title="Theme Elegant Home Page">Elegant</a> by <a href="http://oncrashreboot.com" title="Talha Mansoor Home Page">Talha Mansoor</a></li>
+    </ul>
+</div>
+</footer>            <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+    
+    </body>
+    <!-- Theme: Elegant built for Pelican
+    License : http://oncrashreboot.com/pelican-elegant -->
+</html>

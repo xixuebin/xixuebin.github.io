@@ -10,18 +10,18 @@
         <meta property="og:type" content="article" />
         <meta name="twitter:card" content="summary">
 
-<meta name="keywords" content=", misc, " />
+<meta name="keywords" content="HBASE, BigData, BigData, " />
 
-<meta property="og:title" content="For Test "/>
-<meta property="og:url" content="xixuebin.github.io/for-test-.html" />
+<meta property="og:title" content="HBASE oldWALs "/>
+<meta property="og:url" content="xixuebin.github.io/hbase-oldwals-ch.html" />
 <meta property="og:description" content="" />
 <meta property="og:site_name" content="寒玉 Blog" />
 <meta property="og:article:author" content="kevin.xi" />
-<meta property="og:article:published_time" content="2016-06-24T15:50:01+08:00" />
-<meta name="twitter:title" content="For Test ">
+<meta property="og:article:published_time" content="2017-06-27T10:27:02+08:00" />
+<meta name="twitter:title" content="HBASE oldWALs ">
 <meta name="twitter:description" content="">
 
-        <title>For Test  · 寒玉 Blog
+        <title>HBASE oldWALs  · 寒玉 Blog
 </title>
         <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
         <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
@@ -64,7 +64,7 @@
 <article>
 <div class="row-fluid">
     <header class="page-header span10 offset2">
-    <h1><a href="xixuebin.github.io/for-test-.html"> For Test  </a></h1>
+    <h1><a href="xixuebin.github.io/hbase-oldwals-ch.html"> HBASE oldWALs  </a></h1>
     </header>
 </div>
 
@@ -72,9 +72,31 @@
         <div class="span8 offset2 article-content">
 
             
-            <h1>pelican</h1>
-<p>Pelican Static Site Generator, Powered by Python：Pelican是python语言写的静态网站生成器。因为我一直打算用git pages做一个博客，现在已经学会用Hexo在git pages上做博客了。但是我还是一想：我一个pythoner，干嘛不用python写的静态网站生成器。应该是网上教程太少，那我今天就来搞一搞。顺便记录下来，整理出一个教程，希望一切顺利！</p>
-<h2>二级目录</h2>
+            <h2>HBASE oldWALs目录过大</h2>
+<p>最近升级了线上的hbase集群,一切运行良好.这两天发现集群的oldWALs目录一直在增大,与hbase的官方说法不一致.导致线上集群一直在存储报警</p>
+<div class="highlight"><pre><span></span><span class="o">[</span>dev@ip-10-12-134-13 ~<span class="o">]</span>$ hadoop fs -du -h /hbase
+<span class="m">0</span>        <span class="m">0</span>        /hbase/.tmp
+<span class="m">0</span>        <span class="m">0</span>        /hbase/MasterProcWALs
+<span class="m">52</span>.9 G   <span class="m">109</span>.5 G  /hbase/WALs
+<span class="m">103</span>.6 G  <span class="m">207</span>.2 G  /hbase/archive
+<span class="m">0</span>        <span class="m">0</span>        /hbase/corrupt
+<span class="m">56</span>.2 T   <span class="m">112</span>.4 T  /hbase/data
+<span class="m">42</span>       <span class="m">126</span>      /hbase/hbase.id
+<span class="m">7</span>        <span class="m">21</span>       /hbase/hbase.version
+<span class="m">3</span>.0 T    <span class="m">5</span>.9 T    /hbase/oldWALs
+</pre></div>
+
+
+<p>查询了许多资料,都说跟hbase的replication有关.因为我们确实开启了hbase的replication配置.但是根据replication相关资料我确认replication只跟WALs相关,不应该会影响oldWALs,所以进行了研究.</p>
+<p>经过验证当我关闭掉replication的时候,master会去删除oldWALs目录下的文件.</p>
+<p>但是为了保证线上集群数据的安全,我们必须开启replication,这样oldWALs还是一直会变大.</p>
+<p>参考</p>
+<ul>
+<li><a href="https://github.com/mattshma/bigdata/issues/3">HBase oldWALs 目录过大</a></li>
+<li><a href="http://blog.cloudera.com/blog/2013/10/what-are-hbase-znodes/">What are HBase znodes</a></li>
+<li><a href="http://community.cloudera.com/t5/Storage-Random-Access-HDFS/The-folder-hbase-s-oldWALs-is-so-large-in-CDH5-3-2-amp-CM5-3-2/td-p/35564">The folder hbase's oldWALs is so large in CDH5.3.2 &amp; CM5.3.2, how to clean?</a></li>
+<li><a href="http://talat.uyarer.com/post/113414182956/hbase-oldwals-directory-what-is-it-when-is-it">Hbase oldWALs directory: what is it, when is it cleaned and who use its ?</a></li>
+</ul>
             
             
             <hr/>
@@ -82,9 +104,18 @@
         <section>
         <div class="span2" style="float:right;font-size:0.9em;">
             <h4>Published</h4>
-            <time pubdate="pubdate" datetime="2016-06-24T15:50:01+08:00"> 6 24, 2016</time>
+            <time pubdate="pubdate" datetime="2017-06-27T10:27:02+08:00"> 6 27, 2017</time>
             <h4>Category</h4>
-            <a class="category-link" href="xixuebin.github.io/categories.html#misc-ref">misc</a>
+            <a class="category-link" href="xixuebin.github.io/categories.html#bigdata-ref">BigData</a>
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article">
+                <li><a href="xixuebin.github.io/tags.html#bigdata-ref">BigData
+                    <span>1</span>
+</a></li>
+                <li><a href="xixuebin.github.io/tags.html#hbase-ref">HBASE
+                    <span>1</span>
+</a></li>
+            </ul>
 <h4>Contact</h4>
     <a href="#" title="My You can add links in your config file Profile" class="sidebar-social-links" target="_blank">
     <i class="fa fa-you can add links in your config file sidebar-social-links"></i></a>

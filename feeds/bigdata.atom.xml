@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>寒玉 Blog - BigData</title><link href="xixuebin.github.io/" rel="alternate"></link><link href="xixuebin.github.io/feeds/bigdata.atom.xml" rel="self"></link><id>xixuebin.github.io/</id><updated>2017-06-27T10:27:02+08:00</updated><entry><title>HBASE oldWALs</title><link href="xixuebin.github.io/hbase-oldwals-ch.html" rel="alternate"></link><published>2017-06-27T10:27:02+08:00</published><updated>2017-06-27T10:27:02+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2017-06-27:xixuebin.github.io/hbase-oldwals-ch.html</id><summary type="html"></summary><content type="html">&lt;h2&gt;HBASE oldWALs目录过大&lt;/h2&gt;
+&lt;p&gt;最近升级了线上的hbase集群,一切运行良好.这两天发现集群的oldWALs目录一直在增大,与hbase的官方说法不一致.导致线上集群一直在存储报警&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;dev@ip-10-12-134-13 ~&lt;span class="o"&gt;]&lt;/span&gt;$ hadoop fs -du -h /hbase
+&lt;span class="m"&gt;0&lt;/span&gt;        &lt;span class="m"&gt;0&lt;/span&gt;        /hbase/.tmp
+&lt;span class="m"&gt;0&lt;/span&gt;        &lt;span class="m"&gt;0&lt;/span&gt;        /hbase/MasterProcWALs
+&lt;span class="m"&gt;52&lt;/span&gt;.9 G   &lt;span class="m"&gt;109&lt;/span&gt;.5 G  /hbase/WALs
+&lt;span class="m"&gt;103&lt;/span&gt;.6 G  &lt;span class="m"&gt;207&lt;/span&gt;.2 G  /hbase/archive
+&lt;span class="m"&gt;0&lt;/span&gt;        &lt;span class="m"&gt;0&lt;/span&gt;        /hbase/corrupt
+&lt;span class="m"&gt;56&lt;/span&gt;.2 T   &lt;span class="m"&gt;112&lt;/span&gt;.4 T  /hbase/data
+&lt;span class="m"&gt;42&lt;/span&gt;       &lt;span class="m"&gt;126&lt;/span&gt;      /hbase/hbase.id
+&lt;span class="m"&gt;7&lt;/span&gt;        &lt;span class="m"&gt;21&lt;/span&gt;       /hbase/hbase.version
+&lt;span class="m"&gt;3&lt;/span&gt;.0 T    &lt;span class="m"&gt;5&lt;/span&gt;.9 T    /hbase/oldWALs
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;查询了许多资料,都说跟hbase的replication有关.因为我们确实开启了hbase的replication配置.但是根据replication相关资料我确认replication只跟WALs相关,不应该会影响oldWALs,所以进行了研究.&lt;/p&gt;
+&lt;p&gt;经过验证当我关闭掉replication的时候,master会去删除oldWALs目录下的文件.&lt;/p&gt;
+&lt;p&gt;但是为了保证线上集群数据的安全,我们必须开启replication,这样oldWALs还是一直会变大.&lt;/p&gt;
+&lt;p&gt;参考&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/mattshma/bigdata/issues/3"&gt;HBase oldWALs 目录过大&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://blog.cloudera.com/blog/2013/10/what-are-hbase-znodes/"&gt;What are HBase znodes&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://community.cloudera.com/t5/Storage-Random-Access-HDFS/The-folder-hbase-s-oldWALs-is-so-large-in-CDH5-3-2-amp-CM5-3-2/td-p/35564"&gt;The folder hbase's oldWALs is so large in CDH5.3.2 &amp;amp; CM5.3.2, how to clean?&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="http://talat.uyarer.com/post/113414182956/hbase-oldwals-directory-what-is-it-when-is-it"&gt;Hbase oldWALs directory: what is it, when is it cleaned and who use its ?&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><category term="HBASE"></category><category term="BigData"></category></entry></feed>

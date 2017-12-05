@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>寒玉 Blog - kafka</title><link href="xixuebin.github.io/" rel="alternate"></link><link href="xixuebin.github.io/feeds/kafka.atom.xml" rel="self"></link><id>xixuebin.github.io/</id><updated>2017-12-04T15:50:01+08:00</updated><entry><title>Kafka背景及架构介绍</title><link href="xixuebin.github.io/kafka-01-ch.html" rel="alternate"></link><published>2017-12-04T15:50:01+08:00</published><updated>2017-12-04T15:50:01+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2017-12-04:xixuebin.github.io/kafka-01-ch.html</id><summary type="html"></summary><content type="html">&lt;!-- MarkdownTOC --&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="#%E6%91%98%E8%A6%81"&gt;摘要&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#kafka%E7%AE%80%E4%BB%8B"&gt;Kafka简介&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"&gt;参考资料&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;!-- /MarkdownTOC --&gt;
+
+&lt;h2&gt;摘要&lt;/h2&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Kafka是由LinkedIn开发并开源的分布式消息系统，因其分布式及高吞吐率而被广泛使用，现已与Cloudera Hadoop，Apache Storm，Apache Spark集成。本文介绍了Kafka的创建背景，设计目标，使用消息系统的优势以及目前流行的消息系统对比。并介绍了Kafka的架构，Producer消息路由，Consumer Group以及由其实现的不同消息分发方式，Topic &amp;amp; Partition，最后介绍了Kafka Consumer为何使用pull模式以及Kafka提供的三种delivery guarantee。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2&gt;Kafka简介&lt;/h2&gt;
+&lt;p&gt;kafka是一种分布式的,基于发布/订阅的消息系统.主要的设计目标如下:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;以时间复杂度为O(1)的方式提供消息持久化能力,即使对TB级以上数据也能保证常数时间复杂度的性能访问.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;参考资料&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://www.jasongj.com/2015/03/10/KafkaColumn1/"&gt;http://www.jasongj.com/2015/03/10/KafkaColumn1/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><category term="kafka"></category></entry></feed>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>寒玉 Blog - Python</title><link href="xixuebin.github.io/" rel="alternate"></link><link href="xixuebin.github.io/feeds/python.atom.xml" rel="self"></link><id>xixuebin.github.io/</id><updated>2017-06-27T10:27:02+08:00</updated><entry><title>Python Mac</title><link href="xixuebin.github.io/python-mac-ch.html" rel="alternate"></link><published>2017-06-27T10:27:02+08:00</published><updated>2017-06-27T10:27:02+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2017-06-27:xixuebin.github.io/python-mac-ch.html</id><summary type="html"></summary><content type="html">&lt;h2&gt;python on mac install lib&lt;/h2&gt;
+&lt;p&gt;install PIL&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo pip install http://effbot.org/media/downloads/Imaging-1.1.7.tar.gz
+pip install bs4
+&lt;/pre&gt;&lt;/div&gt;</content><category term="python"></category><category term="mac"></category></entry></feed>
