@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8"> 
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="kevin.xi" />
+        <meta name="copyright" content="kevin.xi" />
+
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
+
+<meta name="keywords" content="java, jvm, java, " />
+
+<meta property="og:title" content="JAVA8 Lambda "/>
+<meta property="og:url" content="/java-8-lambda-date-2017-12-28-9032-ch.html" />
+<meta property="og:description" content="" />
+<meta property="og:site_name" content="寒玉 Blog" />
+<meta property="og:article:author" content="kevin.xi" />
+<meta property="og:article:published_time" content="2017-12-28T09:32:53+08:00" />
+<meta property="" content="2017-12-28T09:32:53+08:00" />
+<meta name="twitter:title" content="JAVA8 Lambda ">
+<meta name="twitter:description" content="">
+
+        <title>JAVA8 Lambda  · 寒玉 Blog
+</title>
+        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="/theme/css/pygments.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="/theme/tipuesearch/tipuesearch.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="/theme/css/elegant.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="/theme/css/custom.css" media="screen">
+        <script src="http://code.jquery.com/jquery.min.js"></script>
+    </head>
+    <body class="tex2jax_ignore">
+        <div id="content-sans-footer">
+        <div class="navbar navbar-static-top">
+            <div class="navbar-inner">
+                <div class="container-fluid">
+                    <div class="span1"></div>
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="/"><span class=site-name>寒玉 Blog</span></a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav pull-right top-menu">
+                            <li ><a href="">Home</a></li>
+                            <li ><a href="/pages/english-date-2017-12-05-1130-ch.html">每日英语</a></li>
+                            <li ><a href="/pages/about-date-2015-05-10-1010-ch.html">About</a></li>
+                            <li ><a href="/categories.html">Categories</a></li>
+                            <li ><a href="/tags.html">Tags</a></li>
+                            <li ><a href="/archives.html">Archives</a></li>
+                            <li><form class="navbar-search" action="/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span1"></div>
+                <div class="span10">
+<article>
+<div class="row-fluid">
+    <header class="page-header span10 offset2">
+    <h1><a href="/java-8-lambda-date-2017-12-28-9032-ch.html"> JAVA8 Lambda  </a></h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset2 article-content">
+
+            
+            <h3>Runnable Lambda</h3>
+<div class="highlight"><pre><span></span><span class="kn">package</span> <span class="nn">com.xxb.java.lambda</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">java.util.*</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.function.Function</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.stream.Collectors</span><span class="o">;</span>
+
+<span class="kd">class</span> <span class="nc">Java8Lambda</span> <span class="o">{</span>
+
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">runnableTest</span><span class="o">();</span>
+
+        <span class="n">comparatorTest</span><span class="o">();</span>
+
+        <span class="n">loopingTest</span><span class="o">();</span>
+
+        <span class="n">chainingAndFilter</span><span class="o">();</span>
+
+        <span class="n">mutationAndResults</span><span class="o">();</span>
+
+        <span class="n">calculatingWithMap</span><span class="o">();</span>
+
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">loopingTest</span><span class="o">(){</span>
+        <span class="n">List</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">pl</span> <span class="o">=</span> <span class="n">Person</span><span class="o">.</span><span class="na">createShortList</span><span class="o">();</span>
+
+        <span class="n">pl</span><span class="o">.</span><span class="na">forEach</span><span class="o">(</span><span class="n">Person</span><span class="o">::</span><span class="n">printName</span><span class="o">);</span>
+
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">chainingAndFilter</span><span class="o">(){</span>
+        <span class="n">List</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">pl</span> <span class="o">=</span> <span class="n">Person</span><span class="o">.</span><span class="na">createShortList</span><span class="o">();</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;\n=== Western Pilot Phone List ===&quot;</span><span class="o">);</span>
+
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;\n=== Eastern Draftee Phone List ===&quot;</span><span class="o">);</span>
+        <span class="n">pl</span><span class="o">.</span><span class="na">stream</span><span class="o">().</span><span class="na">filter</span><span class="o">(</span><span class="n">person</span> <span class="o">-&gt;</span> <span class="n">person</span><span class="o">.</span><span class="na">getAge</span><span class="o">()</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="o">).</span><span class="na">forEach</span><span class="o">(</span><span class="n">Person</span><span class="o">::</span><span class="n">print</span><span class="o">);</span>
+
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">mutationAndResults</span><span class="o">(){</span>
+        <span class="n">List</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">list</span> <span class="o">=</span> <span class="n">Person</span><span class="o">.</span><span class="na">createShortList</span><span class="o">();</span>
+
+        <span class="n">List</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">persons</span> <span class="o">=</span> <span class="n">list</span><span class="o">.</span><span class="na">stream</span><span class="o">().</span><span class="na">filter</span><span class="o">(</span><span class="n">person</span> <span class="o">-&gt;</span> <span class="n">person</span><span class="o">.</span><span class="na">getAge</span><span class="o">()</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="o">).</span><span class="na">collect</span><span class="o">(</span><span class="n">Collectors</span><span class="o">.</span><span class="na">toList</span><span class="o">());</span>
+
+        <span class="n">persons</span><span class="o">.</span><span class="na">forEach</span><span class="o">(</span><span class="n">Person</span><span class="o">::</span><span class="n">print</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">calculatingWithMap</span><span class="o">(){</span>
+        <span class="n">List</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">personList</span> <span class="o">=</span><span class="n">Person</span><span class="o">.</span><span class="na">createShortList</span><span class="o">();</span>
+
+        <span class="c1">// Calc average age of pilots old style</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;== Calc Old Style ==&quot;</span><span class="o">);</span>
+        <span class="kt">int</span> <span class="n">sum</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+        <span class="kt">int</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+
+        <span class="k">for</span> <span class="o">(</span><span class="n">Person</span> <span class="n">p</span><span class="o">:</span><span class="n">personList</span><span class="o">){</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">p</span><span class="o">.</span><span class="na">getAge</span><span class="o">()</span> <span class="o">&gt;=</span> <span class="mi">23</span> <span class="o">&amp;&amp;</span> <span class="n">p</span><span class="o">.</span><span class="na">getAge</span><span class="o">()</span> <span class="o">&lt;=</span> <span class="mi">65</span> <span class="o">){</span>
+                <span class="n">sum</span> <span class="o">=</span> <span class="n">sum</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="na">getAge</span><span class="o">();</span>
+                <span class="n">count</span><span class="o">++;</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+
+        <span class="kt">long</span> <span class="n">average</span> <span class="o">=</span> <span class="n">sum</span> <span class="o">/</span> <span class="n">count</span><span class="o">;</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Total Ages: &quot;</span> <span class="o">+</span> <span class="n">sum</span><span class="o">);</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Average Age: &quot;</span> <span class="o">+</span> <span class="n">average</span><span class="o">);</span>
+
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;\n== Calc New Style ==&quot;</span><span class="o">);</span>
+
+        <span class="kt">long</span> <span class="n">totalAge</span> <span class="o">=</span> <span class="n">personList</span><span class="o">.</span><span class="na">stream</span><span class="o">().</span>
+                <span class="n">filter</span><span class="o">(</span><span class="n">person</span> <span class="o">-&gt;</span> <span class="n">person</span><span class="o">.</span><span class="na">getAge</span><span class="o">()</span> <span class="o">&gt;=</span><span class="mi">23</span> <span class="o">&amp;&amp;</span> <span class="n">person</span><span class="o">.</span><span class="na">getAge</span><span class="o">()&lt;=</span><span class="mi">65</span><span class="o">).</span><span class="na">mapToInt</span><span class="o">(</span><span class="n">Person</span><span class="o">::</span><span class="n">getAge</span><span class="o">).</span><span class="na">sum</span><span class="o">();</span>
+
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">totalAge</span><span class="o">);</span>
+
+        <span class="n">OptionalDouble</span> <span class="n">averageAge</span> <span class="o">=</span> <span class="n">personList</span><span class="o">.</span><span class="na">parallelStream</span><span class="o">()</span>
+                <span class="o">.</span><span class="na">filter</span><span class="o">(</span><span class="n">person</span> <span class="o">-&gt;</span> <span class="n">person</span><span class="o">.</span><span class="na">getAge</span><span class="o">()</span> <span class="o">&gt;=</span><span class="mi">23</span> <span class="o">&amp;&amp;</span> <span class="n">person</span><span class="o">.</span><span class="na">getAge</span><span class="o">()&lt;=</span><span class="mi">65</span><span class="o">).</span><span class="na">mapToDouble</span><span class="o">(</span><span class="n">Person</span><span class="o">::</span><span class="n">getAge</span><span class="o">).</span><span class="na">average</span><span class="o">();</span>
+
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">averageAge</span><span class="o">.</span><span class="na">isPresent</span><span class="o">()?</span> <span class="n">averageAge</span><span class="o">.</span><span class="na">getAsDouble</span><span class="o">():</span> <span class="mi">0</span><span class="o">);</span>
+    <span class="o">}</span>
+
+
+
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">runnableTest</span><span class="o">(){</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;=== RunnableTest ===&quot;</span><span class="o">);</span>
+
+        <span class="n">Runnable</span> <span class="n">r1</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Runnable</span><span class="o">(){</span>
+
+            <span class="nd">@Override</span>
+            <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">(){</span>
+                <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Hello world one!&quot;</span><span class="o">);</span>
+            <span class="o">}</span>
+        <span class="o">};</span>
+
+        <span class="n">r1</span><span class="o">.</span><span class="na">run</span><span class="o">();</span>
+
+        <span class="n">Runnable</span> <span class="n">r2</span> <span class="o">=</span> <span class="o">()</span> <span class="o">-&gt;</span> <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Hello world two!&quot;</span><span class="o">);</span>
+
+        <span class="n">r2</span><span class="o">.</span><span class="na">run</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">comparatorTest</span><span class="o">(){</span>
+        <span class="n">List</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">personList</span> <span class="o">=</span> <span class="n">Person</span><span class="o">.</span><span class="na">createShortList</span><span class="o">();</span>
+
+        <span class="n">Collections</span><span class="o">.</span><span class="na">sort</span><span class="o">(</span><span class="n">personList</span><span class="o">,</span> <span class="k">new</span> <span class="n">Comparator</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;(){</span>
+            <span class="kd">public</span> <span class="kt">int</span> <span class="nf">compare</span><span class="o">(</span><span class="n">Person</span> <span class="n">p1</span><span class="o">,</span> <span class="n">Person</span> <span class="n">p2</span><span class="o">){</span>
+                <span class="k">return</span> <span class="n">p1</span><span class="o">.</span><span class="na">getSurName</span><span class="o">().</span><span class="na">compareTo</span><span class="o">(</span><span class="n">p2</span><span class="o">.</span><span class="na">getSurName</span><span class="o">());</span>
+            <span class="o">}</span>
+        <span class="o">});</span>
+
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;=== sorted asc surName&quot;</span><span class="o">);</span>
+
+        <span class="k">for</span> <span class="o">(</span><span class="n">Person</span> <span class="n">p</span> <span class="o">:</span> <span class="n">personList</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">p</span><span class="o">.</span><span class="na">printName</span><span class="o">();</span>
+        <span class="o">}</span>
+
+        <span class="c1">//use lambda </span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;=== sorted asc surName&quot;</span><span class="o">);</span>
+
+        <span class="n">Collections</span><span class="o">.</span><span class="na">sort</span><span class="o">(</span><span class="n">personList</span><span class="o">,</span> <span class="o">(</span><span class="n">Person</span> <span class="n">p1</span><span class="o">,</span> <span class="n">Person</span> <span class="n">p2</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="n">p1</span><span class="o">.</span><span class="na">getSurName</span><span class="o">().</span><span class="na">compareTo</span><span class="o">(</span><span class="n">p2</span><span class="o">.</span><span class="na">getSurName</span><span class="o">()));</span>
+
+        <span class="k">for</span> <span class="o">(</span><span class="n">Person</span> <span class="n">p</span> <span class="o">:</span><span class="n">personList</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">p</span><span class="o">.</span><span class="na">printName</span><span class="o">();</span>
+        <span class="o">}</span>
+
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;=== sorted desc surName&quot;</span><span class="o">);</span>
+
+        <span class="n">Collections</span><span class="o">.</span><span class="na">sort</span><span class="o">(</span><span class="n">personList</span><span class="o">,</span> <span class="o">(</span><span class="n">p1</span><span class="o">,</span> <span class="n">p2</span><span class="o">)</span> <span class="o">-&gt;</span> <span class="n">p2</span><span class="o">.</span><span class="na">getSurName</span><span class="o">().</span><span class="na">compareTo</span><span class="o">(</span><span class="n">p1</span><span class="o">.</span><span class="na">getSurName</span><span class="o">()));</span>
+
+        <span class="k">for</span> <span class="o">(</span><span class="n">Person</span> <span class="n">p</span> <span class="o">:</span><span class="n">personList</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">p</span><span class="o">.</span><span class="na">printName</span><span class="o">();</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">functionTest</span><span class="o">(){</span>
+
+        <span class="n">List</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">personlists</span>  <span class="o">=</span> <span class="n">Person</span><span class="o">.</span><span class="na">createShortList</span><span class="o">();</span>
+
+        <span class="n">Function</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">,</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">westernStyle</span> <span class="o">=</span> <span class="n">p</span> <span class="o">-&gt;</span> <span class="o">{</span>
+            <span class="k">return</span> <span class="s">&quot;\nName: &quot;</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="na">getGivenName</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="na">getSurName</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot;\n&quot;</span> <span class="o">+</span>
+            <span class="s">&quot;Age: &quot;</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="na">getAge</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot;  &quot;</span> <span class="o">+</span> <span class="s">&quot;Gender: &quot;</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="na">getGender</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot;\n&quot;</span> <span class="o">+</span>
+            <span class="s">&quot;EMail: &quot;</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="na">geteMail</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot;\n&quot;</span> <span class="o">+</span>
+            <span class="s">&quot;Phone: &quot;</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="na">getPhone</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot;\n&quot;</span> <span class="o">+</span>
+            <span class="s">&quot;Address: &quot;</span> <span class="o">+</span> <span class="n">p</span><span class="o">.</span><span class="na">getAddress</span><span class="o">();</span>
+        <span class="o">};</span>
+
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;\n ===westernStyle=== &quot;</span><span class="o">);</span>
+
+        <span class="k">for</span> <span class="o">(</span><span class="n">Person</span> <span class="n">p</span> <span class="o">:</span><span class="n">personlists</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span>
+             <span class="n">p</span><span class="o">.</span><span class="na">printCustom</span><span class="o">(</span><span class="n">westernStyle</span><span class="o">)</span>
+            <span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+<span class="o">}</span>
+
+<span class="kd">class</span> <span class="nc">Person</span> <span class="o">{</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">givenName</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">surName</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="kt">int</span> <span class="n">age</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setGivenName</span><span class="o">(</span><span class="n">String</span> <span class="n">givenName</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">givenName</span> <span class="o">=</span> <span class="n">givenName</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setSurName</span><span class="o">(</span><span class="n">String</span> <span class="n">surName</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">surName</span> <span class="o">=</span> <span class="n">surName</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setAge</span><span class="o">(</span><span class="kt">int</span> <span class="n">age</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">age</span> <span class="o">=</span> <span class="n">age</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="n">Gender</span> <span class="nf">getGender</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">gender</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setGender</span><span class="o">(</span><span class="n">Gender</span> <span class="n">gender</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">gender</span> <span class="o">=</span> <span class="n">gender</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">geteMail</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">eMail</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">seteMail</span><span class="o">(</span><span class="n">String</span> <span class="n">eMail</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">eMail</span> <span class="o">=</span> <span class="n">eMail</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getPhone</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">phone</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setPhone</span><span class="o">(</span><span class="n">String</span> <span class="n">phone</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">phone</span> <span class="o">=</span> <span class="n">phone</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getAddress</span><span class="o">()</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">address</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">setAddress</span><span class="o">(</span><span class="n">String</span> <span class="n">address</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">address</span> <span class="o">=</span> <span class="n">address</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="n">Gender</span> <span class="n">gender</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">eMail</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">phone</span><span class="o">;</span>
+    <span class="kd">private</span> <span class="n">String</span> <span class="n">address</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">Builder</span><span class="o">{</span>
+
+        <span class="kd">private</span> <span class="n">String</span> <span class="n">givenName</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="o">;</span>
+        <span class="kd">private</span> <span class="n">String</span> <span class="n">surName</span><span class="o">=</span><span class="s">&quot;&quot;</span><span class="o">;</span>
+        <span class="kd">private</span> <span class="kt">int</span> <span class="n">age</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span>
+        <span class="kd">private</span> <span class="n">Gender</span> <span class="n">gender</span> <span class="o">=</span> <span class="n">Gender</span><span class="o">.</span><span class="na">FEMALE</span><span class="o">;</span>
+        <span class="kd">private</span> <span class="n">String</span> <span class="n">eMail</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="o">;</span>
+        <span class="kd">private</span> <span class="n">String</span> <span class="n">phone</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="o">;</span>
+        <span class="kd">private</span> <span class="n">String</span> <span class="n">address</span> <span class="o">=</span> <span class="s">&quot;&quot;</span><span class="o">;</span>
+
+        <span class="kd">public</span> <span class="n">Person</span><span class="o">.</span><span class="na">Builder</span> <span class="nf">givenName</span><span class="o">(</span><span class="n">String</span> <span class="n">givenName</span><span class="o">){</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">givenName</span> <span class="o">=</span> <span class="n">givenName</span><span class="o">;</span>
+            <span class="k">return</span> <span class="k">this</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kd">public</span> <span class="n">Person</span><span class="o">.</span><span class="na">Builder</span> <span class="nf">surName</span><span class="o">(</span><span class="n">String</span> <span class="n">surName</span><span class="o">){</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">surName</span> <span class="o">=</span> <span class="n">surName</span><span class="o">;</span>
+            <span class="k">return</span> <span class="k">this</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kd">public</span> <span class="n">Person</span><span class="o">.</span><span class="na">Builder</span> <span class="nf">age</span> <span class="o">(</span><span class="kt">int</span> <span class="n">val</span><span class="o">){</span>
+            <span class="n">age</span> <span class="o">=</span> <span class="n">val</span><span class="o">;</span>
+            <span class="k">return</span> <span class="k">this</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kd">public</span> <span class="n">Person</span><span class="o">.</span><span class="na">Builder</span> <span class="nf">gender</span><span class="o">(</span><span class="n">Gender</span> <span class="n">val</span><span class="o">){</span>
+            <span class="n">gender</span> <span class="o">=</span> <span class="n">val</span><span class="o">;</span>
+            <span class="k">return</span> <span class="k">this</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kd">public</span> <span class="n">Person</span><span class="o">.</span><span class="na">Builder</span> <span class="nf">email</span><span class="o">(</span><span class="n">String</span> <span class="n">val</span><span class="o">){</span>
+            <span class="n">eMail</span> <span class="o">=</span> <span class="n">val</span><span class="o">;</span>
+            <span class="k">return</span> <span class="k">this</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kd">public</span> <span class="n">Person</span><span class="o">.</span><span class="na">Builder</span> <span class="nf">phoneNumber</span><span class="o">(</span><span class="n">String</span> <span class="n">val</span><span class="o">){</span>
+            <span class="n">phone</span> <span class="o">=</span> <span class="n">val</span><span class="o">;</span>
+            <span class="k">return</span> <span class="k">this</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kd">public</span> <span class="n">Person</span><span class="o">.</span><span class="na">Builder</span> <span class="nf">address</span><span class="o">(</span><span class="n">String</span> <span class="n">val</span><span class="o">){</span>
+            <span class="n">address</span> <span class="o">=</span> <span class="n">val</span><span class="o">;</span>
+            <span class="k">return</span> <span class="k">this</span><span class="o">;</span>
+        <span class="o">}</span>
+
+        <span class="kd">public</span> <span class="n">Person</span> <span class="nf">build</span><span class="o">(){</span>
+            <span class="k">return</span> <span class="k">new</span> <span class="n">Person</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="nf">Person</span><span class="o">(){</span>
+        <span class="kd">super</span><span class="o">();</span>
+    <span class="o">}</span>
+
+    <span class="kd">private</span> <span class="nf">Person</span><span class="o">(</span><span class="n">Person</span><span class="o">.</span><span class="na">Builder</span> <span class="n">builder</span><span class="o">){</span>
+        <span class="n">givenName</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="na">givenName</span><span class="o">;</span>
+        <span class="n">surName</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="na">surName</span><span class="o">;</span>
+        <span class="n">age</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="na">age</span><span class="o">;</span>
+        <span class="n">gender</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="na">gender</span><span class="o">;</span>
+        <span class="n">eMail</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="na">eMail</span><span class="o">;</span>
+        <span class="n">phone</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="na">phone</span><span class="o">;</span>
+        <span class="n">address</span> <span class="o">=</span> <span class="n">builder</span><span class="o">.</span><span class="na">address</span><span class="o">;</span>
+
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getGivenName</span><span class="o">(){</span>
+        <span class="k">return</span> <span class="n">givenName</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">getSurName</span><span class="o">(){</span>
+        <span class="k">return</span> <span class="n">surName</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">int</span> <span class="nf">getAge</span><span class="o">(){</span>
+        <span class="k">return</span> <span class="n">age</span><span class="o">;</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">print</span><span class="o">(){</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span>
+            <span class="s">&quot;\nName: &quot;</span> <span class="o">+</span> <span class="n">givenName</span> <span class="o">+</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> <span class="n">surName</span> <span class="o">+</span> <span class="s">&quot;\n&quot;</span> <span class="o">+</span> 
+            <span class="s">&quot;Age: &quot;</span> <span class="o">+</span> <span class="n">age</span> <span class="o">+</span> <span class="s">&quot;\n&quot;</span> <span class="o">+</span>
+            <span class="s">&quot;Gender: &quot;</span> <span class="o">+</span> <span class="n">gender</span> <span class="o">+</span> <span class="s">&quot;\n&quot;</span> <span class="o">+</span> 
+            <span class="s">&quot;eMail: &quot;</span> <span class="o">+</span> <span class="n">eMail</span> <span class="o">+</span> <span class="s">&quot;\n&quot;</span> <span class="o">+</span> 
+            <span class="s">&quot;Phone: &quot;</span> <span class="o">+</span> <span class="n">phone</span> <span class="o">+</span> <span class="s">&quot;\n&quot;</span> <span class="o">+</span>
+            <span class="s">&quot;Address: &quot;</span> <span class="o">+</span> <span class="n">address</span> <span class="o">+</span> <span class="s">&quot;\n&quot;</span>
+                                <span class="o">);</span>
+    <span class="o">}</span> 
+
+    <span class="kd">public</span> <span class="kt">void</span> <span class="nf">printName</span><span class="o">(){</span>    
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span>
+            <span class="s">&quot;Name: &quot;</span> <span class="o">+</span> <span class="n">givenName</span> <span class="o">+</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> <span class="n">surName</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="nd">@Override</span>
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">toString</span><span class="o">(){</span>
+        <span class="k">return</span> <span class="s">&quot;Name: &quot;</span> <span class="o">+</span> <span class="n">givenName</span> <span class="o">+</span> <span class="s">&quot; &quot;</span> <span class="o">+</span> <span class="n">surName</span> <span class="o">+</span> <span class="s">&quot;\n&quot;</span> <span class="o">+</span> <span class="s">&quot;Age: &quot;</span> <span class="o">+</span> <span class="n">age</span> <span class="o">+</span> <span class="s">&quot;  Gender: &quot;</span> <span class="o">+</span> <span class="n">gender</span> <span class="o">+</span> <span class="s">&quot;\n&quot;</span> <span class="o">+</span> <span class="s">&quot;eMail: &quot;</span> <span class="o">+</span> <span class="n">eMail</span> <span class="o">+</span> <span class="s">&quot;\n&quot;</span> <span class="o">+</span> <span class="s">&quot;Address: &quot;</span> <span class="o">+</span> <span class="n">address</span> <span class="o">+</span> <span class="s">&quot;\n&quot;</span><span class="o">;</span>
+    <span class="o">}</span> 
+
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="nf">createShortList</span><span class="o">(){</span>
+        <span class="n">List</span><span class="o">&lt;</span><span class="n">Person</span><span class="o">&gt;</span> <span class="n">people</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;();</span>
+
+        <span class="n">people</span><span class="o">.</span><span class="na">add</span><span class="o">(</span>
+            <span class="k">new</span> <span class="n">Person</span><span class="o">.</span><span class="na">Builder</span><span class="o">()</span>
+                        <span class="o">.</span><span class="na">givenName</span><span class="o">(</span><span class="s">&quot;Bob&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">surName</span><span class="o">(</span><span class="s">&quot;Baker&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">age</span><span class="o">(</span><span class="mi">21</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">gender</span><span class="o">(</span><span class="n">Gender</span><span class="o">.</span><span class="na">MALE</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">email</span><span class="o">(</span><span class="s">&quot;bob.baker@example.com&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">phoneNumber</span><span class="o">(</span><span class="s">&quot;201-121-4678&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">address</span><span class="o">(</span><span class="s">&quot;44 4th St, Smallville, KS 12333&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">build</span><span class="o">()</span> 
+            <span class="o">);</span>
+
+        <span class="n">people</span><span class="o">.</span><span class="na">add</span><span class="o">(</span>
+            <span class="k">new</span> <span class="n">Person</span><span class="o">.</span><span class="na">Builder</span><span class="o">()</span>
+                        <span class="o">.</span><span class="na">givenName</span><span class="o">(</span><span class="s">&quot;Jane&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">surName</span><span class="o">(</span><span class="s">&quot;Doe&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">age</span><span class="o">(</span><span class="mi">25</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">gender</span><span class="o">(</span><span class="n">Gender</span><span class="o">.</span><span class="na">FEMALE</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">email</span><span class="o">(</span><span class="s">&quot;jane.doe@example.com&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">phoneNumber</span><span class="o">(</span><span class="s">&quot;202-123-4678&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">address</span><span class="o">(</span><span class="s">&quot;33 3rd St, Smallville, KS 12333&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">build</span><span class="o">()</span> 
+            <span class="o">);</span>
+
+        <span class="n">people</span><span class="o">.</span><span class="na">add</span><span class="o">(</span>
+            <span class="k">new</span> <span class="n">Person</span><span class="o">.</span><span class="na">Builder</span><span class="o">()</span>
+                        <span class="o">.</span><span class="na">givenName</span><span class="o">(</span><span class="s">&quot;John&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">surName</span><span class="o">(</span><span class="s">&quot;Doe&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">age</span><span class="o">(</span><span class="mi">25</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">gender</span><span class="o">(</span><span class="n">Gender</span><span class="o">.</span><span class="na">MALE</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">email</span><span class="o">(</span><span class="s">&quot;john.doe@example.com&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">phoneNumber</span><span class="o">(</span><span class="s">&quot;202-123-4678&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">address</span><span class="o">(</span><span class="s">&quot;33 3rd St, Smallville, KS 12333&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">build</span><span class="o">()</span>
+        <span class="o">);</span>
+
+        <span class="n">people</span><span class="o">.</span><span class="na">add</span><span class="o">(</span>
+            <span class="k">new</span> <span class="n">Person</span><span class="o">.</span><span class="na">Builder</span><span class="o">()</span>
+                        <span class="o">.</span><span class="na">givenName</span><span class="o">(</span><span class="s">&quot;James&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">surName</span><span class="o">(</span><span class="s">&quot;Johnson&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">age</span><span class="o">(</span><span class="mi">45</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">gender</span><span class="o">(</span><span class="n">Gender</span><span class="o">.</span><span class="na">MALE</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">email</span><span class="o">(</span><span class="s">&quot;james.johnson@example.com&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">phoneNumber</span><span class="o">(</span><span class="s">&quot;333-456-1233&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">address</span><span class="o">(</span><span class="s">&quot;201 2nd St, New York, NY 12111&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">build</span><span class="o">()</span>
+        <span class="o">);</span>
+
+        <span class="n">people</span><span class="o">.</span><span class="na">add</span><span class="o">(</span>
+            <span class="k">new</span> <span class="n">Person</span><span class="o">.</span><span class="na">Builder</span><span class="o">()</span>
+                        <span class="o">.</span><span class="na">givenName</span><span class="o">(</span><span class="s">&quot;Joe&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">surName</span><span class="o">(</span><span class="s">&quot;Bailey&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">age</span><span class="o">(</span><span class="mi">67</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">gender</span><span class="o">(</span><span class="n">Gender</span><span class="o">.</span><span class="na">MALE</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">email</span><span class="o">(</span><span class="s">&quot;joebob.bailey@example.com&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">phoneNumber</span><span class="o">(</span><span class="s">&quot;112-111-1111&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">address</span><span class="o">(</span><span class="s">&quot;111 1st St, Town, CA 11111&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">build</span><span class="o">()</span>
+        <span class="o">);</span>
+
+        <span class="n">people</span><span class="o">.</span><span class="na">add</span><span class="o">(</span>
+            <span class="k">new</span> <span class="n">Person</span><span class="o">.</span><span class="na">Builder</span><span class="o">()</span>
+                        <span class="o">.</span><span class="na">givenName</span><span class="o">(</span><span class="s">&quot;Phil&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">surName</span><span class="o">(</span><span class="s">&quot;Smith&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">age</span><span class="o">(</span><span class="mi">55</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">gender</span><span class="o">(</span><span class="n">Gender</span><span class="o">.</span><span class="na">MALE</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">email</span><span class="o">(</span><span class="s">&quot;phil.smith@examp;e.com&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">phoneNumber</span><span class="o">(</span><span class="s">&quot;222-33-1234&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">address</span><span class="o">(</span><span class="s">&quot;22 2nd St, New Park, CO 222333&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">build</span><span class="o">()</span>
+        <span class="o">);</span>
+
+        <span class="n">people</span><span class="o">.</span><span class="na">add</span><span class="o">(</span>
+            <span class="k">new</span> <span class="n">Person</span><span class="o">.</span><span class="na">Builder</span><span class="o">()</span>
+                        <span class="o">.</span><span class="na">givenName</span><span class="o">(</span><span class="s">&quot;Betty&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">surName</span><span class="o">(</span><span class="s">&quot;Jones&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">age</span><span class="o">(</span><span class="mi">85</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">gender</span><span class="o">(</span><span class="n">Gender</span><span class="o">.</span><span class="na">FEMALE</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">email</span><span class="o">(</span><span class="s">&quot;betty.jones@example.com&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">phoneNumber</span><span class="o">(</span><span class="s">&quot;211-33-1234&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">address</span><span class="o">(</span><span class="s">&quot;22 4th St, New Park, CO 222333&quot;</span><span class="o">)</span>
+                        <span class="o">.</span><span class="na">build</span><span class="o">()</span>
+        <span class="o">);</span>
+
+
+        <span class="k">return</span> <span class="n">people</span><span class="o">;</span>
+    <span class="o">}</span>
+
+
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">printCustom</span><span class="o">(</span><span class="n">Function</span> <span class="o">&lt;</span><span class="n">Person</span><span class="o">,</span> <span class="n">String</span><span class="o">&gt;</span> <span class="n">f</span><span class="o">){</span>
+        <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="na">apply</span><span class="o">(</span><span class="k">this</span><span class="o">);</span>
+    <span class="o">}</span>
+
+
+<span class="o">}</span>
+
+<span class="kd">enum</span> <span class="n">Gender</span> <span class="o">{</span> <span class="n">MALE</span><span class="o">,</span> <span class="n">FEMALE</span> <span class="o">}</span>
+</pre></div>
+            
+            
+            <hr/>
+        </div>
+        <section>
+        <div class="span2" style="float:right;font-size:0.9em;">
+            <h4>Published</h4>
+            <time pubdate="pubdate" datetime="2017-12-28T09:32:53+08:00">Dec 28, 2017</time>
+
+<h4>Last Updated</h4>
+<time datetime="2017-12-28T09:32:53+08:00">Dec 28, 2017</time>
+
+            <h4>Category</h4>
+            <a class="category-link" href="/categories.html#java-ref">java</a>
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article">
+                <li><a href="/tags.html#java-ref">java
+                    <span>5</span>
+</a></li>
+                <li><a href="/tags.html#jvm-ref">jvm
+                    <span>3</span>
+</a></li>
+            </ul>
+<h4>Contact</h4>
+    <a href="#" title="My You can add links in your config file Profile" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-you can add links in your config file sidebar-social-links"></i></a>
+    <a href="#" title="My Another social link Profile" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-another social link sidebar-social-links"></i></a>
+        </div>
+        </section>
+</div>
+</article>
+                </div>
+                <div class="span1"></div>
+            </div>
+        </div>
+        <div id="push"></div>
+    </div>
+<footer>
+<div id="footer">
+    <ul class="footer-content">
+        <li class="elegant-power">Powered by <a href="http://getpelican.com/" title="Pelican Home Page">Pelican</a>. Theme: <a href="http://oncrashreboot.com/pelican-elegant" title="Theme Elegant Home Page">Elegant</a> by <a href="http://oncrashreboot.com" title="Talha Mansoor Home Page">Talha Mansoor</a></li>
+    </ul>
+</div>
+</footer>            <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+    
+    </body>
+    <!-- Theme: Elegant built for Pelican
+    License : http://oncrashreboot.com/pelican-elegant -->
+</html>
