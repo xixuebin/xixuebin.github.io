@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8"> 
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="kevin.xi" />
+        <meta name="copyright" content="kevin.xi" />
+
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
+
+<meta name="keywords" content="java, jvm, java, " />
+
+<meta property="og:title" content="JAVA8 Future "/>
+<meta property="og:url" content="/java-8-future-date-2018-01-05-1204-ch.html" />
+<meta property="og:description" content="" />
+<meta property="og:site_name" content="寒玉 Blog" />
+<meta property="og:article:author" content="kevin.xi" />
+<meta property="og:article:published_time" content="2018-01-05T12:04:53+08:00" />
+<meta property="" content="2018-01-05T12:04:53+08:00" />
+<meta name="twitter:title" content="JAVA8 Future ">
+<meta name="twitter:description" content="">
+
+        <title>JAVA8 Future  · 寒玉 Blog
+</title>
+        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="/theme/css/pygments.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="/theme/tipuesearch/tipuesearch.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="/theme/css/elegant.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="/theme/css/custom.css" media="screen">
+        <script src="http://code.jquery.com/jquery.min.js"></script>
+    </head>
+    <body class="tex2jax_ignore">
+        <div id="content-sans-footer">
+        <div class="navbar navbar-static-top">
+            <div class="navbar-inner">
+                <div class="container-fluid">
+                    <div class="span1"></div>
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="/"><span class=site-name>寒玉 Blog</span></a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav pull-right top-menu">
+                            <li ><a href="">Home</a></li>
+                            <li ><a href="/pages/english-date-2017-12-05-1130-ch.html">每日英语</a></li>
+                            <li ><a href="/pages/about-date-2015-05-10-1010-ch.html">About</a></li>
+                            <li ><a href="/categories.html">Categories</a></li>
+                            <li ><a href="/tags.html">Tags</a></li>
+                            <li ><a href="/archives.html">Archives</a></li>
+                            <li><form class="navbar-search" action="/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span1"></div>
+                <div class="span10">
+<article>
+<div class="row-fluid">
+    <header class="page-header span10 offset2">
+    <h1><a href="/java-8-future-date-2018-01-05-1204-ch.html"> JAVA8 Future  </a></h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset2 article-content">
+
+            
+            <blockquote>
+<p>A Future represents the result of an asynchronous computation.  Methods are provided to check if the computation is complete, to wait for its completion, and to retrieve the result of the computation.  The result can only be retrieved using method get when the computation has completed, blocking if necessary until it is ready</p>
+</blockquote>
+<p>在并发编程的时候一般使用runable,然后把任务扔给线程池,这种情况不需要发返回线程执行的结果,所以run的返回值是void类型.</p>
+<p>如果是多线程协作程序,需要线程返回结果,就需要调用callable接口了.</p>
+<p>callable用法和runable用法一样,只不过调用的是call方法,该方法返回一个泛型的返回值类型,可以任意指定.</p>
+<p>线程属于异步计算模型,所以不能直接从别的线程中得到函数的返回值.Future可以监控目标线程的调用call的情况,当你调用Futrue的get方法以获的结果的时候,当前线程开始阻塞,直到call方法返回结果.</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">java.util.ArrayList</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.List</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.concurrent.*</span><span class="o">;</span>
+
+<span class="cm">/**</span>
+<span class="cm"> * Created by xixuebin on 05/01/2018.</span>
+<span class="cm"> */</span>
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">FutureTest</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">Task</span> <span class="kd">implements</span> <span class="n">Runnable</span><span class="o">{</span>
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;ah&quot;</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kd">class</span> <span class="nc">Task2</span> <span class="kd">implements</span> <span class="n">Callable</span><span class="o">{</span>
+
+        <span class="nd">@Override</span>
+        <span class="kd">public</span> <span class="n">String</span> <span class="nf">call</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;ah2&quot;</span><span class="o">);</span>
+            <span class="k">return</span> <span class="s">&quot;hello world&quot;</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">ExecutionException</span><span class="o">,</span> <span class="n">InterruptedException</span> <span class="o">{</span>
+        <span class="n">ExecutorService</span> <span class="n">es</span> <span class="o">=</span> <span class="n">Executors</span><span class="o">.</span><span class="na">newCachedThreadPool</span><span class="o">();</span>
+        <span class="n">List</span><span class="o">&lt;</span><span class="n">Future</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;&gt;</span> <span class="n">results</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">Future</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;&gt;();</span>
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="mi">100</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+            <span class="n">es</span><span class="o">.</span><span class="na">submit</span><span class="o">(</span><span class="k">new</span> <span class="n">Task</span><span class="o">());</span>
+            <span class="n">results</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">es</span><span class="o">.</span><span class="na">submit</span><span class="o">(</span><span class="k">new</span> <span class="n">Task2</span><span class="o">()));</span>
+        <span class="o">}</span>
+
+        <span class="k">for</span> <span class="o">(</span><span class="n">Future</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">future</span> <span class="o">:</span> <span class="n">results</span><span class="o">){</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;---&quot;</span><span class="o">+</span> <span class="n">future</span><span class="o">.</span><span class="na">get</span><span class="o">());</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<h3>Future模式的JDK内置实现</h3>
+<p>由于Future是非常常用的多线程设计模式，因此在JDK中内置了Future模式的实现。这些类在java.util.concurrent包里面。其中最为重要的是FutureTask类，它实现了Runnable接口，作为单独的线程运行。在其run()方法中，通过Sync内部类调用Callable接口，并维护Callable接口的返回对象。当使用FutureTask.get()方法时，将返回Callable接口的返回对象。同样，针对上述的实例，如果使用JDK自带的实现，则需要作如下调整。</p>
+<p>首先，Data接口和FutureData就不需要了，JDK帮我们实现了。</p>
+<p>其次，RealData改为这样：</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">java.util.concurrent.Callable</span><span class="o">;</span>  
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">RealData</span> <span class="kd">implements</span> <span class="n">Callable</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="o">{</span>  
+    <span class="kd">protected</span> <span class="n">String</span> <span class="n">data</span><span class="o">;</span>  
+
+    <span class="kd">public</span> <span class="nf">RealData</span><span class="o">(</span><span class="n">String</span> <span class="n">data</span><span class="o">)</span> <span class="o">{</span>  
+        <span class="k">this</span><span class="o">.</span><span class="na">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">;</span>  
+    <span class="o">}</span>  
+
+    <span class="nd">@Override</span>  
+    <span class="kd">public</span> <span class="n">String</span> <span class="nf">call</span><span class="o">()</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>  
+        <span class="c1">//利用sleep方法来表示真是业务是非常缓慢的  </span>
+        <span class="k">try</span> <span class="o">{</span>  
+            <span class="n">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="mi">1000</span><span class="o">);</span>  
+        <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">InterruptedException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>  
+            <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>  
+        <span class="o">}</span>  
+        <span class="k">return</span> <span class="n">data</span><span class="o">;</span>  
+    <span class="o">}</span>  
+<span class="o">}</span>  
+</pre></div>
+
+
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">java.util.concurrent.ExecutorService</span><span class="o">;</span>  
+<span class="kn">import</span> <span class="nn">java.util.concurrent.Executors</span><span class="o">;</span>  
+<span class="kn">import</span> <span class="nn">java.util.concurrent.FutureTask</span><span class="o">;</span>  
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Application</span> <span class="o">{</span>  
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>  
+        <span class="n">FutureTask</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">futureTask</span> <span class="o">=</span>   
+                <span class="k">new</span> <span class="n">FutureTask</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;(</span><span class="k">new</span> <span class="n">RealData</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">));</span>  
+        <span class="n">ExecutorService</span> <span class="n">executor</span> <span class="o">=</span>   
+                <span class="n">Executors</span><span class="o">.</span><span class="na">newFixedThreadPool</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span> <span class="c1">//使用线程池  </span>
+        <span class="c1">//执行FutureTask，相当于上例中的client.request(&quot;name&quot;)发送请求  </span>
+        <span class="n">executor</span><span class="o">.</span><span class="na">submit</span><span class="o">(</span><span class="n">futureTask</span><span class="o">);</span>  
+        <span class="c1">//这里可以用一个sleep代替对其他业务逻辑的处理  </span>
+        <span class="c1">//在处理这些业务逻辑过程中，RealData也正在创建，从而充分了利用等待时间  </span>
+        <span class="n">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="mi">2000</span><span class="o">);</span>  
+        <span class="c1">//使用真实数据  </span>
+        <span class="c1">//如果call()没有执行完成依然会等待  </span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;数据=&quot;</span> <span class="o">+</span> <span class="n">futureTask</span><span class="o">.</span><span class="na">get</span><span class="o">());</span>  
+    <span class="o">}</span>  
+<span class="o">}</span>  
+</pre></div>
+
+
+<h3>Future设置线程执行时间</h3>
+<p>在Java中，如果需要设定代码执行的最长时间，即超时，可以用Java线程池ExecutorService类配合Future接口来实现。 </p>
+<p>Future接口提供方法来检测任务是否被执行完，等待任务执行完获得结果，也可以设置任务执行的超时时间。这个设置超时的方法就是实现Java程序执行超时的关键。</p>
+<div class="highlight"><pre><span></span><span class="n">ExecutorService</span> <span class="n">executor</span> <span class="o">=</span> <span class="n">Executors</span><span class="o">.</span><span class="na">newSingleThreadExecutor</span><span class="o">();</span>   
+<span class="n">FutureTask</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">future</span> <span class="o">=</span>   
+       <span class="k">new</span> <span class="n">FutureTask</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;(</span><span class="k">new</span> <span class="n">Callable</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;()</span> <span class="o">{</span><span class="c1">//使用Callable接口作为构造参数   </span>
+         <span class="kd">public</span> <span class="n">String</span> <span class="nf">call</span><span class="o">()</span> <span class="o">{</span>   
+           <span class="c1">//真正的任务在这里执行，这里的返回值类型为String，可以为任意类型   </span>
+       <span class="o">}});</span>   
+<span class="n">executor</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">future</span><span class="o">);</span>   
+<span class="c1">//在这里可以做别的任何事情   </span>
+<span class="k">try</span> <span class="o">{</span>   
+    <span class="n">result</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="mi">5000</span><span class="o">,</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="na">MILLISECONDS</span><span class="o">);</span> <span class="c1">//取得结果，同时设置超时执行时间为5秒。同样可以用future.get()，不设置执行超时时间取得结果   </span>
+<span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">InterruptedException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>   
+    <span class="n">futureTask</span><span class="o">.</span><span class="na">cancel</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>   
+<span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">ExecutionException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>   
+    <span class="n">futureTask</span><span class="o">.</span><span class="na">cancel</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>   
+<span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">TimeoutException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>   
+    <span class="n">futureTask</span><span class="o">.</span><span class="na">cancel</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>   
+<span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>   
+    <span class="n">executor</span><span class="o">.</span><span class="na">shutdown</span><span class="o">();</span>   
+<span class="o">}</span>  
+</pre></div>
+
+
+<h2>参考</h2>
+<ul>
+<li><a href="http://www.oschina.net/question/54100_83333">http://www.oschina.net/question/54100_83333</a></li>
+<li><a href="http://blog.csdn.net/ghuil/article/details/41048017">http://blog.csdn.net/ghuil/article/details/41048017</a></li>
+</ul>
+            
+            
+            <hr/>
+        </div>
+        <section>
+        <div class="span2" style="float:right;font-size:0.9em;">
+            <h4>Published</h4>
+            <time pubdate="pubdate" datetime="2018-01-05T12:04:53+08:00"> 1 5, 2018</time>
+
+<h4>Last Updated</h4>
+<time datetime="2018-01-05T12:04:53+08:00"> 1 5, 2018</time>
+
+            <h4>Category</h4>
+            <a class="category-link" href="/categories.html#java-ref">java</a>
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article">
+                <li><a href="/tags.html#java-ref">java
+                    <span>7</span>
+</a></li>
+                <li><a href="/tags.html#jvm-ref">jvm
+                    <span>5</span>
+</a></li>
+            </ul>
+<h4>Contact</h4>
+    <a href="#" title="My You can add links in your config file Profile" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-you can add links in your config file sidebar-social-links"></i></a>
+    <a href="#" title="My Another social link Profile" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-another social link sidebar-social-links"></i></a>
+        </div>
+        </section>
+</div>
+</article>
+                </div>
+                <div class="span1"></div>
+            </div>
+        </div>
+        <div id="push"></div>
+    </div>
+<footer>
+<div id="footer">
+    <ul class="footer-content">
+        <li class="elegant-power">Powered by <a href="http://getpelican.com/" title="Pelican Home Page">Pelican</a>. Theme: <a href="http://oncrashreboot.com/pelican-elegant" title="Theme Elegant Home Page">Elegant</a> by <a href="http://oncrashreboot.com" title="Talha Mansoor Home Page">Talha Mansoor</a></li>
+    </ul>
+</div>
+</footer>            <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+    
+    </body>
+    <!-- Theme: Elegant built for Pelican
+    License : http://oncrashreboot.com/pelican-elegant -->
+</html>

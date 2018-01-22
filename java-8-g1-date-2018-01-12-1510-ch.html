@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8"> 
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="kevin.xi" />
+        <meta name="copyright" content="kevin.xi" />
+
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
+
+<meta name="keywords" content="java, jvm, G1, java, " />
+
+<meta property="og:title" content="JAVA8 G1 "/>
+<meta property="og:url" content="/java-8-g1-date-2018-01-12-1510-ch.html" />
+<meta property="og:description" content="" />
+<meta property="og:site_name" content="寒玉 Blog" />
+<meta property="og:article:author" content="kevin.xi" />
+<meta property="og:article:published_time" content="2018-01-12T15:10:53+08:00" />
+<meta property="" content="2018-01-12T15:10:53+08:00" />
+<meta name="twitter:title" content="JAVA8 G1 ">
+<meta name="twitter:description" content="">
+
+        <title>JAVA8 G1  · 寒玉 Blog
+</title>
+        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="/theme/css/pygments.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="/theme/tipuesearch/tipuesearch.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="/theme/css/elegant.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="/theme/css/custom.css" media="screen">
+        <script src="http://code.jquery.com/jquery.min.js"></script>
+    </head>
+    <body class="tex2jax_ignore">
+        <div id="content-sans-footer">
+        <div class="navbar navbar-static-top">
+            <div class="navbar-inner">
+                <div class="container-fluid">
+                    <div class="span1"></div>
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="/"><span class=site-name>寒玉 Blog</span></a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav pull-right top-menu">
+                            <li ><a href="">Home</a></li>
+                            <li ><a href="/pages/english-date-2017-12-05-1130-ch.html">每日英语</a></li>
+                            <li ><a href="/pages/about-date-2015-05-10-1010-ch.html">About</a></li>
+                            <li ><a href="/categories.html">Categories</a></li>
+                            <li ><a href="/tags.html">Tags</a></li>
+                            <li ><a href="/archives.html">Archives</a></li>
+                            <li><form class="navbar-search" action="/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span1"></div>
+                <div class="span10">
+<article>
+<div class="row-fluid">
+    <header class="page-header span10 offset2">
+    <h1><a href="/java-8-g1-date-2018-01-12-1510-ch.html"> JAVA8 G1  </a></h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset2 article-content">
+
+            
+            <blockquote>
+<p>The Garbage-First (G1) collector is a server-style garbage collector, targeted for multi-processor machines with large memories. It meets garbage collection (GC) pause time goals with a high probability, while achieving high throughput. The G1 garbage collector is fully supported in Oracle JDK 7 update 4 and later releases. The G1 collector is designed for applications that:
+- Can operate concurrently with applications threads like the CMS collector.
+- Compact free space without lengthy GC induced pause times.
+- Need more predictable GC pause durations.
+- Do not want to sacrifice a lot of throughput performance.
+- Do not require a much larger Java heap.
+G1 is planned as the long term replacement for the Concurrent Mark-Sweep Collector (CMS). Comparing G1 with CMS, there are differences that make G1 a better solution. One difference is that G1 is a compacting collector. G1 compacts sufficiently to completely avoid the use of fine-grained free lists for allocation, and instead relies on regions. This considerably simplifies parts of the collector, and mostly eliminates potential fragmentation issues. Also, G1 offers more predictable garbage collection pauses than the CMS collector, and allows users to specify desired pause targets.</p>
+</blockquote>
+<h2>Recommended Use Cases for G1</h2>
+<p>The first focus of G1 is to provide a solution for users running applications that require large heaps with limited GC latency. This means heap sizes of around 6GB or larger, and stable and predictable pause time below 0.5 seconds.</p>
+<p>Applications running today with either the CMS or the ParallelOldGC garbage collector would benefit switching to G1 if the application has one or more of the following traits.</p>
+<ul>
+<li>Full GC durations are too long or too frequent.</li>
+<li>The rate of object allocation rate or promotion varies significantly.</li>
+<li>Undesired long garbage collection or compaction pauses (longer than 0.5 to 1 second)</li>
+</ul>
+<p><em>Note</em>: If you are using CMS or ParallelOldGC and your application is not experiencing long garbage collection pauses, it is fine to stay with your current collector. Changing to the G1 collector is not a requirement for using the latest JDK.</p>
+<h2>G1</h2>
+<ul>
+<li>G1在压缩空间方面有优势</li>
+<li>G1通过将内存分成区域(Region)的方式防止内存碎片化问题</li>
+<li>Eden,Surivior,Old区域不再固定,在内存使用效率上来说更灵活</li>
+<li>G1可以设置预期停顿时间(Pause Time)来控制垃圾收集,避免应用雪崩</li>
+<li>G1在回收内存后会马上同事做合合并空闲内存的工作,而CMS默认是在STW(Stop the world)的时候来做</li>
+<li>G1会在Young GC中使用,而CMS只能在O区使用</li>
+</ul>
+<p>就目前而言,CMS还是默认首选的GC策略,可能在以下场景G1更合适</p>
+<ul>
+<li>服务端多核CPU,JVM内存占用较大的应用(至少4G)</li>
+<li>应用在内存中会产生大量内存碎片,需要经常压缩空间</li>
+<li>想要更可控,更预期的GC停顿时间;防止高并发下应用雪崩现象</li>
+</ul>
+<div class="highlight"><pre><span></span>-XX:+UseG1GC
+-XX:MaxGCPauseMillis<span class="o">=</span><span class="m">100</span>
+-XX:+ParallelRefProcEnabled
+-XX:-ResizePLAB
+-XX:ParallelGCThreads<span class="o">=</span><span class="m">28</span>
+</pre></div>
+
+
+<div class="highlight"><pre><span></span>-XX:+UseG1GC
+-XX:MaxGCPauseMillis<span class="o">=</span><span class="m">500</span>
+-XX:+ParallelRefProcEnabled
+-XX:-ResizePLAB
+-XX:ParallelGCThreads<span class="o">=</span><span class="m">8</span>
+-Xloggc:/pdata/log/hbase/gc/gc-%t.log
+-XX:+PrintGCDetails
+-XX:+PrintGCTimeStamps
+-XX:+PrintGCCause
+-XX:+PrintTenuringDistribution
+-XX:+UseGCLogFileRotation
+-XX:NumberOfGCLogFiles<span class="o">=</span><span class="m">10</span>
+-XX:GCLogFileSize<span class="o">=</span>5M
+</pre></div>
+
+
+<h2>参考</h2>
+<ul>
+<li><a href="http://www.oracle.com/webfolder/technetwork/tutorials/obe/java/G1GettingStarted/index.html">G1GettingStarted</a></li>
+<li><a href="https://software.intel.com/en-us/blogs/2014/06/18/part-1-tuning-java-garbage-collection-for-hbase">java-garbage-collection-for-hbase</a></li>
+<li><a href="https://confluence.atlassian.com/confkb/how-to-enable-garbage-collection-gc-logging-300813751.html">how-to-enable-garbage-collection-gc-logging</a></li>
+<li><a href="https://www.cloudera.com/documentation/enterprise/5-8-x/topics/admin_hbase_garbage_collection.html">admin_hbase_garbage_collection</a></li>
+</ul>
+            
+            
+            <hr/>
+        </div>
+        <section>
+        <div class="span2" style="float:right;font-size:0.9em;">
+            <h4>Published</h4>
+            <time pubdate="pubdate" datetime="2018-01-12T15:10:53+08:00"> 1 12, 2018</time>
+
+<h4>Last Updated</h4>
+<time datetime="2018-01-12T15:10:53+08:00"> 1 12, 2018</time>
+
+            <h4>Category</h4>
+            <a class="category-link" href="/categories.html#java-ref">java</a>
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article">
+                <li><a href="/tags.html#g1-ref">G1
+                    <span>1</span>
+</a></li>
+                <li><a href="/tags.html#java-ref">java
+                    <span>7</span>
+</a></li>
+                <li><a href="/tags.html#jvm-ref">jvm
+                    <span>5</span>
+</a></li>
+            </ul>
+<h4>Contact</h4>
+    <a href="#" title="My You can add links in your config file Profile" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-you can add links in your config file sidebar-social-links"></i></a>
+    <a href="#" title="My Another social link Profile" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-another social link sidebar-social-links"></i></a>
+        </div>
+        </section>
+</div>
+</article>
+                </div>
+                <div class="span1"></div>
+            </div>
+        </div>
+        <div id="push"></div>
+    </div>
+<footer>
+<div id="footer">
+    <ul class="footer-content">
+        <li class="elegant-power">Powered by <a href="http://getpelican.com/" title="Pelican Home Page">Pelican</a>. Theme: <a href="http://oncrashreboot.com/pelican-elegant" title="Theme Elegant Home Page">Elegant</a> by <a href="http://oncrashreboot.com" title="Talha Mansoor Home Page">Talha Mansoor</a></li>
+    </ul>
+</div>
+</footer>            <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+    
+    </body>
+    <!-- Theme: Elegant built for Pelican
+    License : http://oncrashreboot.com/pelican-elegant -->
+</html>
