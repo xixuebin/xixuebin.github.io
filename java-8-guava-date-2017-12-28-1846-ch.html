@@ -47,7 +47,7 @@
                     <div class="nav-collapse collapse">
                         <ul class="nav pull-right top-menu">
                             <li ><a href="">Home</a></li>
-                            <li ><a href="/pages/english-date-2017-12-05-1130-ch.html">每日英语</a></li>
+                            <li ><a href="/pages/books-date-2017-12-05-1130-ch.html">Books</a></li>
                             <li ><a href="/pages/about-date-2015-05-10-1010-ch.html">About</a></li>
                             <li ><a href="/categories.html">Categories</a></li>
                             <li ><a href="/tags.html">Tags</a></li>
@@ -367,6 +367,36 @@
 </pre></div>
 
 
+<h3>Guava StopWatch</h3>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">com.google.common.base.Stopwatch</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.concurrent.TimeUnit</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">GuavaStopWatch</span> <span class="o">{</span>
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">printTitle</span><span class="o">(</span><span class="s">&quot;StopWatch Start &quot;</span><span class="o">);</span>
+        <span class="kt">int</span> <span class="n">countingDown</span><span class="o">=</span><span class="mi">10</span><span class="o">;</span>
+        <span class="n">Stopwatch</span> <span class="n">stopwatch</span><span class="o">=</span><span class="n">Stopwatch</span><span class="o">.</span><span class="na">createUnstarted</span><span class="o">();</span>
+        <span class="n">stopwatch</span><span class="o">.</span><span class="na">elapsed</span><span class="o">(</span><span class="n">TimeUnit</span><span class="o">.</span><span class="na">SECONDS</span><span class="o">);</span>
+        <span class="n">stopwatch</span><span class="o">.</span><span class="na">start</span><span class="o">();</span>
+        <span class="k">while</span><span class="o">(</span><span class="n">countingDown</span><span class="o">&gt;</span><span class="mi">0</span><span class="o">){</span>
+            <span class="k">try</span> <span class="o">{</span>
+                <span class="n">Thread</span><span class="o">.</span><span class="na">sleep</span><span class="o">(</span><span class="mi">1000</span><span class="o">);</span>
+            <span class="o">}</span><span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">){</span>
+                <span class="n">println</span><span class="o">(</span><span class="n">e</span><span class="o">.</span><span class="na">getMessage</span><span class="o">());</span>
+            <span class="o">}</span>
+            <span class="n">println</span><span class="o">(</span><span class="s">&quot;StopWatch Is Running ? --&gt; &quot;</span><span class="o">+</span><span class="n">stopwatch</span><span class="o">.</span><span class="na">isRunning</span><span class="o">());</span>
+            <span class="n">println</span><span class="o">(</span><span class="s">&quot;StopWatch Time is &quot;</span><span class="o">+</span><span class="n">stopwatch</span><span class="o">);</span>
+            <span class="n">countingDown</span><span class="o">--;</span>
+        <span class="o">}</span>
+        <span class="n">printTitle</span><span class="o">(</span><span class="s">&quot;End Of Looping&quot;</span><span class="o">);</span>
+        <span class="n">println</span><span class="o">(</span><span class="s">&quot;Check Total Time is Needed: &quot;</span><span class="o">+</span><span class="n">stopwatch</span><span class="o">);</span>
+        <span class="n">stopwatch</span><span class="o">.</span><span class="na">stop</span><span class="o">();</span>
+
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
 <h2>参考</h2>
 <p><a href="http://ifeve.com/google-guava-collectionutilities/">http://ifeve.com/google-guava-collectionutilities/</a></p>
             
@@ -389,10 +419,10 @@
                     <span>1</span>
 </a></li>
                 <li><a href="/tags.html#java-ref">java
-                    <span>7</span>
+                    <span>8</span>
 </a></li>
                 <li><a href="/tags.html#jvm-ref">jvm
-                    <span>5</span>
+                    <span>6</span>
 </a></li>
             </ul>
 <h4>Contact</h4>

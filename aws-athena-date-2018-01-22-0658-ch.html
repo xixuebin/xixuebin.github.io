@@ -10,18 +10,19 @@
         <meta property="og:type" content="article" />
         <meta name="twitter:card" content="summary">
 
-<meta name="keywords" content="java, jmx, JAVA, " />
+<meta name="keywords" content="aws, athena, s3, aws, " />
 
-<meta property="og:title" content="JAVA JMX "/>
-<meta property="og:url" content="/java-jmx-ch.html" />
+<meta property="og:title" content="AWS Athena Query S3 Json Data "/>
+<meta property="og:url" content="/aws-athena-date-2018-01-22-0658-ch.html" />
 <meta property="og:description" content="" />
 <meta property="og:site_name" content="寒玉 Blog" />
 <meta property="og:article:author" content="kevin.xi" />
-<meta property="og:article:published_time" content="2017-06-27T10:27:02+08:00" />
-<meta name="twitter:title" content="JAVA JMX ">
+<meta property="og:article:published_time" content="2018-01-22T22:06:58+08:00" />
+<meta property="" content="2018-01-22T22:06:58+08:00" />
+<meta name="twitter:title" content="AWS Athena Query S3 Json Data ">
 <meta name="twitter:description" content="">
 
-        <title>JAVA JMX  · 寒玉 Blog
+        <title>AWS Athena Query S3 Json Data  · 寒玉 Blog
 </title>
         <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
         <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
@@ -64,7 +65,7 @@
 <article>
 <div class="row-fluid">
     <header class="page-header span10 offset2">
-    <h1><a href="/java-jmx-ch.html"> JAVA JMX  </a></h1>
+    <h1><a href="/aws-athena-date-2018-01-22-0658-ch.html"> AWS Athena Query S3 Json Data  </a></h1>
     </header>
 </div>
 
@@ -72,60 +73,74 @@
         <div class="span8 offset2 article-content">
 
             
-            <h2>JMX的定义</h2>
-<blockquote>
-<p>JMX(JAVA Management Extensions)是一个为应用程序植入管理功能的框架.JMX是一套标准的代理服务,实际上,用户可以在任何java应用程序中使用这些代理和服务实现管理.</p>
-</blockquote>
-<h3>jmx 架构图</h3>
-<p><img alt="jmx architecture" src="/images/jmx01.png" title="jmx 架构图"></p>
-<p>jmx的结构一共分为三层:</p>
+            <p>使用athena查询aws的s3上的数据.需要遵循以下流程:
+- 使用AWS S3创建一个存储桶
+- 放置需要查询的文件到S3存储桶中
+- 根据存储通里的数据结构,创建athena存储表</p>
+<p>我们目前需要接一些报表数据到Superset中去展示,通过讨论决定采用以下流程:</p>
+<div class="highlight"><pre><span></span>mongodb -&gt; S3 -&gt; athena -&gt; superset
+</pre></div>
+
+
 <ul>
-<li>基础层</li>
+<li>每日处理MongoDB中的业务数据成JSON文件</li>
+<li>Put Json文件到 S3中</li>
+<li>使用athena查询S3中的json文件</li>
+<li>使用athena所谓superset的数据源,进行报表展示</li>
 </ul>
-<blockquote>
-<p>主要是mbean,被管理的资源,mbean分为四种</p>
-</blockquote>
-<table>
-<thead>
-<tr>
-<th align="left">类型</th>
-<th align="left">描述</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="left">standard Mbean</td>
-<td align="left">这种类型的bean最简单,它管理的资源(包括属性,方法,时间)必须定义在接口中,然后mbean必须实现这个接口,命名必须遵循一定的规范,如mbean为hello,接口必须为HelloMbean</td>
-</tr>
-<tr>
-<td align="left">dynamic Mbean</td>
-<td align="left">必须实现javax.management.DynamiceMBean接口所有的属性,方法都在运行时候定义</td>
-</tr>
-<tr>
-<td align="left">open MBean</td>
-<td align="left">此MBean的规范还在完善,正在改进中</td>
-</tr>
-<tr>
-<td align="left">model MBean</td>
-<td align="left">与标准和动态MBean相比，你可以不用写MBean类，只需使用javax.management.modelmbean.RequiredModelMBean即可。RequiredModelMBean实现了ModelMBean接口，而ModelMBean扩展了DynamicMBean接口，因此与DynamicMBean相似，Model MBean的管理资源也是在运行时定义的。与DynamicMBean不同的是，DynamicMBean管理的资源一般定义在DynamicMBean中（运行时才决定管理那些资源），而model MBean管理的资源并不在MBean中，而是在外部（通常是一个类），只有在运行时，才通过set方法将其加入到model MBean中。后面的例子会有详细介绍</td>
-</tr>
-</tbody>
-</table>
+<p>数据输入格式为:</p>
+<div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Albert&quot;</span><span class="p">,</span>
+  <span class="nt">&quot;numPets&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+  <span class="nt">&quot;birthDate&quot;</span><span class="p">:</span> <span class="s2">&quot;1970-01-01 07:20:00&quot;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>因为 AWS athena 查询的数据需要一条记录是一行,所以需要在文件冲,把json处理成 一条记录一行的方式</p>
+<div class="highlight"><pre><span></span><span class="p">{</span> <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Albert&quot;</span><span class="p">,</span> <span class="nt">&quot;numPets&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="nt">&quot;birthDate&quot;</span><span class="p">:</span>  <span class="s2">&quot;1970-01-01 07:20:00&quot;</span> <span class="p">}</span><span class="err">,</span>
+<span class="p">{</span> <span class="nt">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Albert&quot;</span><span class="p">,</span> <span class="nt">&quot;numPets&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="nt">&quot;birthDate&quot;</span><span class="p">:</span>  <span class="s2">&quot;1970-01-02 07:20:00&quot;</span> <span class="p">}</span>
+</pre></div>
+
+
+<p>把json文件没有层级结构的方式放置到我们的S3 Bucket中:</p>
+<p><img alt="截图" height="200px" src="https://s1.ax1x.com/2018/01/23/p52kKU.png" width="400px"></p>
+<p>创建DataBase 和 Table</p>
+<p><img alt="截图" height="400px" src="https://s1.ax1x.com/2018/01/23/p524MT.png" width="600px"></p>
 <ul>
-<li>适配层</li>
+<li><strong><em>创建的table的时候选择数据格式为json</em></strong></li>
+<li><strong><em>添加三列</em></strong></li>
+<li><strong><em>列名要与json文件中的属性名相同</em></strong></li>
+<li>
+<p>***创建表的时候选择<code>CREATE EXTERNAL TABLE</code></p>
+</li>
+<li>
+<p>Column 1:
+    Name: name
+    Type: string</p>
+</li>
+<li>Column 2:
+    Name: numPets
+    Type: int</li>
+<li>Column 3:
+    Name: birthDate
+    Type: timestamp</li>
 </ul>
-<blockquote>
-<p>MBeanServer,主要提供对资源的注册和管理</p>
-</blockquote>
+<p><a href="https://imgchr.com/i/p5RVQf"><img alt="p5RVQf.md.png" src="https://s1.ax1x.com/2018/01/23/p5RVQf.md.png"></a></p>
+<h3>Querying the Data</h3>
+<p>现在表已经创建了,可以通过标准的SQL进行查询</p>
+<div class="highlight"><pre><span></span><span class="k">SELECT</span> <span class="o">*</span> <span class="k">FROM</span> <span class="n">table1</span>
+</pre></div>
+
+
+<p><a href="https://imgchr.com/i/p5Rjts"><img alt="p5Rjts.md.png" src="https://s1.ax1x.com/2018/01/23/p5Rjts.md.png"></a></p>
+<h2>可能问题</h2>
+<p>1.创建好之后,不能查询到数据:</p>
+<p>请检查表结构和json文件中的属性是否相同</p>
+<p>请检查字段的类型和实际类型是否匹配</p>
+<h2>参考</h2>
 <ul>
-<li>接入层</li>
-</ul>
-<blockquote>
-<p>提供远程访问的入口</p>
-</blockquote>
-<h2>资料</h2>
-<ul>
-<li><a href="http://www.cnblogs.com/dongguacai/p/5900507.html">http://www.cnblogs.com/dongguacai/p/5900507.html</a></li>
+<li><a href="https://blog.skeddly.com/2016/12/getting-started-with-amazon-athena-json-edition.html">https://blog.skeddly.com/2016/12/getting-started-with-amazon-athena-json-edition.html</a></li>
 </ul>
             
             
@@ -134,15 +149,22 @@
         <section>
         <div class="span2" style="float:right;font-size:0.9em;">
             <h4>Published</h4>
-            <time pubdate="pubdate" datetime="2017-06-27T10:27:02+08:00"> 6 27, 2017</time>
+            <time pubdate="pubdate" datetime="2018-01-22T22:06:58+08:00"> 1 22, 2018</time>
+
+<h4>Last Updated</h4>
+<time datetime="2018-01-22T22:06:58+08:00"> 1 22, 2018</time>
+
             <h4>Category</h4>
-            <a class="category-link" href="/categories.html#java-ref">JAVA</a>
+            <a class="category-link" href="/categories.html#aws-ref">aws</a>
             <h4>Tags</h4>
             <ul class="list-of-tags tags-in-article">
-                <li><a href="/tags.html#java-ref">java
-                    <span>8</span>
+                <li><a href="/tags.html#athena-ref">athena
+                    <span>1</span>
 </a></li>
-                <li><a href="/tags.html#jmx-ref">jmx
+                <li><a href="/tags.html#aws-ref">aws
+                    <span>1</span>
+</a></li>
+                <li><a href="/tags.html#s3-ref">s3
                     <span>1</span>
 </a></li>
             </ul>

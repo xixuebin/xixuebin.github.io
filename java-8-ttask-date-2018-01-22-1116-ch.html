@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8"> 
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="kevin.xi" />
+        <meta name="copyright" content="kevin.xi" />
+
+        <meta property="og:type" content="article" />
+        <meta name="twitter:card" content="summary">
+
+<meta name="keywords" content="java, jvm, timer, java, " />
+
+<meta property="og:title" content="JAVA8 Timer &amp; TimerTask "/>
+<meta property="og:url" content="/java-8-ttask-date-2018-01-22-1116-ch.html" />
+<meta property="og:description" content="" />
+<meta property="og:site_name" content="寒玉 Blog" />
+<meta property="og:article:author" content="kevin.xi" />
+<meta property="og:article:published_time" content="2018-01-22T11:16:53+08:00" />
+<meta name="twitter:title" content="JAVA8 Timer &amp; TimerTask ">
+<meta name="twitter:description" content="">
+
+        <title>JAVA8 Timer &amp; TimerTask  · 寒玉 Blog
+</title>
+        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
+        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="/theme/css/pygments.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="/theme/tipuesearch/tipuesearch.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="/theme/css/elegant.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="/theme/css/custom.css" media="screen">
+        <script src="http://code.jquery.com/jquery.min.js"></script>
+    </head>
+    <body class="tex2jax_ignore">
+        <div id="content-sans-footer">
+        <div class="navbar navbar-static-top">
+            <div class="navbar-inner">
+                <div class="container-fluid">
+                    <div class="span1"></div>
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="/"><span class=site-name>寒玉 Blog</span></a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav pull-right top-menu">
+                            <li ><a href="">Home</a></li>
+                            <li ><a href="/pages/books-date-2017-12-05-1130-ch.html">Books</a></li>
+                            <li ><a href="/pages/about-date-2015-05-10-1010-ch.html">About</a></li>
+                            <li ><a href="/categories.html">Categories</a></li>
+                            <li ><a href="/tags.html">Tags</a></li>
+                            <li ><a href="/archives.html">Archives</a></li>
+                            <li><form class="navbar-search" action="/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span1"></div>
+                <div class="span10">
+<article>
+<div class="row-fluid">
+    <header class="page-header span10 offset2">
+    <h1><a href="/java-8-ttask-date-2018-01-22-1116-ch.html"> JAVA8 Timer & TimerTask  </a></h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset2 article-content">
+
+            
+            <h2>概览</h2>
+<p><em>Timer</em>是一种定时工具,用来在后台线程计划执行指定的任务.它可以计划执行一个任务或者反复执行多次.
+<em>TimerTask</em>是一个抽象类,它的子类代表可以被Timer计划的任务</p>
+<h2>Example</h2>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">java.util.Timer</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.TimerTask</span><span class="o">;</span>
+
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">Reminder</span> <span class="o">{</span>
+    <span class="n">Timer</span> <span class="n">timer</span><span class="o">;</span>
+
+    <span class="kd">public</span> <span class="nf">Reminder</span><span class="o">(</span><span class="kt">int</span> <span class="n">seconds</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">timer</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Timer</span><span class="o">();</span>
+        <span class="n">timer</span><span class="o">.</span><span class="na">schedule</span><span class="o">(</span><span class="k">new</span> <span class="n">RemindTask</span><span class="o">(),</span> <span class="n">seconds</span><span class="o">*</span><span class="mi">1000</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">class</span> <span class="nc">RemindTask</span> <span class="kd">extends</span> <span class="n">TimerTask</span> <span class="o">{</span>
+        <span class="kd">public</span> <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span> <span class="o">{</span>
+            <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Time&#39;s up!&quot;</span><span class="o">);</span>
+            <span class="n">timer</span><span class="o">.</span><span class="na">cancel</span><span class="o">();</span> <span class="c1">//Terminate the timer thread</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span> <span class="n">args</span><span class="o">[])</span> <span class="o">{</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;About to schedule task.&quot;</span><span class="o">);</span>
+        <span class="k">new</span> <span class="n">Reminder</span><span class="o">(</span><span class="mi">5</span><span class="o">);</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;Task scheduled.&quot;</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>运行结果</p>
+<div class="highlight"><pre><span></span>About to schedule task.
+Task scheduled.
+<span class="c1">##5秒之后输出</span>
+Time<span class="se">\&#39;</span>s up! 
+</pre></div>
+
+
+<p>通过代码可以总结用Timer线程直线和执行一个计划任务的步骤:</p>
+<ul>
+<li>实现自动以的TimerTask子类,run方法包含要执行的代码</li>
+<li>实例化Timer类,创建计时器后台线程</li>
+<li>实例化任务对象</li>
+<li>制定执行计划</li>
+</ul>
+<h2>终止线程</h2>
+<p>默认情况下,只要一个程序的timer线程在运行,那么这个程序会一直保持运行,结束的方法有四种:</p>
+<ul>
+<li>调用Timer的cancel方法</li>
+<li>让Timer线程成为一个Daemon线程</li>
+<li>当timer相关的所有task都执行完毕后,删除所有此timer对象引用(设置为null)</li>
+<li>调动System.exit()方法.</li>
+</ul>
+<h2>方法摘要</h2>
+<p>Timer类方法摘要</p>
+<div class="highlight"><pre><span></span><span class="kt">void</span> <span class="nf">cancel</span><span class="o">()</span>
+    <span class="c1">//终止此计时器，丢弃所有当前已安排的任务。   </span>
+<span class="kt">int</span> <span class="nf">purge</span><span class="o">()</span>
+    <span class="c1">//从此计时器的任务队列中移除所有已取消的任务。   </span>
+<span class="kt">void</span> <span class="nf">schedule</span><span class="o">(</span><span class="n">TimerTask</span> <span class="n">task</span><span class="o">,</span> <span class="n">Date</span> <span class="n">time</span><span class="o">)</span> 
+    <span class="c1">//安排在指定的时间执行指定的任务。</span>
+<span class="kt">void</span> <span class="nf">schedule</span><span class="o">(</span><span class="n">TimerTask</span> <span class="n">task</span><span class="o">,</span> <span class="n">Date</span> <span class="n">firstTime</span><span class="o">,</span> <span class="kt">long</span> <span class="n">period</span><span class="o">)</span>
+    <span class="c1">//安排指定的任务在指定的时间开始进行重复的固定延迟执行。   </span>
+<span class="kt">void</span> <span class="nf">schedule</span><span class="o">(</span><span class="n">TimerTask</span> <span class="n">task</span><span class="o">,</span> <span class="kt">long</span> <span class="n">delay</span><span class="o">)</span>  
+    <span class="c1">//安排在指定延迟后执行指定的任务。 </span>
+<span class="kt">void</span> <span class="nf">schedule</span><span class="o">(</span><span class="n">TimerTask</span> <span class="n">task</span><span class="o">,</span> <span class="kt">long</span> <span class="n">delay</span><span class="o">,</span> <span class="kt">long</span> <span class="n">period</span><span class="o">)</span>
+    <span class="c1">//安排指定的任务从指定的延迟后开始进行重复的固定延迟执行。   </span>
+<span class="kt">void</span> <span class="nf">scheduleAtFixedRate</span><span class="o">(</span><span class="n">TimerTask</span> <span class="n">task</span><span class="o">,</span> <span class="n">Date</span> <span class="n">firstTime</span><span class="o">,</span> <span class="kt">long</span> <span class="n">period</span><span class="o">)</span>
+    <span class="c1">//安排指定的任务在指定的时间开始进行重复的固定速率执行。   </span>
+<span class="kt">void</span> <span class="nf">scheduleAtFixedRate</span><span class="o">(</span><span class="n">TimerTask</span> <span class="n">task</span><span class="o">,</span> <span class="kt">long</span> <span class="n">delay</span><span class="o">,</span> <span class="kt">long</span> <span class="n">period</span><span class="o">)</span>
+    <span class="c1">//安排指定的任务在指定的延迟后开始进行重复的固定速率执行。  </span>
+</pre></div>
+
+
+<p>TimerTask类方法摘要 </p>
+<div class="highlight"><pre><span></span><span class="kt">boolean</span> <span class="nf">cancel</span><span class="o">()</span> <span class="c1">//取消此计时器任务。   </span>
+<span class="kd">abstract</span>  <span class="kt">void</span> <span class="nf">run</span><span class="o">()</span>   <span class="c1">//此计时器任务要执行的操作。   </span>
+<span class="kt">long</span> <span class="nf">scheduledExecutionTime</span><span class="o">()</span>   <span class="c1">//返回此任务最近实际 执行的已安排 执行时间。</span>
+</pre></div>
+
+
+<h2>参考</h2>
+<ul>
+<li><a href="http://blog.csdn.net/mark_lq/article/details/50320265">http://blog.csdn.net/mark_lq/article/details/50320265</a></li>
+<li><a href="http://zengzhaoshuai.iteye.com/blog/1121105">http://zengzhaoshuai.iteye.com/blog/1121105</a></li>
+</ul>
+            
+            
+            <hr/>
+        </div>
+        <section>
+        <div class="span2" style="float:right;font-size:0.9em;">
+            <h4>Published</h4>
+            <time pubdate="pubdate" datetime="2018-01-22T11:16:53+08:00"> 1 22, 2018</time>
+            <h4>Category</h4>
+            <a class="category-link" href="/categories.html#java-ref">java</a>
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article">
+                <li><a href="/tags.html#java-ref">java
+                    <span>8</span>
+</a></li>
+                <li><a href="/tags.html#jvm-ref">jvm
+                    <span>6</span>
+</a></li>
+                <li><a href="/tags.html#timer-ref">timer
+                    <span>1</span>
+</a></li>
+            </ul>
+<h4>Contact</h4>
+    <a href="#" title="My You can add links in your config file Profile" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-you can add links in your config file sidebar-social-links"></i></a>
+    <a href="#" title="My Another social link Profile" class="sidebar-social-links" target="_blank">
+    <i class="fa fa-another social link sidebar-social-links"></i></a>
+        </div>
+        </section>
+</div>
+</article>
+                </div>
+                <div class="span1"></div>
+            </div>
+        </div>
+        <div id="push"></div>
+    </div>
+<footer>
+<div id="footer">
+    <ul class="footer-content">
+        <li class="elegant-power">Powered by <a href="http://getpelican.com/" title="Pelican Home Page">Pelican</a>. Theme: <a href="http://oncrashreboot.com/pelican-elegant" title="Theme Elegant Home Page">Elegant</a> by <a href="http://oncrashreboot.com" title="Talha Mansoor Home Page">Talha Mansoor</a></li>
+    </ul>
+</div>
+</footer>            <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+    
+    </body>
+    <!-- Theme: Elegant built for Pelican
+    License : http://oncrashreboot.com/pelican-elegant -->
+</html>
