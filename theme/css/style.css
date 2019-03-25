@@ -2,6 +2,12 @@ body,html{
     height:100%;
 }
 
+body {
+    background-color: #f6f6f6;
+    font-family: 'Microsoft YaHei', Tahoma, 'PT Serif', Georgia, Times, 'Times New Roman', Serif;
+    text-shadow: 1px 1px 3px rgba(50, 50, 50, 0.15);
+}
+
 h1, h2, h3, h4, h5, h5 {
     font-family: Baskerville, Garamond, Georgia, "DejaVu Serif", "Times New Roman", Times, serif;
     font-weight: normal;

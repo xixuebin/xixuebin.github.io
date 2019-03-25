@@ -2,41 +2,30 @@
 <html lang="en-US">
     <head>
         <meta charset="utf-8"> 
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta name="author" content="kevin.xi" />
         <meta name="copyright" content="kevin.xi" />
 
-        <meta property="og:type" content="article" />
-        <meta name="twitter:card" content="summary">
-
 <meta name="keywords" content="kafka, kafka, " />
-
-<meta property="og:title" content="Kafka背景及架构介绍 "/>
-<meta property="og:url" content="/kafka-01-2017-12-04-1550-ch.html" />
-<meta property="og:description" content="Kafka介绍" />
-<meta property="og:site_name" content="寒玉 Blog" />
-<meta property="og:article:author" content="kevin.xi" />
-<meta property="og:article:published_time" content="2017-12-04T15:50:01+08:00" />
-<meta name="twitter:title" content="Kafka背景及架构介绍 ">
-<meta name="twitter:description" content="Kafka介绍">
-
         <title>Kafka背景及架构介绍  · 寒玉 Blog
 </title>
-        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" rel="stylesheet">
-        <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.1/css/font-awesome.css" rel="stylesheet">
-        <link rel="stylesheet" type="text/css" href="/theme/css/pygments.css" media="screen">
-        <link rel="stylesheet" type="text/css" href="/theme/tipuesearch/tipuesearch.css" media="screen">
-        <link rel="stylesheet" type="text/css" href="/theme/css/elegant.css" media="screen">
-        <link rel="stylesheet" type="text/css" href="/theme/css/custom.css" media="screen">
-        <script src="http://code.jquery.com/jquery.min.js"></script>
+        <!-- <link href="http://cdn-images.mailchimp.com/embedcode/slim-081711.css" rel="stylesheet" type="text/css"> -->
+        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="/theme/css/style.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="/theme/css/solarizedlight.css" media="screen">
+        <link rel="shortcut icon" href="/theme/images/favicon.ico" type="image/x-icon" />
+        <link rel="apple-touch-icon" href="/theme/images/apple-touch-icon.png" />
+        <link rel="apple-touch-icon" sizes="57x57" href="/theme/images/apple-touch-icon-57x57.png" />
+        <link rel="apple-touch-icon" sizes="72x72" href="/theme/images/apple-touch-icon-72x72.png" />
+        <link rel="apple-touch-icon" sizes="114x114" href="/theme/images/apple-touch-icon-114x114.png" />
+        <link rel="apple-touch-icon" sizes="144x144" href="/theme/images/apple-touch-icon-144x144.png" />
+        <link rel="icon" href="/theme/images/apple-touch-icon-144x144.png" />
     </head>
-    <body class="tex2jax_ignore">
+    <body>
         <div id="content-sans-footer">
         <div class="navbar navbar-static-top">
             <div class="navbar-inner">
-                <div class="container-fluid">
-                    <div class="span1"></div>
+                <div class="container">
                     <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
@@ -47,7 +36,7 @@
                         <ul class="nav pull-right top-menu">
                             <li ><a href="">Home</a></li>
                             <li ><a href="/pages/books-date-2017-12-05-1130-ch.html">Books</a></li>
-                            <li ><a href="/pages/about-date-2015-05-10-1010-ch.html">About</a></li>
+                            <li ><a href="/pages/about-date-2015-05-10-1010-ch.html">About Me</a></li>
                             <li ><a href="/categories.html">Categories</a></li>
                             <li ><a href="/tags.html">Tags</a></li>
                             <li ><a href="/archives.html">Archives</a></li>
@@ -63,7 +52,7 @@
                 <div class="span10">
 <article>
 <div class="row-fluid">
-    <header class="page-header span10 offset2">
+    <header class="page_header span10 offset2">
     <h1><a href="/kafka-01-2017-12-04-1550-ch.html"> Kafka背景及架构介绍  </a></h1>
     </header>
 </div>
@@ -71,10 +60,7 @@
 <div class="row-fluid">
         <div class="span8 offset2 article-content">
 
-            
-            <!-- MarkdownTOC -->
-
-<ul>
+            <ul>
 <li><a href="#%E6%91%98%E8%A6%81">摘要</a></li>
 <li><a href="#kafka%E7%AE%80%E4%BB%8B">Kafka简介</a></li>
 <li><a href="#%E4%B8%BA%E4%BD%95%E4%BD%BF%E7%94%A8%E6%B6%88%E6%81%AF%E7%B3%BB%E7%BB%9F">为何使用消息系统</a></li>
@@ -87,9 +73,8 @@
 <li><a href="#%E7%9B%B8%E5%85%B3%E5%8F%82%E6%95%B0">相关参数</a></li>
 <li><a href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99">参考资料</a></li>
 </ul>
-<!-- /MarkdownTOC -->
-
-<h2>摘要</h2>
+<hr>
+<h1>摘要</h1>
 <blockquote>
 <p>Kafka是由LinkedIn开发并开源的分布式消息系统，因其分布式及高吞吐率而被广泛使用，现已与Cloudera Hadoop，Apache Storm，Apache Spark集成。本文介绍了Kafka的创建背景，设计目标，使用消息系统的优势以及目前流行的消息系统对比。并介绍了Kafka的架构，Producer消息路由，Consumer Group以及由其实现的不同消息分发方式，Topic &amp; Partition，最后介绍了Kafka Consumer为何使用pull模式以及Kafka提供的三种delivery guarantee。</p>
 </blockquote>
@@ -115,31 +100,29 @@
 </ul>
 <h2>Kafka架构</h2>
 <ul>
-<li>
-<p>Borker</p>
-<p>Kafka集群包含一个或多个服务器,这种服务器被称为Broker</p>
-</li>
-<li>
-<p>Topic</p>
-<p>每条发布到Kafka集群的消息都有一个类别,这个类别被称为Topic(物理上不同的Topic的消息分开存储,逻辑上一个Topic的消息虽然保存于一个或多个broker上,但是用户只需要指定消息的Topic即可产生或消费数据而不必关心数据存储何处)</p>
-</li>
-<li>
-<p>Partition</p>
-<p>Partition是物理上的概念,每一个Topic包含一个或多个Partition</p>
-</li>
-<li>
-<p>Producer</p>
-<p>负责发送消息到Kafka broker上</p>
-</li>
-<li>
-<p>Consumer</p>
-<p>消息消费者,向Kafka broker读取消息的客户端</p>
-</li>
-<li>
-<p>Consumer Group</p>
-<p>每一个Consumer属于一个特定的Consumer Group(可以为每一个Consumer指定Group name,若不指定 group name 则属于默认的group)</p>
-</li>
+<li>Borker</li>
 </ul>
+<p>Kafka集群包含一个或多个服务器,这种服务器被称为Broker</p>
+<ul>
+<li>Topic</li>
+</ul>
+<p>每条发布到Kafka集群的消息都有一个类别,这个类别被称为Topic(物理上不同的Topic的消息分开存储,逻辑上一个Topic的消息虽然保存于一个或多个broker上,但是用户只需要指定消息的Topic即可产生或消费数据而不必关心数据存储何处)</p>
+<ul>
+<li>Partition</li>
+</ul>
+<p>Partition是物理上的概念,每一个Topic包含一个或多个Partition</p>
+<ul>
+<li>Producer</li>
+</ul>
+<p>负责发送消息到Kafka broker上</p>
+<ul>
+<li>Consumer</li>
+</ul>
+<p>消息消费者,向Kafka broker读取消息的客户端</p>
+<ul>
+<li>Consumer Group</li>
+</ul>
+<p>每一个Consumer属于一个特定的Consumer Group(可以为每一个Consumer指定Group name,若不指定 group name 则属于默认的group)</p>
 <p>一个典型的Kafka集群包含若干个Producer(可以是Web端产生的Page View 或者是服务器日志,系统CPU,Memory等)若干个broker(Kafka支持水平扩展,一般broker数量越多,集群吞吐率越高).若干个Consumer Group 以及一个Zookeeper集群.Kafka 通过Zookeeper管理集群配置,选举Leader,以及在Consumer Group发生变化的时候进行rebalance. Producer 使用push模式将消息发布到broker,Consumer 使用pull模式从Broker订阅并消费消息.</p>
 <h2>过期数据清理</h2>
 <p>Kafka将数据持久化到了硬盘上,允许配置一定的策略对数据进行清理.清理策略有两个<strong>删除</strong>和<strong>压缩</strong></p>
@@ -158,228 +141,228 @@
 </ul>
 <p>压缩策略支持删除,当某个Key的最新版本没有消息内容时,这个Key将被删除</p>
 <h2>相关参数</h2>
-<div class="highlight"><pre><span></span>############################ System #############################
+<div class="highlight"><pre><span></span><span class="c1">############################ System #############################</span>
 
-#唯一标识在集群中的ID，要求是正数。
-broker.id=0
-#服务端口，默认9092
-port=9092
-#监听地址，不设为所有地址
-host.name=debugo01
+<span class="c1">#唯一标识在集群中的ID，要求是正数。</span>
+broker.id<span class="o">=</span><span class="m">0</span>
+<span class="c1">#服务端口，默认9092</span>
+<span class="nv">port</span><span class="o">=</span><span class="m">9092</span>
+<span class="c1">#监听地址，不设为所有地址</span>
+host.name<span class="o">=</span>debugo01
 
-# 处理网络请求的最大线程数
-num.network.threads=2
-# 处理磁盘I/O的线程数
-num.io.threads=8
-# 一些后台线程数
-background.threads = 4
-# 等待IO线程处理的请求队列最大数
-queued.max.requests = 500
+<span class="c1"># 处理网络请求的最大线程数</span>
+num.network.threads<span class="o">=</span><span class="m">2</span>
+<span class="c1"># 处理磁盘I/O的线程数</span>
+num.io.threads<span class="o">=</span><span class="m">8</span>
+<span class="c1"># 一些后台线程数</span>
+background.threads <span class="o">=</span> <span class="m">4</span>
+<span class="c1"># 等待IO线程处理的请求队列最大数</span>
+queued.max.requests <span class="o">=</span> <span class="m">500</span>
 
-#  socket的发送缓冲区（SO_SNDBUF）
-socket.send.buffer.bytes=1048576
-# socket的接收缓冲区 (SO_RCVBUF)
-socket.receive.buffer.bytes=1048576
-# socket请求的最大字节数。为了防止内存溢出，message.max.bytes必然要小于
-socket.request.max.bytes = 104857600
+<span class="c1">#  socket的发送缓冲区（SO_SNDBUF）</span>
+socket.send.buffer.bytes<span class="o">=</span><span class="m">1048576</span>
+<span class="c1"># socket的接收缓冲区 (SO_RCVBUF)</span>
+socket.receive.buffer.bytes<span class="o">=</span><span class="m">1048576</span>
+<span class="c1"># socket请求的最大字节数。为了防止内存溢出，message.max.bytes必然要小于</span>
+socket.request.max.bytes <span class="o">=</span> <span class="m">104857600</span>
 
-############################# Topic #############################
-# 每个topic的分区个数，更多的partition会产生更多的segment file
-num.partitions=2
-# 是否允许自动创建topic ，若是false，就需要通过命令创建topic
-auto.create.topics.enable =true
-# 一个topic ，默认分区的replication个数 ，不能大于集群中broker的个数。
-default.replication.factor =1
-# 消息体的最大大小，单位是字节
-message.max.bytes = 1000000
+<span class="c1">############################# Topic #############################</span>
+<span class="c1"># 每个topic的分区个数，更多的partition会产生更多的segment file</span>
+num.partitions<span class="o">=</span><span class="m">2</span>
+<span class="c1"># 是否允许自动创建topic ，若是false，就需要通过命令创建topic</span>
+auto.create.topics.enable <span class="o">=</span><span class="nb">true</span>
+<span class="c1"># 一个topic ，默认分区的replication个数 ，不能大于集群中broker的个数。</span>
+default.replication.factor <span class="o">=</span><span class="m">1</span>
+<span class="c1"># 消息体的最大大小，单位是字节</span>
+message.max.bytes <span class="o">=</span> <span class="m">1000000</span>
 
-############################# ZooKeeper #############################
-# Zookeeper quorum设置。如果有多个使用逗号分割
-zookeeper.connect=debugo01:2181,debugo02,debugo03
-# 连接zk的超时时间
-zookeeper.connection.timeout.ms=1000000
-# ZooKeeper集群中leader和follower之间的同步实际
-zookeeper.sync.time.ms = 2000
+<span class="c1">############################# ZooKeeper #############################</span>
+<span class="c1"># Zookeeper quorum设置。如果有多个使用逗号分割</span>
+zookeeper.connect<span class="o">=</span>debugo01:2181,debugo02,debugo03
+<span class="c1"># 连接zk的超时时间</span>
+zookeeper.connection.timeout.ms<span class="o">=</span><span class="m">1000000</span>
+<span class="c1"># ZooKeeper集群中leader和follower之间的同步实际</span>
+zookeeper.sync.time.ms <span class="o">=</span> <span class="m">2000</span>
 
-############################# Log #############################
-#日志存放目录，多个目录使用逗号分割
-log.dirs=/var/log/kafka
+<span class="c1">############################# Log #############################</span>
+<span class="c1">#日志存放目录，多个目录使用逗号分割</span>
+log.dirs<span class="o">=</span>/var/log/kafka
 
-# 当达到下面的消息数量时，会将数据flush到日志文件中。默认10000
-#log.flush.interval.messages=10000
-# 当达到下面的时间(ms)时，执行一次强制的flush操作。interval.ms和interval.messages无论哪个达到，都会flush。默认3000ms
-#log.flush.interval.ms=1000
-# 检查是否需要将日志flush的时间间隔
-log.flush.scheduler.interval.ms = 3000
+<span class="c1"># 当达到下面的消息数量时，会将数据flush到日志文件中。默认10000</span>
+<span class="c1">#log.flush.interval.messages=10000</span>
+<span class="c1"># 当达到下面的时间(ms)时，执行一次强制的flush操作。interval.ms和interval.messages无论哪个达到，都会flush。默认3000ms</span>
+<span class="c1">#log.flush.interval.ms=1000</span>
+<span class="c1"># 检查是否需要将日志flush的时间间隔</span>
+log.flush.scheduler.interval.ms <span class="o">=</span> <span class="m">3000</span>
 
-# 日志清理策略（delete|compact）
-log.cleanup.policy = delete
-# 日志保存时间 (hours|minutes)，默认为7天（168小时）。超过这个时间会根据policy处理数据。bytes和minutes无论哪个先达到都会触发。
-log.retention.hours=168
-# 日志数据存储的最大字节数。超过这个时间会根据policy处理数据。
-#log.retention.bytes=1073741824
+<span class="c1"># 日志清理策略（delete|compact）</span>
+log.cleanup.policy <span class="o">=</span> delete
+<span class="c1"># 日志保存时间 (hours|minutes)，默认为7天（168小时）。超过这个时间会根据policy处理数据。bytes和minutes无论哪个先达到都会触发。</span>
+log.retention.hours<span class="o">=</span><span class="m">168</span>
+<span class="c1"># 日志数据存储的最大字节数。超过这个时间会根据policy处理数据。</span>
+<span class="c1">#log.retention.bytes=1073741824</span>
 
-# 控制日志segment文件的大小，超出该大小则追加到一个新的日志segment文件中（-1表示没有限制）
-log.segment.bytes=536870912
-# 当达到下面时间，会强制新建一个segment
-log.roll.hours = 24*7
-# 日志片段文件的检查周期，查看它们是否达到了删除策略的设置（log.retention.hours或log.retention.bytes）
-log.retention.check.interval.ms=60000
+<span class="c1"># 控制日志segment文件的大小，超出该大小则追加到一个新的日志segment文件中（-1表示没有限制）</span>
+log.segment.bytes<span class="o">=</span><span class="m">536870912</span>
+<span class="c1"># 当达到下面时间，会强制新建一个segment</span>
+log.roll.hours <span class="o">=</span> <span class="m">24</span>*7
+<span class="c1"># 日志片段文件的检查周期，查看它们是否达到了删除策略的设置（log.retention.hours或log.retention.bytes）</span>
+log.retention.check.interval.ms<span class="o">=</span><span class="m">60000</span>
 
-# 是否开启压缩
-log.cleaner.enable=false
-# 对于压缩的日志保留的最长时间
-log.cleaner.delete.retention.ms = 1 day
+<span class="c1"># 是否开启压缩</span>
+log.cleaner.enable<span class="o">=</span><span class="nb">false</span>
+<span class="c1"># 对于压缩的日志保留的最长时间</span>
+log.cleaner.delete.retention.ms <span class="o">=</span> <span class="m">1</span> day
 
-# 对于segment日志的索引文件大小限制
-log.index.size.max.bytes = 10 * 1024 * 1024
-#y索引计算的一个缓冲区，一般不需要设置。
-log.index.interval.bytes = 4096
+<span class="c1"># 对于segment日志的索引文件大小限制</span>
+log.index.size.max.bytes <span class="o">=</span> <span class="m">10</span> * <span class="m">1024</span> * <span class="m">1024</span>
+<span class="c1">#y索引计算的一个缓冲区，一般不需要设置。</span>
+log.index.interval.bytes <span class="o">=</span> <span class="m">4096</span>
 
-############################# replica #############################
-# partition management controller 与replicas之间通讯的超时时间
-controller.socket.timeout.ms = 30000
-# controller-to-broker-channels消息队列的尺寸大小
-controller.message.queue.size=10
-# replicas响应leader的最长等待时间，若是超过这个时间，就将replicas排除在管理之外
-replica.lag.time.max.ms = 10000
-# 是否允许控制器关闭broker ,若是设置为true,会关闭所有在这个broker上的leader，并转移到其他broker
-controlled.shutdown.enable = false
-# 控制器关闭的尝试次数
-controlled.shutdown.max.retries = 3
-# 每次关闭尝试的时间间隔
-controlled.shutdown.retry.backoff.ms = 5000
+<span class="c1">############################# replica #############################</span>
+<span class="c1"># partition management controller 与replicas之间通讯的超时时间</span>
+controller.socket.timeout.ms <span class="o">=</span> <span class="m">30000</span>
+<span class="c1"># controller-to-broker-channels消息队列的尺寸大小</span>
+controller.message.queue.size<span class="o">=</span><span class="m">10</span>
+<span class="c1"># replicas响应leader的最长等待时间，若是超过这个时间，就将replicas排除在管理之外</span>
+replica.lag.time.max.ms <span class="o">=</span> <span class="m">10000</span>
+<span class="c1"># 是否允许控制器关闭broker ,若是设置为true,会关闭所有在这个broker上的leader，并转移到其他broker</span>
+controlled.shutdown.enable <span class="o">=</span> <span class="nb">false</span>
+<span class="c1"># 控制器关闭的尝试次数</span>
+controlled.shutdown.max.retries <span class="o">=</span> <span class="m">3</span>
+<span class="c1"># 每次关闭尝试的时间间隔</span>
+controlled.shutdown.retry.backoff.ms <span class="o">=</span> <span class="m">5000</span>
 
-# 如果relicas落后太多,将会认为此partition relicas已经失效。而一般情况下,因为网络延迟等原因,总会导致replicas中消息同步滞后。如果消息严重滞后,leader将认为此relicas网络延迟较大或者消息吞吐能力有限。在broker数量较少,或者网络不足的环境中,建议提高此值.
-replica.lag.max.messages = 4000
-#leader与relicas的socket超时时间
-replica.socket.timeout.ms= 30 * 1000
-# leader复制的socket缓存大小
-replica.socket.receive.buffer.bytes=64 * 1024
-# replicas每次获取数据的最大字节数
-replica.fetch.max.bytes = 1024 * 1024
-# replicas同leader之间通信的最大等待时间，失败了会重试
-replica.fetch.wait.max.ms = 500
-# 每一个fetch操作的最小数据尺寸,如果leader中尚未同步的数据不足此值,将会等待直到数据达到这个大小
-replica.fetch.min.bytes =1
-# leader中进行复制的线程数，增大这个数值会增加relipca的IO
-num.replica.fetchers = 1
-# 每个replica将最高水位进行flush的时间间隔
-replica.high.watermark.checkpoint.interval.ms = 5000
+<span class="c1"># 如果relicas落后太多,将会认为此partition relicas已经失效。而一般情况下,因为网络延迟等原因,总会导致replicas中消息同步滞后。如果消息严重滞后,leader将认为此relicas网络延迟较大或者消息吞吐能力有限。在broker数量较少,或者网络不足的环境中,建议提高此值.</span>
+replica.lag.max.messages <span class="o">=</span> <span class="m">4000</span>
+<span class="c1">#leader与relicas的socket超时时间</span>
+replica.socket.timeout.ms<span class="o">=</span> <span class="m">30</span> * <span class="m">1000</span>
+<span class="c1"># leader复制的socket缓存大小</span>
+replica.socket.receive.buffer.bytes<span class="o">=</span><span class="m">64</span> * <span class="m">1024</span>
+<span class="c1"># replicas每次获取数据的最大字节数</span>
+replica.fetch.max.bytes <span class="o">=</span> <span class="m">1024</span> * <span class="m">1024</span>
+<span class="c1"># replicas同leader之间通信的最大等待时间，失败了会重试</span>
+replica.fetch.wait.max.ms <span class="o">=</span> <span class="m">500</span>
+<span class="c1"># 每一个fetch操作的最小数据尺寸,如果leader中尚未同步的数据不足此值,将会等待直到数据达到这个大小</span>
+replica.fetch.min.bytes <span class="o">=</span><span class="m">1</span>
+<span class="c1"># leader中进行复制的线程数，增大这个数值会增加relipca的IO</span>
+num.replica.fetchers <span class="o">=</span> <span class="m">1</span>
+<span class="c1"># 每个replica将最高水位进行flush的时间间隔</span>
+replica.high.watermark.checkpoint.interval.ms <span class="o">=</span> <span class="m">5000</span>
 
-# 是否自动平衡broker之间的分配策略
-auto.leader.rebalance.enable = false
-# leader的不平衡比例，若是超过这个数值，会对分区进行重新的平衡
-leader.imbalance.per.broker.percentage = 10
-# 检查leader是否不平衡的时间间隔
-leader.imbalance.check.interval.seconds = 300
-# 客户端保留offset信息的最大空间大小
-offset.metadata.max.bytes = 1024
+<span class="c1"># 是否自动平衡broker之间的分配策略</span>
+auto.leader.rebalance.enable <span class="o">=</span> <span class="nb">false</span>
+<span class="c1"># leader的不平衡比例，若是超过这个数值，会对分区进行重新的平衡</span>
+leader.imbalance.per.broker.percentage <span class="o">=</span> <span class="m">10</span>
+<span class="c1"># 检查leader是否不平衡的时间间隔</span>
+leader.imbalance.check.interval.seconds <span class="o">=</span> <span class="m">300</span>
+<span class="c1"># 客户端保留offset信息的最大空间大小</span>
+offset.metadata.max.bytes <span class="o">=</span> <span class="m">1024</span>
 
-#############################Consumer #############################
-# Consumer端核心的配置是group.id、zookeeper.connect
-# 决定该Consumer归属的唯一组ID，By setting the same group id multiple processes indicate that they are all part of the same consumer group.
+<span class="c1">#############################Consumer #############################</span>
+<span class="c1"># Consumer端核心的配置是group.id、zookeeper.connect</span>
+<span class="c1"># 决定该Consumer归属的唯一组ID，By setting the same group id multiple processes indicate that they are all part of the same consumer group.</span>
 group.id
-# 消费者的ID，若是没有设置的话，会自增
+<span class="c1"># 消费者的ID，若是没有设置的话，会自增</span>
 consumer.id
-# 一个用于跟踪调查的ID ，最好同group.id相同
-client.id = &lt;group_id&gt;
+<span class="c1"># 一个用于跟踪调查的ID ，最好同group.id相同</span>
+client.id <span class="o">=</span> &lt;group_id&gt;
 
-# 对于zookeeper集群的指定，必须和broker使用同样的zk配置
-zookeeper.connect=debugo01:2182,debugo02:2182,debugo03:2182
-# zookeeper的心跳超时时间，超过这个时间就认为是无效的消费者
-zookeeper.session.timeout.ms = 6000
-# zookeeper的等待连接时间
-zookeeper.connection.timeout.ms = 6000
-# zookeeper的follower同leader的同步时间
-zookeeper.sync.time.ms = 2000
-# 当zookeeper中没有初始的offset时，或者超出offset上限时的处理方式 。
-# smallest ：重置为最小值
-# largest:重置为最大值
-# anything else：抛出异常给consumer
-auto.offset.reset = largest
+<span class="c1"># 对于zookeeper集群的指定，必须和broker使用同样的zk配置</span>
+zookeeper.connect<span class="o">=</span>debugo01:2182,debugo02:2182,debugo03:2182
+<span class="c1"># zookeeper的心跳超时时间，超过这个时间就认为是无效的消费者</span>
+zookeeper.session.timeout.ms <span class="o">=</span> <span class="m">6000</span>
+<span class="c1"># zookeeper的等待连接时间</span>
+zookeeper.connection.timeout.ms <span class="o">=</span> <span class="m">6000</span>
+<span class="c1"># zookeeper的follower同leader的同步时间</span>
+zookeeper.sync.time.ms <span class="o">=</span> <span class="m">2000</span>
+<span class="c1"># 当zookeeper中没有初始的offset时，或者超出offset上限时的处理方式 。</span>
+<span class="c1"># smallest ：重置为最小值</span>
+<span class="c1"># largest:重置为最大值</span>
+<span class="c1"># anything else：抛出异常给consumer</span>
+auto.offset.reset <span class="o">=</span> largest
 /*
 kafka + zookeeper,当消息被消费时,会向zk提交当前groupId的consumer消费的offset信息,当consumer再次启动将会从此offset开始继续消费.
 
-在consumter端配置文件中(或者是ConsumerConfig类参数)有个&quot;autooffset.reset&quot;(在kafka 0.8版本中为auto.offset.reset),有2个合法的值&quot;largest&quot;/&quot;smallest&quot;,默认为&quot;largest&quot;,此配置参数表示当此groupId下的消费者,在ZK中没有offset值时(比如新的groupId,或者是zk数据被清空),consumer应该从哪个offset开始消费.
-1、largest表示接受接收最大的offset(即最新消息),
-2、smallest表示最小offset,即从topic的开始位置消费所有消息.
+在consumter端配置文件中<span class="o">(</span>或者是ConsumerConfig类参数<span class="o">)</span>有个<span class="s2">&quot;autooffset.reset&quot;</span><span class="o">(</span>在kafka <span class="m">0</span>.8版本中为auto.offset.reset<span class="o">)</span>,有2个合法的值<span class="s2">&quot;largest&quot;</span>/<span class="s2">&quot;smallest&quot;</span>,默认为<span class="s2">&quot;largest&quot;</span>,此配置参数表示当此groupId下的消费者,在ZK中没有offset值时<span class="o">(</span>比如新的groupId,或者是zk数据被清空<span class="o">)</span>,consumer应该从哪个offset开始消费.
+<span class="m">1</span>、largest表示接受接收最大的offset<span class="o">(</span>即最新消息<span class="o">)</span>,
+<span class="m">2</span>、smallest表示最小offset,即从topic的开始位置消费所有消息.
 */
 
-# socket的超时时间，实际的超时时间为max.fetch.wait + socket.timeout.ms.
-socket.timeout.ms= 30 * 1000
-# socket的接收缓存空间大小
-socket.receive.buffer.bytes=64 * 1024
-#从每个分区fetch的消息大小限制
-fetch.message.max.bytes = 1024 * 1024
+<span class="c1"># socket的超时时间，实际的超时时间为max.fetch.wait + socket.timeout.ms.</span>
+socket.timeout.ms<span class="o">=</span> <span class="m">30</span> * <span class="m">1000</span>
+<span class="c1"># socket的接收缓存空间大小</span>
+socket.receive.buffer.bytes<span class="o">=</span><span class="m">64</span> * <span class="m">1024</span>
+<span class="c1">#从每个分区fetch的消息大小限制</span>
+fetch.message.max.bytes <span class="o">=</span> <span class="m">1024</span> * <span class="m">1024</span>
 
-# true时，Consumer会在消费消息后将offset同步到zookeeper，这样当Consumer失败后，新的consumer就能从zookeeper获取最新的offset
-auto.commit.enable = true   ，项目里用false 不知道是什么原因
-# 自动提交的时间间隔
-auto.commit.interval.ms = 60 * 1000
+<span class="c1"># true时，Consumer会在消费消息后将offset同步到zookeeper，这样当Consumer失败后，新的consumer就能从zookeeper获取最新的offset</span>
+auto.commit.enable <span class="o">=</span> <span class="nb">true</span>   ，项目里用false 不知道是什么原因
+<span class="c1"># 自动提交的时间间隔</span>
+auto.commit.interval.ms <span class="o">=</span> <span class="m">60</span> * <span class="m">1000</span>
 
-# 用于消费的最大数量的消息块缓冲大小，每个块可以等同于fetch.message.max.bytes中数值
-queued.max.message.chunks = 10
+<span class="c1"># 用于消费的最大数量的消息块缓冲大小，每个块可以等同于fetch.message.max.bytes中数值</span>
+queued.max.message.chunks <span class="o">=</span> <span class="m">10</span>
 
-# 当有新的consumer加入到group时,将尝试reblance,将partitions的消费端迁移到新的consumer中, 该设置是尝试的次数
-rebalance.max.retries = 4
-# 每次reblance的时间间隔
-rebalance.backoff.ms = 2000
-# 每次重新选举leader的时间
+<span class="c1"># 当有新的consumer加入到group时,将尝试reblance,将partitions的消费端迁移到新的consumer中, 该设置是尝试的次数</span>
+rebalance.max.retries <span class="o">=</span> <span class="m">4</span>
+<span class="c1"># 每次reblance的时间间隔</span>
+rebalance.backoff.ms <span class="o">=</span> <span class="m">2000</span>
+<span class="c1"># 每次重新选举leader的时间</span>
 refresh.leader.backoff.ms
 
-# server发送到消费端的最小数据，若是不满足这个数值则会等待直到满足指定大小。默认为1表示立即接收。
-fetch.min.bytes = 1
-# 若是不满足fetch.min.bytes时，等待消费端请求的最长等待时间
-fetch.wait.max.ms = 100
-# 如果指定时间内没有新消息可用于消费，就抛出异常，默认-1表示不受限
-consumer.timeout.ms = -1
+<span class="c1"># server发送到消费端的最小数据，若是不满足这个数值则会等待直到满足指定大小。默认为1表示立即接收。</span>
+fetch.min.bytes <span class="o">=</span> <span class="m">1</span>
+<span class="c1"># 若是不满足fetch.min.bytes时，等待消费端请求的最长等待时间</span>
+fetch.wait.max.ms <span class="o">=</span> <span class="m">100</span>
+<span class="c1"># 如果指定时间内没有新消息可用于消费，就抛出异常，默认-1表示不受限</span>
+consumer.timeout.ms <span class="o">=</span> -1
 
-#############################Producer#############################
-# 核心的配置包括：
-# metadata.broker.list
-# request.required.acks
-# producer.type
-# serializer.class
+<span class="c1">#############################Producer#############################</span>
+<span class="c1"># 核心的配置包括：</span>
+<span class="c1"># metadata.broker.list</span>
+<span class="c1"># request.required.acks</span>
+<span class="c1"># producer.type</span>
+<span class="c1"># serializer.class</span>
 
-# 消费者获取消息元信息(topics, partitions and replicas)的地址,配置格式是：host1:port1,host2:port2，也可以在外面设置一个vip
+<span class="c1"># 消费者获取消息元信息(topics, partitions and replicas)的地址,配置格式是：host1:port1,host2:port2，也可以在外面设置一个vip</span>
 metadata.broker.list
 
-#消息的确认模式
-# 0：不保证消息的到达确认，只管发送，低延迟但是会出现消息的丢失，在某个server失败的情况下，有点像TCP
-# 1：发送消息，并会等待leader 收到确认后，一定的可靠性
-# -1：发送消息，等待leader收到确认，并进行复制操作后，才返回，最高的可靠性
-request.required.acks = 0
+<span class="c1">#消息的确认模式</span>
+<span class="c1"># 0：不保证消息的到达确认，只管发送，低延迟但是会出现消息的丢失，在某个server失败的情况下，有点像TCP</span>
+<span class="c1"># 1：发送消息，并会等待leader 收到确认后，一定的可靠性</span>
+<span class="c1"># -1：发送消息，等待leader收到确认，并进行复制操作后，才返回，最高的可靠性</span>
+request.required.acks <span class="o">=</span> <span class="m">0</span>
 
-# 消息发送的最长等待时间
-request.timeout.ms = 10000
-# socket的缓存大小
-send.buffer.bytes=100*1024
-# key的序列化方式，若是没有设置，同serializer.class
+<span class="c1"># 消息发送的最长等待时间</span>
+request.timeout.ms <span class="o">=</span> <span class="m">10000</span>
+<span class="c1"># socket的缓存大小</span>
+send.buffer.bytes<span class="o">=</span><span class="m">100</span>*1024
+<span class="c1"># key的序列化方式，若是没有设置，同serializer.class</span>
 key.serializer.class
-# 分区的策略，默认是取模
-partitioner.class=kafka.producer.DefaultPartitioner
-# 消息的压缩模式，默认是none，可以有gzip和snappy
-compression.codec = none
-# 可以针对默写特定的topic进行压缩
-compressed.topics=null
-# 消息发送失败后的重试次数
-message.send.max.retries = 3
-# 每次失败后的间隔时间
-retry.backoff.ms = 100
-# 生产者定时更新topic元信息的时间间隔 ，若是设置为0，那么会在每个消息发送后都去更新数据
-topic.metadata.refresh.interval.ms = 600 * 1000
-# 用户随意指定，但是不能重复，主要用于跟踪记录消息
-client.id=&quot;&quot;
+<span class="c1"># 分区的策略，默认是取模</span>
+partitioner.class<span class="o">=</span>kafka.producer.DefaultPartitioner
+<span class="c1"># 消息的压缩模式，默认是none，可以有gzip和snappy</span>
+compression.codec <span class="o">=</span> none
+<span class="c1"># 可以针对默写特定的topic进行压缩</span>
+compressed.topics<span class="o">=</span>null
+<span class="c1"># 消息发送失败后的重试次数</span>
+message.send.max.retries <span class="o">=</span> <span class="m">3</span>
+<span class="c1"># 每次失败后的间隔时间</span>
+retry.backoff.ms <span class="o">=</span> <span class="m">100</span>
+<span class="c1"># 生产者定时更新topic元信息的时间间隔 ，若是设置为0，那么会在每个消息发送后都去更新数据</span>
+topic.metadata.refresh.interval.ms <span class="o">=</span> <span class="m">600</span> * <span class="m">1000</span>
+<span class="c1"># 用户随意指定，但是不能重复，主要用于跟踪记录消息</span>
+client.id<span class="o">=</span><span class="s2">&quot;&quot;</span>
 
-# 异步模式下缓冲数据的最大时间。例如设置为100则会集合100ms内的消息后发送，这样会提高吞吐量，但是会增加消息发送的延时
-queue.buffering.max.ms = 5000
-# 异步模式下缓冲的最大消息数，同上
-queue.buffering.max.messages = 10000
-# 异步模式下，消息进入队列的等待时间。若是设置为0，则消息不等待，如果进入不了队列，则直接被抛弃
-queue.enqueue.timeout.ms = -1
-# 异步模式下，每次发送的消息数，当queue.buffering.max.messages或queue.buffering.max.ms满足条件之一时producer会触发发送。
-batch.num.messages=200
+<span class="c1"># 异步模式下缓冲数据的最大时间。例如设置为100则会集合100ms内的消息后发送，这样会提高吞吐量，但是会增加消息发送的延时</span>
+queue.buffering.max.ms <span class="o">=</span> <span class="m">5000</span>
+<span class="c1"># 异步模式下缓冲的最大消息数，同上</span>
+queue.buffering.max.messages <span class="o">=</span> <span class="m">10000</span>
+<span class="c1"># 异步模式下，消息进入队列的等待时间。若是设置为0，则消息不等待，如果进入不了队列，则直接被抛弃</span>
+queue.enqueue.timeout.ms <span class="o">=</span> -1
+<span class="c1"># 异步模式下，每次发送的消息数，当queue.buffering.max.messages或queue.buffering.max.ms满足条件之一时producer会触发发送。</span>
+batch.num.messages<span class="o">=</span><span class="m">200</span>
 </pre></div>
 
 
@@ -387,36 +370,58 @@ batch.num.messages=200
 <ul>
 <li><a href="http://www.jasongj.com/2015/03/10/KafkaColumn1/">http://www.jasongj.com/2015/03/10/KafkaColumn1/</a></li>
 </ul>
-            
-            
+            <aside>
             <hr/>
+            <nav>
+            <ul class="articles_timeline">
+ 
+                <li class="previous_article">« <a href="/git-ch.html" title="Previous: GIT">GIT</a></li>
+ 
+                <li class="next_article"><a href="/superset-2017-12-04-1748-ch.html" title="Next: Superset">Superset</a> »</li>
+            </ul>
+            </nav>
+            </aside>
         </div>
         <section>
         <div class="span2" style="float:right;font-size:0.9em;">
+ 
             <h4>Published</h4>
             <time pubdate="pubdate" datetime="2017-12-04T15:50:01+08:00">12 4, 2017</time>
             <h4>Category</h4>
-            <a class="category-link" href="/categories.html#kafka-ref">kafka</a>
+            <a class="category-link" href="/categories.html#kafka-ref">kafka</a> 
             <h4>Tags</h4>
-            <ul class="list-of-tags tags-in-article">
+            <ul class="list-of-tags tags-in-article"> 
                 <li><a href="/tags.html#kafka-ref">kafka
                     <span>1</span>
 </a></li>
             </ul>
-<h4>Contact</h4>
-    <a href="#" title="My You can add links in your config file Profile" class="sidebar-social-links" target="_blank">
-    <i class="fa fa-you can add links in your config file sidebar-social-links"></i></a>
-    <a href="#" title="My Another social link Profile" class="sidebar-social-links" target="_blank">
-    <i class="fa fa-another social link sidebar-social-links"></i></a>
+
         </div>
         </section>
 </div>
+<div id="gitalk-container"></div>
 </article>
+
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+<script>
+    var gitalk = new Gitalk({
+        clientID: '55daf540951794dd3faf',
+        clientSecret: 'd6eaad9fa6d9e7ff2647ef8b6e21327da0cc7cda',
+        repo: 'blog-comment',
+        owner: 'xixuebin',
+        admin: ['xixuebin'],
+        id: location.pathname,      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+    })
+
+    gitalk.render('gitalk-container')
+</script>
+
                 </div>
                 <div class="span1"></div>
             </div>
         </div>
-        <div id="push"></div>
     </div>
 <footer>
 <div id="footer">
@@ -424,7 +429,8 @@ batch.num.messages=200
         <li class="elegant-power">Powered by <a href="http://getpelican.com/" title="Pelican Home Page">Pelican</a>. Theme: <a href="http://oncrashreboot.com/pelican-elegant" title="Theme Elegant Home Page">Elegant</a> by <a href="http://oncrashreboot.com" title="Talha Mansoor Home Page">Talha Mansoor</a></li>
     </ul>
 </div>
-</footer>            <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/js/bootstrap.min.js"></script>
+</footer>            <script src="https://code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
         <script>
             function validateForm(query)
             {
@@ -432,8 +438,5 @@ batch.num.messages=200
             }
         </script>
 
-    
     </body>
-    <!-- Theme: Elegant built for Pelican
-    License : http://oncrashreboot.com/pelican-elegant -->
 </html>
