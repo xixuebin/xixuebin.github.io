@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8"> 
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="kevin.xi" />
+        <meta name="copyright" content="kevin.xi" />
+
+<meta name="keywords" content="druid, druid, " />
+        <title>使用DruidAPI dump Druid数据  · 寒玉 Blog
+</title>
+        <!-- <link href="http://cdn-images.mailchimp.com/embedcode/slim-081711.css" rel="stylesheet" type="text/css"> -->
+        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="/theme/css/style.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="/theme/css/solarizedlight.css" media="screen">
+        <link rel="shortcut icon" href="/theme/images/favicon.ico" type="image/x-icon" />
+        <link rel="apple-touch-icon" href="/theme/images/apple-touch-icon.png" />
+        <link rel="apple-touch-icon" sizes="57x57" href="/theme/images/apple-touch-icon-57x57.png" />
+        <link rel="apple-touch-icon" sizes="72x72" href="/theme/images/apple-touch-icon-72x72.png" />
+        <link rel="apple-touch-icon" sizes="114x114" href="/theme/images/apple-touch-icon-114x114.png" />
+        <link rel="apple-touch-icon" sizes="144x144" href="/theme/images/apple-touch-icon-144x144.png" />
+        <link rel="icon" href="/theme/images/apple-touch-icon-144x144.png" />
+    </head>
+    <body>
+        <div id="content-sans-footer">
+        <div class="navbar navbar-static-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="/"><span class=site-name>寒玉 Blog</span></a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav pull-right top-menu">
+                            <li ><a href="">Home</a></li>
+                            <li ><a href="/pages/books-date-2017-12-05-1130-ch.html">Books</a></li>
+                            <li ><a href="/pages/about-date-2015-05-10-1010-ch.html">About Me</a></li>
+                            <li ><a href="/categories.html">Categories</a></li>
+                            <li ><a href="/tags.html">Tags</a></li>
+                            <li ><a href="/archives.html">Archives</a></li>
+                            <li><form class="navbar-search" action="/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span1"></div>
+                <div class="span10">
+<article>
+<div class="row-fluid">
+    <header class="page_header span10 offset2">
+    <h1><a href="/2019-04-01-092732-ch.html"> 使用DruidAPI dump Druid数据  </a></h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset2 article-content">
+
+            <hr>
+<!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets -->
+
+<p>在使用druid的时候,有时候需要更新druid的数据,一般通用的做法是dump出原始数据,进行数据更新,然后再重新load进去.目前需要dump出数据的时候,需要使用overload,需要使用命令行工具进行操作,dump到文件中.可是当数据量比较大,我们需要并行操作的时候并行操作的话,就不好处理了.因为没有可用的api.昨天翻了下源码,修改了下<code>DumpSegment</code>工具,可以实现类似API的调用.</p>
+<div class="highlight"><pre><span></span><span class="kn">package</span> <span class="nn">io.druid.cli</span><span class="o">;</span>
+
+<span class="kn">import</span> <span class="nn">com.fasterxml.jackson.core.JsonGenerator</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.fasterxml.jackson.core.JsonProcessingException</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.fasterxml.jackson.databind.ObjectMapper</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.google.common.base.Function</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.google.common.base.Strings</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.google.common.base.Throwables</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.google.common.collect.ImmutableList</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.google.common.collect.Iterables</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.google.common.collect.Lists</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.google.common.collect.Maps</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.google.common.collect.Sets</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.google.common.util.concurrent.MoreExecutors</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.google.inject.Injector</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.google.inject.Key</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.metamx.collections.bitmap.BitmapFactory</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.metamx.collections.bitmap.ConciseBitmapFactory</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.metamx.collections.bitmap.ImmutableBitmap</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.metamx.collections.bitmap.RoaringBitmapFactory</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.metamx.common.ISE</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.metamx.common.guava.Accumulator</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.metamx.common.guava.Sequence</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.metamx.common.guava.Sequences</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">com.metamx.common.logger.Logger</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.druid.granularity.QueryGranularities</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.druid.guice.annotations.Json</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.druid.jackson.DefaultObjectMapper</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.druid.query.DruidProcessingConfig</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.druid.query.Query</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.druid.query.QueryRunner</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.druid.query.QueryRunnerFactory</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.druid.query.QueryRunnerFactoryConglomerate</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.druid.query.SegmentDescriptor</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.druid.query.TableDataSource</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.druid.query.dimension.DefaultDimensionSpec</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.druid.query.filter.DimFilter</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.druid.query.metadata.metadata.ListColumnIncluderator</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.druid.query.metadata.metadata.SegmentAnalysis</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.druid.query.metadata.metadata.SegmentMetadataQuery</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.druid.query.spec.SpecificSegmentSpec</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.druid.segment.ColumnSelectorFactory</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.druid.segment.Cursor</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.druid.segment.DimensionSelector</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.druid.segment.IndexIO</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.druid.segment.ObjectColumnSelector</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.druid.segment.QueryableIndex</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.druid.segment.QueryableIndexSegment</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.druid.segment.QueryableIndexStorageAdapter</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.druid.segment.column.BitmapIndex</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.druid.segment.column.Column</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.druid.segment.column.ColumnConfig</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.druid.segment.data.BitmapSerdeFactory</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.druid.segment.data.ConciseBitmapSerdeFactory</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.druid.segment.data.IndexedInts</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.druid.segment.data.RoaringBitmapSerdeFactory</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">io.druid.segment.filter.Filters</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.io.File</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.io.FileOutputStream</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.io.IOException</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.io.OutputStream</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.EnumSet</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.List</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.Map</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">java.util.Set</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.joda.time.DateTime</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.joda.time.DateTimeZone</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.joda.time.chrono.ISOChronology</span><span class="o">;</span>
+<span class="kn">import</span> <span class="nn">org.roaringbitmap.IntIterator</span><span class="o">;</span>
+
+<span class="kd">public</span> <span class="kd">class</span> <span class="nc">TestDumpSegment3</span>
+<span class="o">{</span>
+  <span class="kd">private</span> <span class="kd">static</span> <span class="kd">final</span> <span class="n">Logger</span> <span class="n">log</span> <span class="o">=</span> <span class="k">new</span> <span class="n">Logger</span><span class="o">(</span><span class="n">TestDumpSegment3</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+  <span class="kd">public</span> <span class="kd">static</span> <span class="n">IndexIO</span> <span class="n">indexIO</span> <span class="o">;</span>
+  <span class="kd">public</span> <span class="kd">static</span> <span class="n">ColumnConfig</span> <span class="n">columnConfig</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+  <span class="kd">public</span> <span class="kd">static</span> <span class="n">ObjectMapper</span> <span class="n">objectMapper</span><span class="o">;</span>
+  <span class="kd">static</span> <span class="o">{</span>
+    <span class="n">columnConfig</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DruidProcessingConfig</span><span class="o">()</span>
+    <span class="o">{</span>
+      <span class="nd">@Override</span>
+      <span class="kd">public</span> <span class="n">String</span> <span class="nf">getFormatString</span><span class="o">()</span>
+      <span class="o">{</span>
+        <span class="k">return</span> <span class="s">&quot;processing-%s&quot;</span><span class="o">;</span>
+      <span class="o">}</span>
+
+      <span class="nd">@Override</span>
+      <span class="kd">public</span> <span class="kt">int</span> <span class="nf">intermediateComputeSizeBytes</span><span class="o">()</span>
+      <span class="o">{</span>
+        <span class="k">return</span> <span class="mi">100</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="o">;</span>
+      <span class="o">}</span>
+
+      <span class="nd">@Override</span>
+      <span class="kd">public</span> <span class="kt">int</span> <span class="nf">getNumThreads</span><span class="o">()</span>
+      <span class="o">{</span>
+        <span class="k">return</span> <span class="mi">1</span><span class="o">;</span>
+      <span class="o">}</span>
+
+      <span class="nd">@Override</span>
+      <span class="kd">public</span> <span class="kt">int</span> <span class="nf">columnCacheSizeBytes</span><span class="o">()</span>
+      <span class="o">{</span>
+        <span class="k">return</span> <span class="mi">25</span> <span class="o">*</span> <span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="o">;</span>
+      <span class="o">}</span>
+    <span class="o">};</span>
+
+    <span class="n">objectMapper</span> <span class="o">=</span>  <span class="k">new</span> <span class="n">DefaultObjectMapper</span><span class="o">()</span> <span class="o">;</span>
+
+    <span class="n">indexIO</span> <span class="o">=</span> <span class="k">new</span> <span class="n">IndexIO</span><span class="o">(</span><span class="n">objectMapper</span><span class="o">,</span> <span class="n">columnConfig</span><span class="o">);</span>
+  <span class="o">}</span>
+
+  <span class="kd">private</span> <span class="kd">enum</span> <span class="n">DumpType</span>
+  <span class="o">{</span>
+    <span class="n">ROWS</span><span class="o">,</span>
+    <span class="n">METADATA</span><span class="o">,</span>
+    <span class="n">BITMAPS</span>
+  <span class="o">}</span>
+
+  <span class="kd">public</span> <span class="nf">TestDumpSegment3</span><span class="o">()</span>
+  <span class="o">{</span>
+  <span class="o">}</span>
+
+
+  <span class="kd">public</span> <span class="n">String</span> <span class="n">directory</span><span class="o">;</span>
+
+
+  <span class="kd">public</span> <span class="n">String</span> <span class="n">outputFileName</span><span class="o">;</span>
+
+
+  <span class="kd">public</span> <span class="n">String</span> <span class="n">filterJson</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+
+
+  <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">columnNamesFromCli</span> <span class="o">=</span> <span class="n">Lists</span><span class="o">.</span><span class="na">newArrayList</span><span class="o">();</span>
+
+
+  <span class="kd">public</span> <span class="kt">boolean</span> <span class="n">timeISO8601</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+
+
+  <span class="kd">public</span> <span class="n">String</span> <span class="n">dumpTypeString</span> <span class="o">=</span> <span class="n">DumpType</span><span class="o">.</span><span class="na">ROWS</span><span class="o">.</span><span class="na">toString</span><span class="o">();</span>
+
+
+  <span class="kd">public</span> <span class="kt">boolean</span> <span class="n">decompressBitmaps</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+
+
+  <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="n">TestDumpSegment3</span> <span class="n">testDumpSegment3</span> <span class="o">=</span> <span class="k">new</span> <span class="n">TestDumpSegment3</span><span class="o">();</span>
+
+
+    <span class="n">testDumpSegment3</span><span class="o">.</span><span class="na">outputFileName</span> <span class="o">=</span> <span class="s">&quot;/Users/xixuebin/Downloads/123&quot;</span><span class="o">;</span>
+
+    <span class="k">try</span> <span class="o">(</span><span class="kd">final</span> <span class="n">QueryableIndex</span> <span class="n">index</span> <span class="o">=</span> <span class="n">indexIO</span><span class="o">.</span><span class="na">loadIndex</span><span class="o">(</span><span class="k">new</span> <span class="n">File</span><span class="o">(</span>
+        <span class="s">&quot;/Users/xixuebin/Downloads/0&quot;</span> <span class="c1">//包含msooh文件的路径</span>
+    <span class="o">)))</span> <span class="o">{</span>
+      <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="n">testDumpSegment3</span><span class="o">.</span><span class="na">runDump</span><span class="o">(</span><span class="n">index</span><span class="o">);</span>
+      <span class="k">for</span> <span class="o">(</span><span class="n">String</span> <span class="n">line</span> <span class="o">:</span><span class="n">result</span><span class="o">){</span>
+        <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="s">&quot;args = [&quot;</span> <span class="o">+</span> <span class="n">line</span> <span class="o">+</span> <span class="s">&quot;]&quot;</span><span class="o">);</span>
+      <span class="o">}</span>
+
+    <span class="o">}</span>
+    <span class="k">catch</span> <span class="o">(</span><span class="n">Exception</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+      <span class="k">throw</span> <span class="n">Throwables</span><span class="o">.</span><span class="na">propagate</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+
+
+  <span class="kd">private</span> <span class="kt">void</span> <span class="nf">runMetadata</span><span class="o">(</span><span class="kd">final</span> <span class="n">Injector</span> <span class="n">injector</span><span class="o">,</span> <span class="kd">final</span> <span class="n">QueryableIndex</span> <span class="n">index</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span>
+  <span class="o">{</span>
+    <span class="kd">final</span> <span class="n">ObjectMapper</span> <span class="n">objectMapper</span> <span class="o">=</span> <span class="n">injector</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">Key</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">ObjectMapper</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">Json</span><span class="o">.</span><span class="na">class</span><span class="o">))</span>
+                                              <span class="o">.</span><span class="na">copy</span><span class="o">()</span>
+                                              <span class="o">.</span><span class="na">configure</span><span class="o">(</span><span class="n">JsonGenerator</span><span class="o">.</span><span class="na">Feature</span><span class="o">.</span><span class="na">AUTO_CLOSE_TARGET</span><span class="o">,</span> <span class="kc">false</span><span class="o">);</span>
+    <span class="kd">final</span> <span class="n">SegmentMetadataQuery</span> <span class="n">query</span> <span class="o">=</span> <span class="k">new</span> <span class="n">SegmentMetadataQuery</span><span class="o">(</span>
+        <span class="k">new</span> <span class="n">TableDataSource</span><span class="o">(</span><span class="s">&quot;dataSource&quot;</span><span class="o">),</span>
+        <span class="k">new</span> <span class="n">SpecificSegmentSpec</span><span class="o">(</span><span class="k">new</span> <span class="n">SegmentDescriptor</span><span class="o">(</span><span class="n">index</span><span class="o">.</span><span class="na">getDataInterval</span><span class="o">(),</span> <span class="s">&quot;0&quot;</span><span class="o">,</span> <span class="mi">0</span><span class="o">)),</span>
+        <span class="k">new</span> <span class="n">ListColumnIncluderator</span><span class="o">(</span><span class="n">getColumnsToInclude</span><span class="o">(</span><span class="n">index</span><span class="o">)),</span>
+        <span class="kc">false</span><span class="o">,</span>
+        <span class="kc">null</span><span class="o">,</span>
+        <span class="n">EnumSet</span><span class="o">.</span><span class="na">allOf</span><span class="o">(</span><span class="n">SegmentMetadataQuery</span><span class="o">.</span><span class="na">AnalysisType</span><span class="o">.</span><span class="na">class</span><span class="o">),</span>
+        <span class="kc">false</span><span class="o">,</span>
+        <span class="kc">false</span>
+    <span class="o">);</span>
+    <span class="n">withOutputStream</span><span class="o">(</span>
+        <span class="k">new</span> <span class="n">Function</span><span class="o">&lt;</span><span class="n">OutputStream</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;()</span>
+        <span class="o">{</span>
+          <span class="nd">@Override</span>
+          <span class="kd">public</span> <span class="n">Object</span> <span class="nf">apply</span><span class="o">(</span><span class="kd">final</span> <span class="n">OutputStream</span> <span class="n">out</span><span class="o">)</span>
+          <span class="o">{</span>
+            <span class="n">evaluateSequenceForSideEffects</span><span class="o">(</span>
+                <span class="n">Sequences</span><span class="o">.</span><span class="na">map</span><span class="o">(</span>
+                    <span class="n">executeQuery</span><span class="o">(</span><span class="n">injector</span><span class="o">,</span> <span class="n">index</span><span class="o">,</span> <span class="n">query</span><span class="o">),</span>
+                    <span class="k">new</span> <span class="n">Function</span><span class="o">&lt;</span><span class="n">SegmentAnalysis</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;()</span>
+                    <span class="o">{</span>
+                      <span class="nd">@Override</span>
+                      <span class="kd">public</span> <span class="n">Object</span> <span class="nf">apply</span><span class="o">(</span><span class="n">SegmentAnalysis</span> <span class="n">analysis</span><span class="o">)</span>
+                      <span class="o">{</span>
+                        <span class="k">try</span> <span class="o">{</span>
+                          <span class="n">objectMapper</span><span class="o">.</span><span class="na">writeValue</span><span class="o">(</span><span class="n">out</span><span class="o">,</span> <span class="n">analysis</span><span class="o">);</span>
+                        <span class="o">}</span>
+                        <span class="k">catch</span> <span class="o">(</span><span class="n">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                          <span class="k">throw</span> <span class="n">Throwables</span><span class="o">.</span><span class="na">propagate</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+                        <span class="o">}</span>
+                        <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+                      <span class="o">}</span>
+                    <span class="o">}</span>
+                <span class="o">)</span>
+            <span class="o">);</span>
+
+            <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+          <span class="o">}</span>
+        <span class="o">}</span>
+    <span class="o">);</span>
+  <span class="o">}</span>
+
+  <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="nf">runDump</span><span class="o">(</span><span class="kd">final</span> <span class="n">QueryableIndex</span> <span class="n">index</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span>
+  <span class="o">{</span>
+    <span class="kd">final</span> <span class="n">QueryableIndexStorageAdapter</span> <span class="n">adapter</span> <span class="o">=</span> <span class="k">new</span> <span class="n">QueryableIndexStorageAdapter</span><span class="o">(</span><span class="n">index</span><span class="o">);</span>
+    <span class="kd">final</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">columnNames</span> <span class="o">=</span> <span class="n">getColumnsToInclude</span><span class="o">(</span><span class="n">index</span><span class="o">);</span>
+    <span class="kd">final</span> <span class="n">DimFilter</span> <span class="n">filter</span> <span class="o">=</span> <span class="n">filterJson</span> <span class="o">!=</span> <span class="kc">null</span> <span class="o">?</span> <span class="n">objectMapper</span><span class="o">.</span><span class="na">readValue</span><span class="o">(</span><span class="n">filterJson</span><span class="o">,</span> <span class="n">DimFilter</span><span class="o">.</span><span class="na">class</span><span class="o">)</span> <span class="o">:</span> <span class="kc">null</span><span class="o">;</span>
+    <span class="kd">final</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">result</span> <span class="o">=</span> <span class="n">Lists</span><span class="o">.</span><span class="na">newArrayList</span><span class="o">();</span>
+    <span class="kd">final</span> <span class="n">Sequence</span><span class="o">&lt;</span><span class="n">Cursor</span><span class="o">&gt;</span> <span class="n">cursors</span> <span class="o">=</span> <span class="n">adapter</span><span class="o">.</span><span class="na">makeCursors</span><span class="o">(</span>
+        <span class="n">Filters</span><span class="o">.</span><span class="na">toFilter</span><span class="o">(</span><span class="n">filter</span><span class="o">),</span>
+        <span class="n">index</span><span class="o">.</span><span class="na">getDataInterval</span><span class="o">().</span><span class="na">withChronology</span><span class="o">(</span><span class="n">ISOChronology</span><span class="o">.</span><span class="na">getInstanceUTC</span><span class="o">()),</span>
+        <span class="n">QueryGranularities</span><span class="o">.</span><span class="na">ALL</span><span class="o">,</span>
+        <span class="kc">false</span>
+    <span class="o">);</span>
+
+    <span class="kd">final</span> <span class="n">Sequence</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">sequence</span> <span class="o">=</span> <span class="n">Sequences</span><span class="o">.</span><span class="na">map</span><span class="o">(</span>
+                <span class="n">cursors</span><span class="o">,</span>
+                <span class="k">new</span> <span class="n">Function</span><span class="o">&lt;</span><span class="n">Cursor</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;()</span>
+                <span class="o">{</span>
+                  <span class="nd">@Override</span>
+                  <span class="kd">public</span> <span class="n">Object</span> <span class="nf">apply</span><span class="o">(</span><span class="n">Cursor</span> <span class="n">cursor</span><span class="o">)</span>
+                  <span class="o">{</span>
+                    <span class="kd">final</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">ObjectColumnSelector</span><span class="o">&gt;</span> <span class="n">selectors</span> <span class="o">=</span> <span class="n">Lists</span><span class="o">.</span><span class="na">newArrayList</span><span class="o">();</span>
+
+                    <span class="k">for</span> <span class="o">(</span><span class="n">String</span> <span class="n">columnName</span> <span class="o">:</span> <span class="n">columnNames</span><span class="o">)</span> <span class="o">{</span>
+                      <span class="n">selectors</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">makeSelector</span><span class="o">(</span><span class="n">columnName</span><span class="o">,</span> <span class="n">index</span><span class="o">.</span><span class="na">getColumn</span><span class="o">(</span><span class="n">columnName</span><span class="o">),</span> <span class="n">cursor</span><span class="o">));</span>
+                    <span class="o">}</span>
+
+                    <span class="k">while</span> <span class="o">(!</span><span class="n">cursor</span><span class="o">.</span><span class="na">isDone</span><span class="o">())</span> <span class="o">{</span>
+                      <span class="kd">final</span> <span class="n">Map</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span> <span class="n">row</span> <span class="o">=</span> <span class="n">Maps</span><span class="o">.</span><span class="na">newLinkedHashMap</span><span class="o">();</span>
+
+                      <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">columnNames</span><span class="o">.</span><span class="na">size</span><span class="o">();</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+                        <span class="kd">final</span> <span class="n">String</span> <span class="n">columnName</span> <span class="o">=</span> <span class="n">columnNames</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">i</span><span class="o">);</span>
+                        <span class="kd">final</span> <span class="n">Object</span> <span class="n">value</span> <span class="o">=</span> <span class="n">selectors</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">i</span><span class="o">).</span><span class="na">get</span><span class="o">();</span>
+
+                        <span class="k">if</span> <span class="o">(</span><span class="n">timeISO8601</span> <span class="o">&amp;&amp;</span> <span class="n">columnNames</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">i</span><span class="o">).</span><span class="na">equals</span><span class="o">(</span><span class="n">Column</span><span class="o">.</span><span class="na">TIME_COLUMN_NAME</span><span class="o">))</span> <span class="o">{</span>
+                          <span class="n">row</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">columnName</span><span class="o">,</span> <span class="k">new</span> <span class="n">DateTime</span><span class="o">(</span><span class="n">value</span><span class="o">,</span> <span class="n">DateTimeZone</span><span class="o">.</span><span class="na">UTC</span><span class="o">).</span><span class="na">toString</span><span class="o">());</span>
+                        <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+                          <span class="n">row</span><span class="o">.</span><span class="na">put</span><span class="o">(</span><span class="n">columnName</span><span class="o">,</span> <span class="n">value</span><span class="o">);</span>
+                        <span class="o">}</span>
+                      <span class="o">}</span>
+
+                      <span class="k">try</span> <span class="o">{</span>
+                        <span class="n">result</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">objectMapper</span><span class="o">.</span><span class="na">writeValueAsString</span><span class="o">(</span><span class="n">row</span><span class="o">));</span>
+                      <span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">JsonProcessingException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+                        <span class="n">e</span><span class="o">.</span><span class="na">printStackTrace</span><span class="o">();</span>
+                      <span class="o">}</span>
+
+                      <span class="n">cursor</span><span class="o">.</span><span class="na">advance</span><span class="o">();</span>
+                    <span class="o">}</span>
+
+                    <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+                  <span class="o">}</span>
+                <span class="o">}</span>
+            <span class="o">);</span>
+
+    <span class="n">evaluateSequenceForSideEffects</span><span class="o">(</span><span class="n">sequence</span><span class="o">);</span>
+
+    <span class="k">return</span> <span class="n">result</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="kd">private</span> <span class="kt">void</span> <span class="nf">runBitmaps</span><span class="o">(</span><span class="kd">final</span> <span class="n">Injector</span> <span class="n">injector</span><span class="o">,</span> <span class="kd">final</span> <span class="n">QueryableIndex</span> <span class="n">index</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span>
+  <span class="o">{</span>
+    <span class="kd">final</span> <span class="n">ObjectMapper</span> <span class="n">objectMapper</span> <span class="o">=</span> <span class="n">injector</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">Key</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">ObjectMapper</span><span class="o">.</span><span class="na">class</span><span class="o">,</span> <span class="n">Json</span><span class="o">.</span><span class="na">class</span><span class="o">));</span>
+    <span class="kd">final</span> <span class="n">BitmapFactory</span> <span class="n">bitmapFactory</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="na">getBitmapFactoryForDimensions</span><span class="o">();</span>
+    <span class="kd">final</span> <span class="n">BitmapSerdeFactory</span> <span class="n">bitmapSerdeFactory</span><span class="o">;</span>
+
+    <span class="k">if</span> <span class="o">(</span><span class="n">bitmapFactory</span> <span class="k">instanceof</span> <span class="n">ConciseBitmapFactory</span><span class="o">)</span> <span class="o">{</span>
+      <span class="n">bitmapSerdeFactory</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ConciseBitmapSerdeFactory</span><span class="o">();</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="k">if</span> <span class="o">(</span><span class="n">bitmapFactory</span> <span class="k">instanceof</span> <span class="n">RoaringBitmapFactory</span><span class="o">)</span> <span class="o">{</span>
+      <span class="n">bitmapSerdeFactory</span> <span class="o">=</span> <span class="k">new</span> <span class="n">RoaringBitmapSerdeFactory</span><span class="o">(</span><span class="kc">null</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+      <span class="k">throw</span> <span class="k">new</span> <span class="n">ISE</span><span class="o">(</span>
+          <span class="s">&quot;Don&#39;t know which BitmapSerdeFactory to use for BitmapFactory[%s]!&quot;</span><span class="o">,</span>
+          <span class="n">bitmapFactory</span><span class="o">.</span><span class="na">getClass</span><span class="o">().</span><span class="na">getName</span><span class="o">()</span>
+      <span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="kd">final</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">columnNames</span> <span class="o">=</span> <span class="n">getColumnsToInclude</span><span class="o">(</span><span class="n">index</span><span class="o">);</span>
+
+    <span class="n">withOutputStream</span><span class="o">(</span>
+        <span class="k">new</span> <span class="n">Function</span><span class="o">&lt;</span><span class="n">OutputStream</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;()</span>
+        <span class="o">{</span>
+          <span class="nd">@Override</span>
+          <span class="kd">public</span> <span class="n">Object</span> <span class="nf">apply</span><span class="o">(</span><span class="kd">final</span> <span class="n">OutputStream</span> <span class="n">out</span><span class="o">)</span>
+          <span class="o">{</span>
+            <span class="k">try</span> <span class="o">{</span>
+              <span class="kd">final</span> <span class="n">JsonGenerator</span> <span class="n">jg</span> <span class="o">=</span> <span class="n">objectMapper</span><span class="o">.</span><span class="na">getFactory</span><span class="o">().</span><span class="na">createGenerator</span><span class="o">(</span><span class="n">out</span><span class="o">);</span>
+
+              <span class="n">jg</span><span class="o">.</span><span class="na">writeStartObject</span><span class="o">();</span>
+              <span class="n">jg</span><span class="o">.</span><span class="na">writeObjectField</span><span class="o">(</span><span class="s">&quot;bitmapSerdeFactory&quot;</span><span class="o">,</span> <span class="n">bitmapSerdeFactory</span><span class="o">);</span>
+              <span class="n">jg</span><span class="o">.</span><span class="na">writeFieldName</span><span class="o">(</span><span class="s">&quot;bitmaps&quot;</span><span class="o">);</span>
+              <span class="n">jg</span><span class="o">.</span><span class="na">writeStartObject</span><span class="o">();</span>
+
+              <span class="k">for</span> <span class="o">(</span><span class="kd">final</span> <span class="n">String</span> <span class="n">columnName</span> <span class="o">:</span> <span class="n">columnNames</span><span class="o">)</span> <span class="o">{</span>
+                <span class="kd">final</span> <span class="n">Column</span> <span class="n">column</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="na">getColumn</span><span class="o">(</span><span class="n">columnName</span><span class="o">);</span>
+                <span class="kd">final</span> <span class="n">BitmapIndex</span> <span class="n">bitmapIndex</span> <span class="o">=</span> <span class="n">column</span><span class="o">.</span><span class="na">getBitmapIndex</span><span class="o">();</span>
+
+                <span class="k">if</span> <span class="o">(</span><span class="n">bitmapIndex</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                  <span class="n">jg</span><span class="o">.</span><span class="na">writeNullField</span><span class="o">(</span><span class="n">columnName</span><span class="o">);</span>
+                <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+                  <span class="n">jg</span><span class="o">.</span><span class="na">writeFieldName</span><span class="o">(</span><span class="n">columnName</span><span class="o">);</span>
+                  <span class="n">jg</span><span class="o">.</span><span class="na">writeStartObject</span><span class="o">();</span>
+                  <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">bitmapIndex</span><span class="o">.</span><span class="na">getCardinality</span><span class="o">();</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+                    <span class="n">jg</span><span class="o">.</span><span class="na">writeFieldName</span><span class="o">(</span><span class="n">Strings</span><span class="o">.</span><span class="na">nullToEmpty</span><span class="o">(</span><span class="n">bitmapIndex</span><span class="o">.</span><span class="na">getValue</span><span class="o">(</span><span class="n">i</span><span class="o">)));</span>
+                    <span class="kd">final</span> <span class="n">ImmutableBitmap</span> <span class="n">bitmap</span> <span class="o">=</span> <span class="n">bitmapIndex</span><span class="o">.</span><span class="na">getBitmap</span><span class="o">(</span><span class="n">i</span><span class="o">);</span>
+                    <span class="k">if</span> <span class="o">(</span><span class="n">decompressBitmaps</span><span class="o">)</span> <span class="o">{</span>
+                      <span class="n">jg</span><span class="o">.</span><span class="na">writeStartArray</span><span class="o">();</span>
+                      <span class="kd">final</span> <span class="n">IntIterator</span> <span class="n">iterator</span> <span class="o">=</span> <span class="n">bitmap</span><span class="o">.</span><span class="na">iterator</span><span class="o">();</span>
+                      <span class="k">while</span> <span class="o">(</span><span class="n">iterator</span><span class="o">.</span><span class="na">hasNext</span><span class="o">())</span> <span class="o">{</span>
+                        <span class="kd">final</span> <span class="kt">int</span> <span class="n">rowNum</span> <span class="o">=</span> <span class="n">iterator</span><span class="o">.</span><span class="na">next</span><span class="o">();</span>
+                        <span class="n">jg</span><span class="o">.</span><span class="na">writeNumber</span><span class="o">(</span><span class="n">rowNum</span><span class="o">);</span>
+                      <span class="o">}</span>
+                      <span class="n">jg</span><span class="o">.</span><span class="na">writeEndArray</span><span class="o">();</span>
+                    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+                      <span class="n">jg</span><span class="o">.</span><span class="na">writeBinary</span><span class="o">(</span><span class="n">bitmapSerdeFactory</span><span class="o">.</span><span class="na">getObjectStrategy</span><span class="o">().</span><span class="na">toBytes</span><span class="o">(</span><span class="n">bitmap</span><span class="o">));</span>
+                    <span class="o">}</span>
+                  <span class="o">}</span>
+                  <span class="n">jg</span><span class="o">.</span><span class="na">writeEndObject</span><span class="o">();</span>
+                <span class="o">}</span>
+              <span class="o">}</span>
+
+              <span class="n">jg</span><span class="o">.</span><span class="na">writeEndObject</span><span class="o">();</span>
+              <span class="n">jg</span><span class="o">.</span><span class="na">writeEndObject</span><span class="o">();</span>
+              <span class="n">jg</span><span class="o">.</span><span class="na">close</span><span class="o">();</span>
+            <span class="o">}</span>
+            <span class="k">catch</span> <span class="o">(</span><span class="n">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+              <span class="k">throw</span> <span class="n">Throwables</span><span class="o">.</span><span class="na">propagate</span><span class="o">(</span><span class="n">e</span><span class="o">);</span>
+            <span class="o">}</span>
+
+            <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+          <span class="o">}</span>
+        <span class="o">}</span>
+    <span class="o">);</span>
+  <span class="o">}</span>
+
+  <span class="kd">private</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="nf">getColumnsToInclude</span><span class="o">(</span><span class="kd">final</span> <span class="n">QueryableIndex</span> <span class="n">index</span><span class="o">)</span>
+  <span class="o">{</span>
+    <span class="kd">final</span> <span class="n">Set</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">columnNames</span> <span class="o">=</span> <span class="n">Sets</span><span class="o">.</span><span class="na">newLinkedHashSet</span><span class="o">(</span><span class="n">columnNamesFromCli</span><span class="o">);</span>
+
+    <span class="c1">// Empty columnNames =&gt; include all columns.</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">columnNames</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">())</span> <span class="o">{</span>
+      <span class="n">columnNames</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">Column</span><span class="o">.</span><span class="na">TIME_COLUMN_NAME</span><span class="o">);</span>
+      <span class="n">Iterables</span><span class="o">.</span><span class="na">addAll</span><span class="o">(</span><span class="n">columnNames</span><span class="o">,</span> <span class="n">index</span><span class="o">.</span><span class="na">getColumnNames</span><span class="o">());</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+      <span class="c1">// Remove any provided columns that do not exist in this segment.</span>
+      <span class="k">for</span> <span class="o">(</span><span class="n">String</span> <span class="n">columnName</span> <span class="o">:</span> <span class="n">ImmutableList</span><span class="o">.</span><span class="na">copyOf</span><span class="o">(</span><span class="n">columnNames</span><span class="o">))</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">index</span><span class="o">.</span><span class="na">getColumn</span><span class="o">(</span><span class="n">columnName</span><span class="o">)</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+          <span class="n">columnNames</span><span class="o">.</span><span class="na">remove</span><span class="o">(</span><span class="n">columnName</span><span class="o">);</span>
+        <span class="o">}</span>
+      <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="k">return</span> <span class="n">ImmutableList</span><span class="o">.</span><span class="na">copyOf</span><span class="o">(</span><span class="n">columnNames</span><span class="o">);</span>
+  <span class="o">}</span>
+
+  <span class="kd">private</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">T</span> <span class="nf">withOutputStream</span><span class="o">(</span><span class="n">Function</span><span class="o">&lt;</span><span class="n">OutputStream</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">f</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span>
+  <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">outputFileName</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+      <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="na">apply</span><span class="o">(</span><span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">);</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+      <span class="k">try</span> <span class="o">(</span><span class="kd">final</span> <span class="n">OutputStream</span> <span class="n">out</span> <span class="o">=</span> <span class="k">new</span> <span class="n">FileOutputStream</span><span class="o">(</span><span class="n">outputFileName</span><span class="o">))</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">f</span><span class="o">.</span><span class="na">apply</span><span class="o">(</span><span class="n">out</span><span class="o">);</span>
+      <span class="o">}</span>
+    <span class="o">}</span>
+  <span class="o">}</span>
+
+
+  <span class="kd">private</span> <span class="kd">static</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">Sequence</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="nf">executeQuery</span><span class="o">(</span><span class="kd">final</span> <span class="n">Injector</span> <span class="n">injector</span><span class="o">,</span> <span class="kd">final</span> <span class="n">QueryableIndex</span> <span class="n">index</span><span class="o">,</span> <span class="kd">final</span> <span class="n">Query</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">query</span><span class="o">)</span>
+  <span class="o">{</span>
+    <span class="kd">final</span> <span class="n">QueryRunnerFactoryConglomerate</span> <span class="n">conglomerate</span> <span class="o">=</span> <span class="n">injector</span><span class="o">.</span><span class="na">getInstance</span><span class="o">(</span><span class="n">QueryRunnerFactoryConglomerate</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+    <span class="kd">final</span> <span class="n">QueryRunnerFactory</span> <span class="n">factory</span> <span class="o">=</span> <span class="n">conglomerate</span><span class="o">.</span><span class="na">findFactory</span><span class="o">(</span><span class="n">query</span><span class="o">);</span>
+    <span class="kd">final</span> <span class="n">QueryRunner</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">runner</span> <span class="o">=</span> <span class="n">factory</span><span class="o">.</span><span class="na">createRunner</span><span class="o">(</span><span class="k">new</span> <span class="n">QueryableIndexSegment</span><span class="o">(</span><span class="s">&quot;segment&quot;</span><span class="o">,</span> <span class="n">index</span><span class="o">));</span>
+    <span class="kd">final</span> <span class="n">Sequence</span> <span class="n">results</span> <span class="o">=</span> <span class="n">factory</span><span class="o">.</span><span class="na">getToolchest</span><span class="o">().</span><span class="na">mergeResults</span><span class="o">(</span>
+        <span class="n">factory</span><span class="o">.</span><span class="na">mergeRunners</span><span class="o">(</span><span class="n">MoreExecutors</span><span class="o">.</span><span class="na">sameThreadExecutor</span><span class="o">(),</span> <span class="n">ImmutableList</span><span class="o">.&lt;</span><span class="n">QueryRunner</span><span class="o">&gt;</span><span class="n">of</span><span class="o">(</span><span class="n">runner</span><span class="o">))</span>
+    <span class="o">).</span><span class="na">run</span><span class="o">(</span><span class="n">query</span><span class="o">,</span> <span class="n">Maps</span><span class="o">.&lt;</span><span class="n">String</span><span class="o">,</span> <span class="n">Object</span><span class="o">&gt;</span><span class="n">newHashMap</span><span class="o">());</span>
+    <span class="k">return</span> <span class="o">(</span><span class="n">Sequence</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;)</span> <span class="n">results</span><span class="o">;</span>
+  <span class="o">}</span>
+
+  <span class="kd">private</span> <span class="kd">static</span> <span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="nf">evaluateSequenceForSideEffects</span><span class="o">(</span><span class="kd">final</span> <span class="n">Sequence</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">sequence</span><span class="o">)</span>
+  <span class="o">{</span>
+    <span class="n">sequence</span><span class="o">.</span><span class="na">accumulate</span><span class="o">(</span>
+        <span class="kc">null</span><span class="o">,</span>
+        <span class="k">new</span> <span class="n">Accumulator</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">,</span> <span class="n">T</span><span class="o">&gt;()</span>
+        <span class="o">{</span>
+          <span class="nd">@Override</span>
+          <span class="kd">public</span> <span class="n">Object</span> <span class="nf">accumulate</span><span class="o">(</span><span class="n">Object</span> <span class="n">accumulated</span><span class="o">,</span> <span class="n">T</span> <span class="n">in</span><span class="o">)</span>
+          <span class="o">{</span>
+            <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+          <span class="o">}</span>
+        <span class="o">}</span>
+    <span class="o">);</span>
+  <span class="o">}</span>
+
+  <span class="kd">private</span> <span class="kd">static</span> <span class="n">ObjectColumnSelector</span> <span class="nf">makeSelector</span><span class="o">(</span>
+      <span class="kd">final</span> <span class="n">String</span> <span class="n">columnName</span><span class="o">,</span>
+      <span class="kd">final</span> <span class="n">Column</span> <span class="n">column</span><span class="o">,</span>
+      <span class="kd">final</span> <span class="n">ColumnSelectorFactory</span> <span class="n">columnSelectorFactory</span>
+  <span class="o">)</span>
+  <span class="o">{</span>
+    <span class="kd">final</span> <span class="n">ObjectColumnSelector</span> <span class="n">selector</span><span class="o">;</span>
+
+    <span class="k">if</span> <span class="o">(</span><span class="n">column</span><span class="o">.</span><span class="na">getDictionaryEncoding</span><span class="o">()</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+      <span class="c1">// Special case for dimensions -&gt; always wrap multi-value in arrays</span>
+      <span class="kd">final</span> <span class="n">DimensionSelector</span> <span class="n">dimensionSelector</span> <span class="o">=</span> <span class="n">columnSelectorFactory</span><span class="o">.</span><span class="na">makeDimensionSelector</span><span class="o">(</span>
+          <span class="k">new</span> <span class="n">DefaultDimensionSpec</span><span class="o">(</span><span class="n">columnName</span><span class="o">,</span> <span class="n">columnName</span><span class="o">)</span>
+      <span class="o">);</span>
+      <span class="k">if</span> <span class="o">(</span><span class="n">column</span><span class="o">.</span><span class="na">getDictionaryEncoding</span><span class="o">().</span><span class="na">hasMultipleValues</span><span class="o">())</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="n">ObjectColumnSelector</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&gt;()</span>
+        <span class="o">{</span>
+          <span class="nd">@Override</span>
+          <span class="kd">public</span> <span class="n">Class</span><span class="o">&lt;</span><span class="n">List</span><span class="o">&gt;</span> <span class="nf">classOfObject</span><span class="o">()</span>
+          <span class="o">{</span>
+            <span class="k">return</span> <span class="n">List</span><span class="o">.</span><span class="na">class</span><span class="o">;</span>
+          <span class="o">}</span>
+
+          <span class="nd">@Override</span>
+          <span class="kd">public</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="nf">get</span><span class="o">()</span>
+          <span class="o">{</span>
+            <span class="kd">final</span> <span class="n">IndexedInts</span> <span class="n">row</span> <span class="o">=</span> <span class="n">dimensionSelector</span><span class="o">.</span><span class="na">getRow</span><span class="o">();</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">row</span><span class="o">.</span><span class="na">size</span><span class="o">()</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+              <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+            <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+              <span class="kd">final</span> <span class="n">List</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">retVal</span> <span class="o">=</span> <span class="n">Lists</span><span class="o">.</span><span class="na">newArrayList</span><span class="o">();</span>
+              <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">row</span><span class="o">.</span><span class="na">size</span><span class="o">();</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+                <span class="n">retVal</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">dimensionSelector</span><span class="o">.</span><span class="na">lookupName</span><span class="o">(</span><span class="n">row</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">i</span><span class="o">)));</span>
+              <span class="o">}</span>
+              <span class="k">return</span> <span class="n">retVal</span><span class="o">;</span>
+            <span class="o">}</span>
+          <span class="o">}</span>
+        <span class="o">};</span>
+      <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="k">new</span> <span class="n">ObjectColumnSelector</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;()</span>
+        <span class="o">{</span>
+          <span class="nd">@Override</span>
+          <span class="kd">public</span> <span class="n">Class</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="nf">classOfObject</span><span class="o">()</span>
+          <span class="o">{</span>
+            <span class="k">return</span> <span class="n">String</span><span class="o">.</span><span class="na">class</span><span class="o">;</span>
+          <span class="o">}</span>
+
+          <span class="nd">@Override</span>
+          <span class="kd">public</span> <span class="n">String</span> <span class="nf">get</span><span class="o">()</span>
+          <span class="o">{</span>
+            <span class="kd">final</span> <span class="n">IndexedInts</span> <span class="n">row</span> <span class="o">=</span> <span class="n">dimensionSelector</span><span class="o">.</span><span class="na">getRow</span><span class="o">();</span>
+            <span class="k">return</span> <span class="n">row</span><span class="o">.</span><span class="na">size</span><span class="o">()</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">?</span> <span class="kc">null</span> <span class="o">:</span> <span class="n">dimensionSelector</span><span class="o">.</span><span class="na">lookupName</span><span class="o">(</span><span class="n">row</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="mi">0</span><span class="o">));</span>
+          <span class="o">}</span>
+        <span class="o">};</span>
+      <span class="o">}</span>
+    <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+      <span class="kd">final</span> <span class="n">ObjectColumnSelector</span> <span class="n">maybeSelector</span> <span class="o">=</span> <span class="n">columnSelectorFactory</span><span class="o">.</span><span class="na">makeObjectColumnSelector</span><span class="o">(</span><span class="n">columnName</span><span class="o">);</span>
+      <span class="k">if</span> <span class="o">(</span><span class="n">maybeSelector</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">selector</span> <span class="o">=</span> <span class="n">maybeSelector</span><span class="o">;</span>
+      <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+        <span class="c1">// Selector failed to create (unrecognized column type?)</span>
+        <span class="n">log</span><span class="o">.</span><span class="na">warn</span><span class="o">(</span><span class="s">&quot;Could not create selector for column[%s], returning null.&quot;</span><span class="o">,</span> <span class="n">columnName</span><span class="o">);</span>
+        <span class="n">selector</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ObjectColumnSelector</span><span class="o">()</span>
+        <span class="o">{</span>
+          <span class="nd">@Override</span>
+          <span class="kd">public</span> <span class="n">Class</span> <span class="nf">classOfObject</span><span class="o">()</span>
+          <span class="o">{</span>
+            <span class="k">return</span> <span class="n">Object</span><span class="o">.</span><span class="na">class</span><span class="o">;</span>
+          <span class="o">}</span>
+
+          <span class="nd">@Override</span>
+          <span class="kd">public</span> <span class="n">Object</span> <span class="nf">get</span><span class="o">()</span>
+          <span class="o">{</span>
+            <span class="k">return</span> <span class="kc">null</span><span class="o">;</span>
+          <span class="o">}</span>
+        <span class="o">};</span>
+      <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="k">return</span> <span class="n">selector</span><span class="o">;</span>
+  <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>使用该工具可以直接获取到dump文件的结果.例如在spark中引入该类,直接读取smoosh文件,经处理之后.输出parquet文件.</p>
+            <aside>
+            <hr/>
+            <nav>
+            <ul class="articles_timeline">
+ 
+                <li class="previous_article">« <a href="/2019-03-31-184047-ch.html" title="Previous: Mac小技巧">Mac小技巧</a></li>
+ 
+                <li class="next_article"><a href="/2019-04-01-144303-ch.html" title="Next: Maven：mirror和repository区别">Maven：mirror和repository区别</a> »</li>
+            </ul>
+            </nav>
+            </aside>
+        </div>
+        <section>
+        <div class="span2" style="float:right;font-size:0.9em;">
+ 
+            <h4>Published</h4>
+            <time pubdate="pubdate" datetime="2019-04-01T09:27:32+08:00"> 4 1, 2019</time>
+            <h4>Category</h4>
+            <a class="category-link" href="/categories.html#druid-ref">druid</a> 
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article"> 
+                <li><a href="/tags.html#druid-ref">druid
+                    <span>3</span>
+</a></li>
+            </ul>
+
+        </div>
+        </section>
+</div>
+<div id="gitalk-container"></div>
+</article>
+
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+<script>
+    var gitalk = new Gitalk({
+        clientID: '55daf540951794dd3faf',
+        clientSecret: 'd6eaad9fa6d9e7ff2647ef8b6e21327da0cc7cda',
+        repo: 'blog-comment',
+        owner: 'xixuebin',
+        admin: ['xixuebin'],
+        id: location.pathname,      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+    })
+
+    gitalk.render('gitalk-container')
+</script>
+
+                </div>
+                <div class="span1"></div>
+            </div>
+        </div>
+    </div>
+<footer>
+<div id="footer">
+    <ul class="footer-content">
+        <li class="elegant-power">Powered by <a href="http://getpelican.com/" title="Pelican Home Page">Pelican</a>. Theme: <a href="http://oncrashreboot.com/pelican-elegant" title="Theme Elegant Home Page">Elegant</a> by <a href="http://oncrashreboot.com" title="Talha Mansoor Home Page">Talha Mansoor</a></li>
+    </ul>
+</div>
+</footer>            <script src="https://code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+    </body>
+</html>

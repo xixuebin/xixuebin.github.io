@@ -60,7 +60,8 @@
 <div class="row-fluid">
         <div class="span8 offset2 article-content">
 
-            <!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets -->
+            <hr>
+<!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets -->
 
 <h1>我的开发工具链</h1>
 <ul>
@@ -69,6 +70,30 @@
 <h1>博客文章写作工作</h1>
 <h2>pelican</h2>
 <h2>vscode</h2>
+<p>vscode用到的插件列表:</p>
+<h3><a href="https://github.com/vvkee/vscode-aliyun-upload-image">aliyun oss upload image</a></h3>
+<p>该插件可以直接上传图片到阿里云上,并生成访问连接,mac下的快捷键是shit+p,配置参数如下:</p>
+<div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="err">//</span> <span class="err">地区，在阿里云对象存储中bucket的概览里面有EndPoint（地域节点），oss-cn-hongkong.aliyuncs.com中的oss-cn-hongkong就是region</span>
+    <span class="nt">&quot;aliyun.region&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>    
+    <span class="err">//</span> <span class="err">accessKeyId（RAM中生成的accessKeyId）</span>
+    <span class="nt">&quot;aliyun.accessKeyId&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="err">//</span> <span class="err">accessKeySecret（RAM中生成的accessKeySecret）</span>
+    <span class="nt">&quot;aliyun.accessKeySecret&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="err">//</span> <span class="err">输入你的bucket名称</span>
+    <span class="nt">&quot;aliyun.bucket&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="err">//</span> <span class="err">remotePath，您的存储目录，例如要把文件存在http://${你的yuming</span><span class="p">}</span><span class="err">/images/png，则这里填写images/png）</span>
+    <span class="s2">&quot;aliyun.remotePath&quot;</span><span class="err">:</span> <span class="s2">&quot;&quot;</span><span class="err">,</span>
+    <span class="err">//</span> <span class="err">阿里云oss域名，可以定义自己的域名，需要在oss中配置，支持https</span>
+    <span class="s2">&quot;aliyun.domain&quot;</span><span class="err">:</span> <span class="s2">&quot;&quot;</span><span class="err">,</span>
+    <span class="err">//</span> <span class="err">本地文件，用于临时缓存（默认:</span> <span class="err">/tmp/.aliyun）</span>
+    <span class="s2">&quot;aliyun.localPath&quot;</span><span class="err">:</span> <span class="s2">&quot;/tmp/.aliyun&quot;</span>
+<span class="err">}</span>
+</pre></div>
+
+
+<h3><a href="https://github.com/yzhang-gh/vscode-markdown">Markdown All in One</a></h3>
+<p>可以完成vscode上,写markdown的大部分需求</p>
             <aside>
             <hr/>
             <nav>
@@ -91,7 +116,7 @@
             <h4>Tags</h4>
             <ul class="list-of-tags tags-in-article"> 
                 <li><a href="/tags.html#工具-ref">工具
-                    <span>3</span>
+                    <span>6</span>
 </a></li>
             </ul>
 

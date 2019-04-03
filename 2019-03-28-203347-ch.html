@@ -1,0 +1,838 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8"> 
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="kevin.xi" />
+        <meta name="copyright" content="kevin.xi" />
+
+<meta name="keywords" content="flink, flink, " />
+        <title>flink源码系列-监控  · 寒玉 Blog
+</title>
+        <!-- <link href="http://cdn-images.mailchimp.com/embedcode/slim-081711.css" rel="stylesheet" type="text/css"> -->
+        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="/theme/css/style.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="/theme/css/solarizedlight.css" media="screen">
+        <link rel="shortcut icon" href="/theme/images/favicon.ico" type="image/x-icon" />
+        <link rel="apple-touch-icon" href="/theme/images/apple-touch-icon.png" />
+        <link rel="apple-touch-icon" sizes="57x57" href="/theme/images/apple-touch-icon-57x57.png" />
+        <link rel="apple-touch-icon" sizes="72x72" href="/theme/images/apple-touch-icon-72x72.png" />
+        <link rel="apple-touch-icon" sizes="114x114" href="/theme/images/apple-touch-icon-114x114.png" />
+        <link rel="apple-touch-icon" sizes="144x144" href="/theme/images/apple-touch-icon-144x144.png" />
+        <link rel="icon" href="/theme/images/apple-touch-icon-144x144.png" />
+    </head>
+    <body>
+        <div id="content-sans-footer">
+        <div class="navbar navbar-static-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="/"><span class=site-name>寒玉 Blog</span></a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav pull-right top-menu">
+                            <li ><a href="">Home</a></li>
+                            <li ><a href="/pages/books-date-2017-12-05-1130-ch.html">Books</a></li>
+                            <li ><a href="/pages/about-date-2015-05-10-1010-ch.html">About Me</a></li>
+                            <li ><a href="/categories.html">Categories</a></li>
+                            <li ><a href="/tags.html">Tags</a></li>
+                            <li ><a href="/archives.html">Archives</a></li>
+                            <li><form class="navbar-search" action="/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span1"></div>
+                <div class="span10">
+<article>
+<div class="row-fluid">
+    <header class="page_header span10 offset2">
+    <h1><a href="/2019-03-28-203347-ch.html"> flink源码系列-监控  </a></h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset2 article-content">
+
+            <hr>
+<!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets -->
+
+<blockquote>
+<p>Flink对于指标监测有一套自己的实现，指标的统计方式有四种，这些指标都实现了Metric这个接口，而Metric这个接口只是一个标识，本身并没有定义如何方法接口.</p>
+</blockquote>
+<h1>Metric</h1>
+<p>metric的类集成关系如下:</p>
+<p>从图中可以看出，Metric这个接口有四个直接子类，分别是:</p>
+<ul>
+<li>Gauge —— 最简单的度量指标，只是简单的返回一个值，比如返回一个队列中当前元素的个数；</li>
+<li>Counter —— 计数器，在一些情况下，会比Gauge高效，比如通过一个AtomicLong变量来统计一个队列的长度；</li>
+<li>Meter —— 吞吐量的度量，也就是一系列事件发生的速率，例如TPS；</li>
+<li>Histogram —— 度量值的统计结果，如最大值、最小值、平均值，以及分布情况等。</li>
+</ul>
+<p>以MeterView为例，分析一个Metric的具体实现。MeterView还实现View接口，实现View接口的类，表示其会定期的执行update方法，进行数据的更新</p>
+<div class="highlight"><pre><span></span><span class="n">publicclassMeterViewimplementsMeter</span><span class="o">,</span><span class="n">View</span><span class="o">{</span>
+    <span class="c1">//底层使用的计算器</span>
+    <span class="cm">/**Theunderlyingcountermaintainingthecount.*/</span>
+    <span class="n">privatefinalCountercounter</span><span class="o">;</span>
+    <span class="c1">//计算平均值的时间跨度</span>
+    <span class="cm">/**Thetime-spanoverwhichtheaverageiscalculated.*/</span>
+    <span class="n">privatefinalinttimeSpanInSeconds</span><span class="o">;</span>
+    <span class="c1">//包含历史数据的循环数组</span>
+    <span class="cm">/**Circulararraycontainingthehistoryofvalues.*/</span>
+    <span class="n">privatefinallong</span><span class="o">[]</span><span class="n">values</span><span class="o">;</span>
+    <span class="c1">//当前时间在数组内的索引</span>
+    <span class="cm">/**Theindexinthearrayforthecurrenttime.*/</span>
+    <span class="n">privateinttime</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span>
+    <span class="c1">//最近计算的比率</span>
+    <span class="cm">/**Thelastratewecomputed.*/</span>
+    <span class="n">privatedoublecurrentRate</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span>
+    <span class="n">publicMeterView</span><span class="o">(</span><span class="n">inttimeSpanInSeconds</span><span class="o">){</span>
+        <span class="k">this</span><span class="o">(</span><span class="n">newSimpleCounter</span><span class="o">(),</span><span class="n">timeSpanInSeconds</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="n">publicMeterView</span><span class="o">(</span><span class="n">Countercounter</span><span class="o">,</span><span class="n">inttimeSpanInSeconds</span><span class="o">){</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">counter</span><span class="o">=</span><span class="n">counter</span><span class="o">;</span>
+        <span class="c1">//这里的操作是为了让时间跨度刚好是UPDATE_INTERVAL_SECONDS的整数倍</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">timeSpanInSeconds</span><span class="o">=</span><span class="n">timeSpanInSeconds</span><span class="o">-(</span><span class="n">timeSpanInSeconds</span><span class="o">%</span><span class="n">UPDATE_INTERVAL_SECONDS</span><span class="o">);</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">values</span><span class="o">=</span><span class="n">newlong</span><span class="o">[</span><span class="k">this</span><span class="o">.</span><span class="na">timeSpanInSeconds</span><span class="o">/</span><span class="n">UPDATE_INTERVAL_SECONDS</span><span class="o">+</span><span class="mi">1</span><span class="o">];</span>
+    <span class="o">}</span>
+    <span class="nd">@Override</span>
+    <span class="n">publicvoidmarkEvent</span><span class="o">(){</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">counter</span><span class="o">.</span><span class="na">inc</span><span class="o">();</span>
+    <span class="o">}</span>
+    <span class="nd">@Override</span>
+    <span class="n">publicvoidmarkEvent</span><span class="o">(</span><span class="n">longn</span><span class="o">){</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">counter</span><span class="o">.</span><span class="na">inc</span><span class="o">(</span><span class="n">n</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="nd">@Override</span>
+    <span class="n">publiclonggetCount</span><span class="o">(){</span>
+        <span class="n">returncounter</span><span class="o">.</span><span class="na">getCount</span><span class="o">();</span>
+    <span class="o">}</span>
+    <span class="nd">@Override</span>
+    <span class="n">publicdoublegetRate</span><span class="o">(){</span>
+        <span class="n">returncurrentRate</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="nd">@Override</span>
+    <span class="n">publicvoidupdate</span><span class="o">(){</span>
+        <span class="n">time</span><span class="o">=(</span><span class="n">time</span><span class="o">+</span><span class="mi">1</span><span class="o">)%</span><span class="n">values</span><span class="o">.</span><span class="na">length</span><span class="o">;</span>
+        <span class="n">values</span><span class="o">[</span><span class="n">time</span><span class="o">]=</span><span class="n">counter</span><span class="o">.</span><span class="na">getCount</span><span class="o">();</span>
+        <span class="n">currentRate</span><span class="o">=((</span><span class="kt">double</span><span class="o">)(</span><span class="n">values</span><span class="o">[</span><span class="n">time</span><span class="o">]-</span><span class="n">values</span><span class="o">[(</span><span class="n">time</span><span class="o">+</span><span class="mi">1</span><span class="o">)%</span><span class="n">values</span><span class="o">.</span><span class="na">length</span><span class="o">])</span>
+            <span class="o">/</span><span class="n">timeSpanInSeconds</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>从类的属性变量中可以看出，MeterView是在一个Counter计数器的基础之上，封装了一层，从而实现事件每秒的平均速率。以values这个长整型的数组，作为环形数组，实现对最新的历史数据的保存。 在构造函数中，会对入参timeSpanInSeconds这个时间跨度进行修正，使其刚好是UPDATE_INTERVAL_SECONDS的整数倍，另外values数组的长度是timeSpanInSeconds对UPDATE_INTERVAL_SECONDS倍数，再加上1，这样这个数组的最新数据和最老的数据之间的时间间隔就刚好是timeSpanInSeconds。 假设values数组的长度为n，则索引n-1处的统计值，和索引0处的统计值，时间间隔就是timeSpanInSeconds由于是环形数组，所以索引0处的统计值，和索引1处的统计值的时间间隔就是timeSpanInSeconds
+所以索引i处的统计值，和索引(i+1)%n处的统计值，时间间隔是timeSpanInSeconds</p>
+<p>MetricGroup
+为了便于对Metric进行方便的管理和区分，可以对Metric进行分组，MetricGroup就是用来实现这个功能的。 
+MetricGroup的相关子类的继承关系如下所示。</p>
+<p>其中:
+ProxyMetricGroup —— 这是一个代理类，就是把新Metric或者新的子MetricGroup的注册，委托给代理MetricGroup进行处理；
+AbstractMetricGroup —— 对新增Metric和子MetricGroup的相关方法进行了实现；
+在AbstractMetricGroup中有这些属性</p>
+<div class="highlight"><pre><span></span><span class="c1">//用来保存这个MetricGroup的父MetricGroup</span>
+<span class="n">protectedfinalAparent</span><span class="o">;</span>
+<span class="c1">//这个map，是用来保存当前MetricGroup中注册的Metric；</span>
+<span class="n">privatefinalMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span><span class="n">Metric</span><span class="o">&gt;</span><span class="n">metrics</span><span class="o">=</span><span class="n">newHashMap</span><span class="o">&lt;&gt;();</span>
+<span class="c1">//这个map，是用来保存当前MetricGroup中注册子MetricGroup；</span>
+<span class="n">privatefinalMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span><span class="n">AbstractMetricGroup</span><span class="o">&gt;</span><span class="n">groups</span><span class="o">=</span><span class="n">newHashMap</span><span class="o">&lt;&gt;();</span>
+</pre></div>
+
+
+<p>在MetricGroup中，可以建立一个树状的结构，用来存储和归类相关的Metric。</p>
+<p>MetricReporter
+MetricReporter是用来向外披露Metric的监测结果的接口。 
+由于MetricReporter的子类在实例化时，都是通过反射机制，所以对于其实现子类，需要有一个公共，无参的构造函数，这个接口的定义如下:</p>
+<div class="highlight"><pre><span></span><span class="n">publicinterfaceMetricReporter</span><span class="o">{</span>
+<span class="n">voidopen</span><span class="o">(</span><span class="n">MetricConfigconfig</span><span class="o">);</span>
+<span class="n">voidclose</span><span class="o">();</span>
+<span class="n">voidnotifyOfAddedMetric</span><span class="o">(</span><span class="n">Metricmetric</span><span class="o">,</span><span class="n">StringmetricName</span><span class="o">,</span><span class="n">MetricGroupgroup</span><span class="o">);</span>
+<span class="n">voidnotifyOfRemovedMetric</span><span class="o">(</span><span class="n">Metricmetric</span><span class="o">,</span><span class="n">StringmetricName</span><span class="o">,</span><span class="n">MetricGroupgroup</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>open —— 由于子类都是用无参构造函数，通过反射进行实例化，所以相关初始化的工作都是放在这里进行的，并且这个方法需要在实例化后，就需要调用该方法进行相关初始化的工作；
+close —— 这里就是在关闭时，进行资源回收等相关操作的；
+notifyOfAddedMetric —— 当有一个新的Metric注册时，会调用该方法来通知MetricReporter； notifyOfRemovedMetric —— 当有一个Metric被移除时，通过这个方法来通知MetricReporter；
+Metric Report的类集成图:</p>
+<p>从图上可以看出flink只是的report类型有:Slf4j,StatsD,Ganglia,Graphite,JMX,Prometheus,Datadog.
+MetricRegistry
+MetricGroup是用来对Metric进行分组管理，MetricReporter是用来对外披露Metric，而MetricRegistry就是这两者之间的桥梁，通过MetricRegistry，就可以让MetricReporter感知到在MetricGroup中的Metric发生的变化情况。 对于MetricRegistry这个接口，其实现为MetricRegistryImpl，而其在实例化时，构造函数的入参是一个MetricRegistryConfiguration实例。
+MetricRegistryConfiguration
+MetricRegistryConfiguration顾名思义，就是MetricRegistry的相关配置参数，主要有三个属性，如下：</p>
+<div class="highlight"><pre><span></span><span class="cm">/**flink中不同组件的范围格式*/</span>
+<span class="n">privatefinalScopeFormatsscopeFormats</span><span class="o">;</span>
+<span class="cm">/**字符串的分隔符，这是一个全局的分隔符*/</span>
+<span class="n">privatefinalchardelimiter</span><span class="o">;</span>
+<span class="cm">/**配置中每个reporter的名称和其对应的配置对象的列表*/</span>
+<span class="n">privatefinalList</span><span class="o">&lt;</span><span class="n">Tuple2</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span><span class="n">Configuration</span><span class="o">&gt;&gt;</span><span class="n">reporterConfigurations</span><span class="o">;</span>
+</pre></div>
+
+
+<p>这些属性，都是从配置参数中获取而来，逻辑如下：</p>
+<p></p>
+<div class="highlight"><pre><span></span><span class="n">publicstaticMetricRegistryConfigurationfromConfiguration</span><span class="o">(</span><span class="n">Configurationconfiguration</span><span class="o">){</span>
+<span class="cm">/**获取scopeFormats*/</span>
+<span class="n">ScopeFormatsscopeFormats</span><span class="o">;</span>
+<span class="k">try</span><span class="o">{</span>
+<span class="n">scopeFormats</span><span class="o">=</span><span class="n">ScopeFormats</span><span class="o">.</span><span class="na">fromConfig</span><span class="o">(</span><span class="n">configuration</span><span class="o">);</span>
+<span class="o">}</span><span class="k">catch</span><span class="o">(</span><span class="n">Exceptione</span><span class="o">){</span>
+<span class="n">LOG</span><span class="o">.</span><span class="na">warn</span><span class="o">(</span><span class="s">&quot;Failedtoparsescopeformat,usingdefaultscopeformats&quot;</span><span class="o">,</span><span class="n">e</span><span class="o">);</span>
+<span class="n">scopeFormats</span><span class="o">=</span><span class="n">ScopeFormats</span><span class="o">.</span><span class="na">fromConfig</span><span class="o">(</span><span class="n">newConfiguration</span><span class="o">());</span>
+<span class="o">}</span>
+<span class="cm">/**获取分隔符*/</span>
+<span class="n">chardelim</span><span class="o">;</span>
+<span class="k">try</span><span class="o">{</span>
+<span class="n">delim</span><span class="o">=</span><span class="n">configuration</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="n">MetricOptions</span><span class="o">.</span><span class="na">SCOPE_DELIMITER</span><span class="o">).</span><span class="na">charAt</span><span class="o">(</span><span class="mi">0</span><span class="o">);</span>
+<span class="o">}</span><span class="k">catch</span><span class="o">(</span><span class="n">Exceptione</span><span class="o">){</span>
+<span class="n">LOG</span><span class="o">.</span><span class="na">warn</span><span class="o">(</span><span class="s">&quot;Failedtoparsedelimiter,usingdefaultdelimiter.&quot;</span><span class="o">,</span><span class="n">e</span><span class="o">);</span>
+<span class="n">delim</span><span class="o">=</span><span class="sc">&#39;.&#39;</span><span class="o">;</span>
+<span class="o">}</span>
+<span class="cm">/**获取MetricReporter相关的配置信息，MetricReporter的配置格式是metrics.reporters=foo,bar*/</span>
+<span class="n">finalStringdefinedReporters</span><span class="o">=</span><span class="n">configuration</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="n">MetricOptions</span><span class="o">.</span><span class="na">REPORTERS_LIST</span><span class="o">);</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">Tuple2</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span><span class="n">Configuration</span><span class="o">&gt;&gt;</span><span class="n">reporterConfigurations</span><span class="o">;</span>
+<span class="k">if</span><span class="o">(</span><span class="n">definedReporters</span><span class="o">==</span><span class="kc">null</span><span class="o">){</span>
+<span class="cm">/**如果没有配置，则返回空集合*/</span>
+<span class="n">reporterConfigurations</span><span class="o">=</span><span class="n">Collections</span><span class="o">.</span><span class="na">emptyList</span><span class="o">();</span>
+<span class="o">}</span><span class="k">else</span><span class="o">{</span>
+<span class="cm">/**按模式匹配分割，如上述的配置，则namedReporters={&quot;foo&quot;,&quot;bar&quot;}*/</span>
+<span class="n">String</span><span class="o">[]</span><span class="n">namedReporters</span><span class="o">=</span><span class="n">splitPattern</span><span class="o">.</span><span class="na">split</span><span class="o">(</span><span class="n">definedReporters</span><span class="o">);</span>
+<span class="n">reporterConfigurations</span><span class="o">=</span><span class="n">newArrayList</span><span class="o">&lt;&gt;(</span><span class="n">namedReporters</span><span class="o">.</span><span class="na">length</span><span class="o">);</span>
+<span class="k">for</span><span class="o">(</span><span class="n">StringnamedReporter</span><span class="o">:</span><span class="n">namedReporters</span><span class="o">){</span>
+<span class="cm">/**</span>
+<span class="cm">*这里是获取一个代理配置对象，就是在原来配置对象的基础上，在查询key时，需要加上这里配置的前缀</span>
+<span class="cm">    ，</span>
+<span class="cm">*如metrics.reporter.foo.，这样就可以获取特定reporter的配置</span>
+<span class="cm">*/</span>
+<span class="n">DelegatingConfigurationdelegatingConfiguration</span><span class="o">=</span><span class="n">newDelegatingConfiguration</span><span class="o">(</span>
+<span class="n">configuration</span><span class="o">,</span>
+<span class="n">ConfigConstants</span><span class="o">.</span><span class="na">METRICS_REPORTER_PREFIX</span><span class="o">+</span><span class="n">namedReporter</span><span class="o">+</span><span class="sc">&#39;.&#39;</span><span class="o">);</span>
+<span class="n">reporterConfigurations</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">Tuple2</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">namedReporter</span><span class="o">,(</span><span class="n">Configuration</span><span class="o">)</span><span class="n">delegatingConfiguration</span><span class="o">));</span>
+<span class="o">}</span>
+<span class="o">}</span>
+<span class="n">returnnewMetricRegistryConfiguration</span><span class="o">(</span><span class="n">scopeFormats</span><span class="o">,</span><span class="n">delim</span><span class="o">,</span><span class="n">reporterConfigurations</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>ScopeFormat</p>
+<p>上述的ScopeFormats也是配置对象中获取的，如下：</p>
+<div class="highlight"><pre><span></span><span class="n">publicstaticScopeFormatsfromConfig</span><span class="o">(</span><span class="n">Configurationconfig</span><span class="o">){</span>
+<span class="n">StringjmFormat</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="n">MetricOptions</span><span class="o">.</span><span class="na">SCOPE_NAMING_JM</span><span class="o">);</span>
+<span class="n">StringjmJobFormat</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="n">MetricOptions</span><span class="o">.</span><span class="na">SCOPE_NAMING_JM_JOB</span><span class="o">);</span>
+<span class="n">StringtmFormat</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="n">MetricOptions</span><span class="o">.</span><span class="na">SCOPE_NAMING_TM</span><span class="o">);</span>
+<span class="n">StringtmJobFormat</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="n">MetricOptions</span><span class="o">.</span><span class="na">SCOPE_NAMING_TM_JOB</span><span class="o">);</span>
+<span class="n">StringtaskFormat</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="n">MetricOptions</span><span class="o">.</span><span class="na">SCOPE_NAMING_TASK</span><span class="o">);</span>
+<span class="n">StringoperatorFormat</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="na">getString</span><span class="o">(</span><span class="n">MetricOptions</span><span class="o">.</span><span class="na">SCOPE_NAMING_OPERATOR</span><span class="o">);</span>
+<span class="n">returnnewScopeFormats</span><span class="o">(</span><span class="n">jmFormat</span><span class="o">,</span><span class="n">jmJobFormat</span><span class="o">,</span><span class="n">tmFormat</span><span class="o">,</span><span class="n">tmJobFormat</span><span class="o">,</span><span class="n">taskFormat</span><span class="o">,</span><span class="n">operatorFormat</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>ScopeFormat的类继承关系如下:</p>
+<p>从图中可以看出，Flink中的每个组件，都有对应的格式。
+首先看下ScopeFormat中的主要属性对象：</p>
+<div class="highlight"><pre><span></span><span class="cm">/**这是原生格式，比如&lt;host&gt;.jobmanager，如果为空，则是&lt;empty&gt;*/</span>
+<span class="n">privatefinalStringformat</span><span class="o">;</span>
+<span class="cm">/**format按照分割符分割后的数组，如template={&quot;&lt;host&gt;&quot;,&quot;jobmanager”}，被&lt;&gt;包裹的元素，是变量元素*/</span>
+<span class="n">privatefinalString</span><span class="o">[]</span><span class="n">template</span><span class="o">;</span>
+<span class="cm">/**这是template数组中，变量元素的索引，如&quot;&lt;host&gt;&quot;是变量，在template中的索引是0，则templatePos={0}</span>
+<span class="cm">    */</span>
+<span class="n">privatefinalint</span><span class="o">[]</span><span class="n">templatePos</span><span class="o">;</span>
+<span class="cm">/**这个是template中变量元素对应的真实的值，在values数组中的位置，详见构造函数和#bindVariables方法</span>
+<span class="cm">    */</span>
+<span class="n">privatefinalint</span><span class="o">[]</span><span class="n">valuePos</span><span class="o">;</span>
+</pre></div>
+
+
+<p>这里以JobManagerScopeFormat为例进行分析说明，在ScopeFormats中，默认传给JobManagerScopeFormat的构造函数的入参值是 .jobmanager 。 则JobManagerScopeFormat的构造过程如下:</p>
+<div class="highlight"><pre><span></span><span class="cm">/**format的默认值是&lt;host&gt;.jobmanager*/</span>
+<span class="n">publicJobManagerScopeFormat</span><span class="o">(</span><span class="n">Stringformat</span><span class="o">){</span>
+<span class="kd">super</span><span class="o">(</span><span class="n">format</span><span class="o">,</span><span class="kc">null</span><span class="o">,</span><span class="n">newString</span><span class="o">[]{</span>
+<span class="n">SCOPE_HOST</span>
+<span class="o">});</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>接着看起父类ScopeFormat的构造过程：</p>
+<p></p>
+<div class="highlight"><pre><span></span><span class="cm">/**接上面，入参值为format=&quot;&lt;host&gt;.jobmanager&quot;，parent=null，variables={&quot;&lt;host&gt;&quot;}*/</span>
+<span class="n">protectedScopeFormat</span><span class="o">(</span><span class="n">Stringformat</span><span class="o">,</span><span class="n">ScopeFormatparent</span><span class="o">,</span><span class="n">String</span><span class="o">[]</span><span class="n">variables</span><span class="o">){</span>
+<span class="n">checkNotNull</span><span class="o">(</span><span class="n">format</span><span class="o">,</span><span class="s">&quot;formatisnull&quot;</span><span class="o">);</span>
+<span class="cm">/**将format这个字符串分割，rawComponents={&quot;&lt;host&gt;&quot;,&quot;jobmanager&quot;}*/</span>
+<span class="n">finalString</span><span class="o">[]</span><span class="n">rawComponents</span><span class="o">=</span><span class="n">format</span><span class="o">.</span><span class="na">split</span><span class="o">(</span><span class="s">&quot;\\&quot;</span><span class="o">+</span><span class="n">SCOPE_SEPARATOR</span><span class="o">);</span>
+<span class="cm">/**根据rawComponents的第一个元素是为&quot;*&quot;，来判断是否要继承父组的范围*/</span>
+<span class="n">finalbooleanparentAsPrefix</span><span class="o">=</span><span class="n">rawComponents</span><span class="o">.</span><span class="na">length</span><span class="o">&gt;</span><span class="mi">0</span><span class="o">&amp;&amp;</span><span class="n">rawComponents</span><span class="o">[</span><span class="mi">0</span><span class="o">].</span><span class="na">equals</span>
+    <span class="o">(</span><span class="n">SCOPE_INHERIT_PARENT</span><span class="o">);</span>
+<span class="k">if</span><span class="o">(</span><span class="n">parentAsPrefix</span><span class="o">){</span>
+<span class="cm">/**需要继承父组的范围，而父组有是null，则抛出异常*/</span>
+<span class="k">if</span><span class="o">(</span><span class="n">parent</span><span class="o">==</span><span class="kc">null</span><span class="o">){</span>
+<span class="n">thrownewIllegalArgumentException</span><span class="o">(</span><span class="s">&quot;Componentscopeformatrequiresparentprefix</span>
+<span class="s">    (startswith&#39;&quot;</span>
+<span class="o">+</span><span class="n">SCOPE_INHERIT_PARENT</span><span class="o">+</span><span class="s">&quot;&#39;),butthiscomponenthasnoparent(isrootcomponent).&quot;</span><span class="o">);</span>
+<span class="o">}</span>
+<span class="cm">/**如果以&quot;*.&quot;开头，则format至少需要有3个字符，否则就是无效字符，设置为&quot;&lt;empty&gt;&quot;*/</span>
+<span class="k">this</span><span class="o">.</span><span class="na">format</span><span class="o">=</span><span class="n">format</span><span class="o">.</span><span class="na">length</span><span class="o">()&gt;</span><span class="mi">2</span><span class="o">?</span><span class="n">format</span><span class="o">.</span><span class="na">substring</span><span class="o">(</span><span class="mi">2</span><span class="o">):</span><span class="s">&quot;&lt;empty&gt;&quot;</span><span class="o">;</span>
+<span class="n">String</span><span class="o">[]</span><span class="n">parentTemplate</span><span class="o">=</span><span class="n">parent</span><span class="o">.</span><span class="na">template</span><span class="o">;</span>
+<span class="n">intparentLen</span><span class="o">=</span><span class="n">parentTemplate</span><span class="o">.</span><span class="na">length</span><span class="o">;</span>
+<span class="cm">/**将父组的范围和自身的范围，合并到一起*/</span>
+<span class="k">this</span><span class="o">.</span><span class="na">template</span><span class="o">=</span><span class="n">newString</span><span class="o">[</span><span class="n">parentLen</span><span class="o">+</span><span class="n">rawComponents</span><span class="o">.</span><span class="na">length</span><span class="o">-</span><span class="mi">1</span><span class="o">];</span>
+<span class="n">System</span><span class="o">.</span><span class="na">arraycopy</span><span class="o">(</span><span class="n">parentTemplate</span><span class="o">,</span><span class="mi">0</span><span class="o">,</span><span class="k">this</span><span class="o">.</span><span class="na">template</span><span class="o">,</span><span class="mi">0</span><span class="o">,</span><span class="n">parentLen</span><span class="o">);</span>
+<span class="n">System</span><span class="o">.</span><span class="na">arraycopy</span><span class="o">(</span><span class="n">rawComponents</span><span class="o">,</span><span class="mi">1</span><span class="o">,</span><span class="k">this</span><span class="o">.</span><span class="na">template</span><span class="o">,</span><span class="n">parentLen</span><span class="o">,</span><span class="n">rawComponents</span><span class="o">.</span><span class="na">length</span><span class="o">-</span><span class="mi">1</span><span class="o">);</span>
+<span class="o">}</span>
+<span class="k">else</span><span class="o">{</span>
+<span class="cm">/**不需要继承父组的范围，则直接赋值，format=&quot;&lt;host&gt;.jobmanager&quot;，template={&quot;&lt;host&gt;&quot;</span>
+<span class="cm">    ,&quot;jobmanager&quot;}*/</span>
+<span class="k">this</span><span class="o">.</span><span class="na">format</span><span class="o">=</span><span class="n">format</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">()?</span><span class="s">&quot;&lt;empty&gt;&quot;</span><span class="o">:</span><span class="n">format</span><span class="o">;</span>
+<span class="k">this</span><span class="o">.</span><span class="na">template</span><span class="o">=</span><span class="n">rawComponents</span><span class="o">;</span>
+<span class="o">}</span>
+<span class="cm">/**将variables={&quot;&lt;host&gt;&quot;}转换为map{&quot;&lt;host&gt;&quot;-&gt;0}*/</span>
+<span class="n">HashMap</span><span class="o">&lt;</span><span class="n">String</span><span class="o">,</span><span class="n">Integer</span><span class="o">&gt;</span><span class="n">varToValuePos</span><span class="o">=</span><span class="n">arrayToMap</span><span class="o">(</span><span class="n">variables</span><span class="o">);</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span><span class="n">templatePos</span><span class="o">=</span><span class="n">newArrayList</span><span class="o">&lt;&gt;();</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">Integer</span><span class="o">&gt;</span><span class="n">valuePos</span><span class="o">=</span><span class="n">newArrayList</span><span class="o">&lt;&gt;();</span>
+<span class="k">for</span><span class="o">(</span><span class="n">inti</span><span class="o">=</span><span class="mi">0</span><span class="o">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">template</span><span class="o">.</span><span class="na">length</span><span class="o">;</span><span class="n">i</span><span class="o">++){</span>
+<span class="n">finalStringcomponent</span><span class="o">=</span><span class="n">template</span><span class="o">[</span><span class="n">i</span><span class="o">];</span>
+<span class="cm">/**检查当前这个组件是否是一个变量*/</span>
+<span class="k">if</span><span class="o">(</span><span class="n">component</span><span class="o">!=</span><span class="kc">null</span><span class="o">&amp;&amp;</span><span class="n">component</span><span class="o">.</span><span class="na">length</span><span class="o">()&gt;=</span><span class="mi">3</span><span class="o">&amp;&amp;</span>
+<span class="n">component</span><span class="o">.</span><span class="na">charAt</span><span class="o">(</span><span class="mi">0</span><span class="o">)==</span><span class="sc">&#39;&lt;&#39;</span><span class="o">&amp;&amp;</span><span class="n">component</span><span class="o">.</span><span class="na">charAt</span><span class="o">(</span><span class="n">component</span><span class="o">.</span><span class="na">length</span><span class="o">()-</span><span class="mi">1</span><span class="o">)==</span><span class="sc">&#39;&gt;&#39;</span><span class="o">){</span>
+<span class="cm">/**这是一个变量，则从上面的map中，获取其索引*/</span>
+<span class="n">IntegerreplacementPos</span><span class="o">=</span><span class="n">varToValuePos</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">component</span><span class="o">);</span>
+<span class="k">if</span><span class="o">(</span><span class="n">replacementPos</span><span class="o">!=</span><span class="kc">null</span><span class="o">){</span>
+<span class="n">templatePos</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">i</span><span class="o">);</span>
+<span class="n">valuePos</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">replacementPos</span><span class="o">);</span>
+<span class="o">}</span>
+<span class="o">}</span>
+<span class="o">}</span>
+<span class="k">this</span><span class="o">.</span><span class="na">templatePos</span><span class="o">=</span><span class="n">integerListToArray</span><span class="o">(</span><span class="n">templatePos</span><span class="o">);</span>
+<span class="k">this</span><span class="o">.</span><span class="na">valuePos</span><span class="o">=</span><span class="n">integerListToArray</span><span class="o">(</span><span class="n">valuePos</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>经过这个构造过程，ScopeFormat中的四个属性的值如下：</p>
+<div class="highlight"><pre><span></span><span class="n">format</span> <span class="o">=</span> <span class="err">“</span><span class="o">.</span><span class="na">jobmanager</span><span class="err">”</span>
+<span class="n">template</span> <span class="o">=</span> <span class="o">{</span><span class="err">“”</span><span class="o">,</span> <span class="err">“</span><span class="n">jobmanager</span><span class="err">”</span><span class="o">}</span>
+<span class="n">templatePos</span> <span class="o">=</span> <span class="o">{</span><span class="mi">0</span><span class="o">}</span>
+<span class="n">valuePos</span> <span class="o">=</span> <span class="o">{</span><span class="mi">0</span><span class="o">}</span>
+</pre></div>
+
+
+<p>对于JobManagerScopeFormat来说，构建一个具体的范围数组的逻辑如下：</p>
+<p>
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+publicString[]formatScope(Stringhostname){
+/<strong>获取template数组的一份拷贝，深拷贝*/
+finalString[]template=copyTemplate();
+finalString[]values={hostname};
+/</strong>使用hostname替换掉template中索引为0的元素<host><em>/
+returnbindVariables(template,values);
+}
+protectedfinalString[]copyTemplate(){
+String[]copy=newString[template.length];
+System.arraycopy(template,0,copy,0,template.length);
+returncopy;
+}
+/</em><em>在结合这个逻辑，就知道ScopeFormat中的属性valuePos的作用了</em>/
+protectedfinalString[]bindVariables(String[]template,String[]values){
+finalintlen=templatePos.length;
+for(inti=0;i&lt;len;i++){
+template[templatePos[i]]=values[valuePos[i]];
+}
+returntemplate;
+}</p>
+<p>MetricRegistryImpl
+﻿﻿在获取了MetricRegistryConfiguration实例后，在看MetricRegistryImpl的构造函数的实现逻辑。</p>
+<p>
+1
+this.executor=Executors.newSingleThreadScheduledExecutor(newExecutorThreadFactory("Flink
+    -MetricRegistry"));</p>
+<p>这里给executor这个属性，设置了一个单线程可调度的执行器。 接下来主要看下对MetricReporter相关的初始化工作。</p>
+<p>
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+/<strong>变量配置中配置的reporter的配置*/
+for(Tuple2<String,Configuration>reporterConfiguration:reporterConfigurations){
+StringnamedReporter=reporterConfiguration.f0;
+/</strong>reporterConfig是Configuration的子类DelegatingConfiguration，会肯定定义的前缀来找key<em>/
+ConfigurationreporterConfig=reporterConfiguration.f1;
+/<strong>获取MetricReporter的具体实现子类的全限定类型，配置的key如：metrics.reporter.foo.class*/
+finalStringclassName=reporterConfig.getString(ConfigConstants.METRICS_REPORTER_CLASS_SUFFIX
+    ,null);
+if(className==null){
+LOG.error("Noreporterclasssetforreporter"+namedReporter+".Metricsmightnotbeexposed
+    /reported.");
+continue;
+}
+try{
+/</strong>获取配置的定期执行的时间间隔，key的格式如：metrics.reporter.foo.interval</em>/
+StringconfiguredPeriod=reporterConfig.getString(ConfigConstants
+    .METRICS_REPORTER_INTERVAL_SUFFIX,null);
+TimeUnittimeunit=TimeUnit.SECONDS;
+longperiod=10;
+if(configuredPeriod!=null){
+try{
+String[]interval=configuredPeriod.split("");
+period=Long.parseLong(interval[0]);
+timeunit=TimeUnit.valueOf(interval[1]);
+}
+catch(Exceptione){
+LOG.error("Cannotparsereportintervalfromconfig:"+configuredPeriod+
+"-pleaseusevalueslike'10SECONDS'or'500MILLISECONDS'."+
+"Usingdefaultreportinginterval.");
+}
+}
+/<strong>实例化MetricReporter的子类*/
+Class&lt;?&gt;reporterClass=Class.forName(className);
+MetricReporterreporterInstance=(MetricReporter)reporterClass.newInstance();
+/</strong>构造MetricConfig的实例，并把reporterConfig中的配置key-value都添加到metricConfig中<em>/
+MetricConfigmetricConfig=newMetricConfig();
+reporterConfig.addAllToProperties(metricConfig);
+LOG.info("Configuring{}with{}.",reporterClass.getSimpleName(),metricConfig);
+/<strong>这里就是reporter进行初始化操作的地方*/
+reporterInstance.open(metricConfig);
+/</strong>如果reporter实现了Scheduled接口，则通过executor进行定期调度执行，执行时间间隔就是上面获取的时
+    间间隔</em>/
+if(reporterInstanceinstanceofScheduled){
+LOG.info("Periodicallyreportingmetricsinintervalsof{}{}forreporter{}oftype{}."
+    ,period,timeunit.name(),namedReporter,className);
+/<strong>将reporter封装成一个task，并调度定期更新执行*/
+executor.scheduleWithFixedDelay(
+newMetricRegistryImpl.ReporterTask((Scheduled)reporterInstance),period,period
+    ,timeunit);
+}else{
+LOG.info("Reportingmetricsforreporter{}oftype{}.",namedReporter,className);
+}
+/</strong>将reporter添加到集合中<em>/
+reporters.add(reporterInstance);
+/</em><em>获取reporter定制化的分隔符，如果没有设置，则设置为全局分割符</em>/
+StringdelimiterForReporter=reporterConfig.getString(ConfigConstants
+    .METRICS_REPORTER_SCOPE_DELIMITER,String.valueOf(globalDelimiter));
+if(delimiterForReporter.length()!=1){
+LOG.warn("Failedtoparsedelimiter'{}'forreporter'{}',usingglobaldelimiter'{}'."
+    ,delimiterForReporter,namedReporter,globalDelimiter);
+delimiterForReporter=String.valueOf(globalDelimiter);
+}
+this.delimiters.add(delimiterForReporter.charAt(0));
+}
+catch(Throwablet){
+LOG.error("Couldnotinstantiatemetricsreporter{}.Metricsmightnotbeexposed/reported."
+    ,namedReporter,t);
+}
+}
+其中Schedule接口，只有一个report接口。</p>
+<p>
+1
+2
+3
+publicinterfaceScheduled{
+voidreport();
+}
+实现Scheduled接口的reporter，表示其需要被定期调度执行，定期执行的就是其report方法，没有实现Scheduled接口的reporter方法，是不会被定期调度的。
+Slf4jReporter这个MetricReporter的子类就实现了Scheduled接口，而其report方法，就是将注册的Metric的信息打印到日志里；
+JMXReporter这个子类是没有实现Scheduled接口的，但可以通过JMX服务来获取注册的Metric的信息。
+添加Metric的过程
+Metric的添加逻辑的入口在AbstractMetricGroup的addMetric方法中，逻辑如下：</p>
+<p>
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+protectedvoidaddMetric(Stringname,Metricmetric){
+if(metric==null){
+LOG.warn("Ignoringattemptedregistrationofametricduetobeingnullforname{}.",name);
+return;
+}
+/<strong>只有group仍然打开的情况下,才添加这个metric*/
+synchronized(this){
+if(!closed){
+/</strong>
+<em>在没有进行"contains"校验下,立即进行put操作,来优化常见的情况(没有碰撞)
+</em>碰撞的情况后面会处理。
+<em>/
+Metricprior=metrics.put(name,metric);
+/<strong>检查与其他度量名称的冲突*/
+if(prior==null){
+/</strong>这个名字还没有其他指标，也就是与注册在当前group下的metric没有名称冲突</em>/
+if(groups.containsKey(name)){
+/<strong>与注册在group下的子groups的名称由冲突，这里给出warn日志,而不是fail
+    ,因为metrics是工具,当使用错误时,不应该使得程序失败*/
+LOG.warn("Namecollision:Addingametricwiththesamenameasametricsubgroup:'"+
+name+"'.Metricmightnotgetproperlyreported."+Arrays.toString
+    (scopeComponents));
+}
+/</strong>这里就是桥梁起作用的地方<em>/
+registry.register(metric,name,this);
+}
+else{
+/</em><em>有碰撞,放回原来的metric</em>/
+metrics.put(name,prior);
+LOG.warn("Namecollision:GroupalreadycontainsaMetricwiththename'"+
+name+"'.Metricwillnotbereported."+Arrays.toString(scopeComponents));
+}
+}
+}
+}
+上述逻辑就是把Metric注册到当前Group中，接着看调用了MetricRegistry的register里的逻辑。</p>
+<p>
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+publicvoidregister(Metricmetric,StringmetricName,AbstractMetricGroupgroup){
+synchronized(lock){
+if(isShutdown()){
+LOG.warn("Cannotregistermetric,becausetheMetricRegistryhasalreadybeenshutdown.");
+}else{
+if(reporters!=null){
+/<strong>通知所有的reporters，注册了一个metric，以及对应的metricName，group*/
+for(inti=0;i<reporters.size();i++){
+MetricReporterreporter=reporters.get(i);
+try{
+if(reporter!=null){
+/**
+*这里会将group，以及这个reporter在reporters这个列表中的索引，一起封装到FrontMetr
+    icGroup这个代理类中
+*这里封装索引的目的，是可以通过#getDelimiter方法，获取这个reporter配置的特制分
+    隔符
+*/
+FrontMetricGroupfront=newFrontMetricGroup<AbstractMetricGroup<?>&gt;(i,group);
+/</strong>然后调用reporter的接口方法，通知reporter<em>/
+reporter.notifyOfAddedMetric(metric,metricName,front);
+}
+}catch(Exceptione){
+LOG.warn("Errorwhileregisteringmetric.",e);
+}
+}
+}
+try{
+/<strong>如果queryService不为null，则也通知它*/
+if(queryService!=null){
+MetricQueryService.notifyOfAddedMetric(queryService,metric,metricName,group);
+}
+}catch(Exceptione){
+LOG.warn("Errorwhileregisteringmetric.",e);
+}
+try{
+/</strong>如果metric实现了View接口，则将其添加到定期更新的viewUpdater中</em>/
+if(metricinstanceofView){
+if(viewUpdater==null){
+viewUpdater=newViewUpdater(executor);
+}
+viewUpdater.notifyOfAddedView((View)metric);
+}
+}catch(Exceptione){
+LOG.warn("Errorwhileregisteringmetric.",e);
+}
+}
+}
+}
+从上述逻辑，可以看出MetricRegistry所起的桥梁作用了，它会再依次通知配置的各个reporter，前面已经介绍过AbstractReporter这个抽象子类实现。
+View接口
+View接口的定义如下:</p>
+<p>
+1
+2
+3
+4
+5
+6
+7
+publicinterfaceView{
+/<strong>metrics更新的间隔*/
+intUPDATE_INTERVAL_SECONDS=5;
+/</strong>被定期调用进行metric更新的方法*/
+voidupdate();
+}
+实现了View接口的Metric，需要定期的调用update方法，进行状态的更新，而这个定期更新的功能是通过ViewUpdater实现的，其构造函数中，就是在executor中添加了一个定期执行的task。</p>
+<p>
+1
+2
+3
+publicViewUpdater(ScheduledExecutorServiceexecutor){
+executor.scheduleWithFixedDelay(newViewUpdaterTask(lock,toAdd,toRemove),5
+    ,UPDATE_INTERVAL_SECONDS,TimeUnit.SECONDS);
+}
+新增一个Metric时，通知viewUpdater时的逻辑如下:</p>
+<p>
+1
+2
+3
+4
+5
+publicvoidnotifyOfAddedView(Viewview){
+synchronized(lock){
+toAdd.add(view);
+}
+}
+就是想toAdd这个Set中添加一个新的元素，通过lock这个锁来实现同步。 
+而ViewUpdaterTask的run方法中，就会调用注册的Metric的update方法，同时更新几个Set。逻辑如下：</p>
+<p>publicvoidrun(){
+for(ViewtoUpdate:this.views){
+toUpdate.update();
+}
+synchronized(lock){
+views.addAll(toAdd);
+toAdd.clear();
+views.removeAll(toRemove);
+toRemove.clear();
+}
+}
+MetricQueryService
+在MetricRegistryImpl中有一个属性queryService，是一个ActorRef，对应的具体实现是MetricQueryService。在MetricQueryService中也维护了注册的各种Metric，并且也是从MetricRegistry那里接受Metric的添加和删除的消息.</p>
+<div class="highlight"><pre><span></span><span class="cm">/**用来接收Metric添加的消息*/</span>
+<span class="n">publicstaticvoidnotifyOfAddedMetric</span><span class="o">(</span><span class="n">ActorRefservice</span><span class="o">,</span><span class="n">Metricmetric</span><span class="o">,</span><span class="n">StringmetricName</span>
+    <span class="o">,</span><span class="n">AbstractMetricGroupgroup</span><span class="o">){</span>
+<span class="n">service</span><span class="o">.</span><span class="na">tell</span><span class="o">(</span><span class="n">newAddMetric</span><span class="o">(</span><span class="n">metricName</span><span class="o">,</span><span class="n">metric</span><span class="o">,</span><span class="n">group</span><span class="o">),</span><span class="kc">null</span><span class="o">);</span>
+<span class="o">}</span>
+<span class="cm">/**用于接收Metric删除的消息*/</span>
+<span class="n">publicstaticvoidnotifyOfRemovedMetric</span><span class="o">(</span><span class="n">ActorRefservice</span><span class="o">,</span><span class="n">Metricmetric</span><span class="o">){</span>
+<span class="n">service</span><span class="o">.</span><span class="na">tell</span><span class="o">(</span><span class="n">newRemoveMetric</span><span class="o">(</span><span class="n">metric</span><span class="o">),</span><span class="kc">null</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>MetricQueryService在接收到这类消息后，会在onReceive方法中根据不同的消息类型进行相应的处理，添加和删除Metric就是在四类Metric对应的map属性上进行相应的添加删除操作。以此来实现对Metric信息的维护。 onReceive方法中还会接收到一类消息，叫CreateDump消息，接收到这个消息后，就会把当前所有的Metric数据进行序列化操作，得到一个MetricDumpSerialization.MetricSerializationResult序列化后的结果实例，并发送给请求者。 对于Metric的序列化和反序列化的实现都在MetricDumpSerialization这个类中。
+通过MetricDumpSerializer进行序列化，序列化后的结果为MetricSerializationResult；
+通过MetricDumpDeserializer进行反序列化，反序列化后的结果为MetricDump；</p>
+<h1>参考</h1>
+<p>https://blog.csdn.net/qq_21653785/article/details/79625601</p>
+            <aside>
+            <hr/>
+            <nav>
+            <ul class="articles_timeline">
+ 
+                <li class="previous_article">« <a href="/2019-03-28-164917-ch.html" title="Previous: idea-查询athena">idea-查询athena</a></li>
+ 
+                <li class="next_article"><a href="/2019-03-29-232657-ch.html" title="Next: druid的规则设置">druid的规则设置</a> »</li>
+            </ul>
+            </nav>
+            </aside>
+        </div>
+        <section>
+        <div class="span2" style="float:right;font-size:0.9em;">
+ 
+            <h4>Published</h4>
+            <time pubdate="pubdate" datetime="2019-03-28T20:33:47+08:00"> 3 28, 2019</time>
+            <h4>Category</h4>
+            <a class="category-link" href="/categories.html#flink-ref">flink</a> 
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article"> 
+                <li><a href="/tags.html#flink-ref">flink
+                    <span>3</span>
+</a></li>
+            </ul>
+
+        </div>
+        </section>
+</div>
+<div id="gitalk-container"></div>
+</article>
+
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+<script>
+    var gitalk = new Gitalk({
+        clientID: '55daf540951794dd3faf',
+        clientSecret: 'd6eaad9fa6d9e7ff2647ef8b6e21327da0cc7cda',
+        repo: 'blog-comment',
+        owner: 'xixuebin',
+        admin: ['xixuebin'],
+        id: location.pathname,      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+    })
+
+    gitalk.render('gitalk-container')
+</script>
+
+                </div>
+                <div class="span1"></div>
+            </div>
+        </div>
+    </div>
+<footer>
+<div id="footer">
+    <ul class="footer-content">
+        <li class="elegant-power">Powered by <a href="http://getpelican.com/" title="Pelican Home Page">Pelican</a>. Theme: <a href="http://oncrashreboot.com/pelican-elegant" title="Theme Elegant Home Page">Elegant</a> by <a href="http://oncrashreboot.com" title="Talha Mansoor Home Page">Talha Mansoor</a></li>
+    </ul>
+</div>
+</footer>            <script src="https://code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+    </body>
+</html>

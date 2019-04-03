@@ -62,17 +62,17 @@
 
             <hr>
 <h1>GIT常用命令</h1>
+<h2>远程仓库命令</h2>
 <ul>
-<li>远程仓库命令</li>
+<li>检出远程仓库 <code>git clone git://github/jquery/jquery.git</code></li>
+<li>查看远程仓库 <code>git remote -v</code></li>
+<li>添加远程仓库 <code>git remote add [name] [url]</code></li>
+<li>删除远程仓库 <code>git remote rm [name]</code></li>
+<li>修改远程仓库 <code>git remote set-url --push[name][newUrl]</code></li>
+<li>拉取远程仓库 <code>git pull [remoteName][localBranchName]</code></li>
+<li>推送远程仓库 <code>git push [remoteName][localBranchName]</code></li>
 </ul>
-<p>检出远程仓库 <code>git clone git://github/jquery/jquery.git</code>
-查看远程仓库 <code>git remote -v</code>
-添加远程仓库 <code>git remote add [name] [url]</code>
-删除远程仓库 <code>git remote rm [name]</code>
-修改远程仓库 <code>git remote set-url --push[name][newUrl]</code>
-拉取远程仓库 <code>git pull [remoteName][localBranchName]</code>
-推送远程仓库 <code>git push [remoteName][localBranchName]</code></p>
-<h1>Git充值到固定版本</h1>
+<h1>Git重置到固定版本</h1>
 <div class="highlight"><pre><span></span>git reset --soft 83ab9932edbe2b78f88668b7d15061747bb5514f
 </pre></div>
             <aside>

@@ -60,7 +60,7 @@
 <div class="row-fluid">
         <div class="span8 offset2 article-content">
 
-            <h2>Solr</h2>
+            <h1>Solr</h1>
 <blockquote>
 <p>Apache Solr 是一个功能强大的搜素服务器,它支持Rest风格的API.Solr是基于Lucene的.Lucene支持强大的匹配能力,如短语,通配符,链接,分组和更多不同类型的数据.它使用Zookeeper特别针对高流量进行优化.Apache Solr提供各种各式各样的功能</p>
 </blockquote>
@@ -96,10 +96,12 @@ Started Solr server on port <span class="m">8983</span> <span class="o">(</span>
 <p><img alt="截图" src="solr02.png Solr控制台"></p>
 <h2>Solr原理</h2>
 <p>Solr对外提供标准的HTTP接口来实现对数据索引的增加,删除,修改和查询.在Solr中,用户通过向部署在servlet容器中的Solr Web应用程序发送HTTP请求来启动索引和搜索.Solr接收请求,确定要使用的适当的SolrRequestHandler,然后处理请求.通过HTTP以同样的方式返回响应.默认配置返回Solr的标准XML响应,也可以配置Solr的备用响应格式.</p>
-<p>可以向Solr索引servlet传递四个不同的索引请求
-- add/update 允许向Solr添加文档或者更新文档.直到提交后才能搜索到这些添加的更新
-- commint 告诉Solr应该使上次提交以来所做的所有的更改都可以被搜索到
-- optimize 重构Lucene的文件以改进搜索性能.索引完成周执行一下优化通常比较好</p>
+<p>可以向Solr索引servlet传递四个不同的索引请求</p>
+<ul>
+<li>Add/update允许向Solr添加文档或者更新文档.直到提交后才能搜索到这些添加的更新</li>
+<li>commint 告诉Solr应该使上次提交以来所做的所有的更改都可以被搜索到</li>
+<li>optimize 重构Lucene的文件以改进搜索性能.索引完成周执行一下优化通常比较好</li>
+</ul>
 <blockquote>
 <p>如果更新比较频繁,则应该使用频率较低的时候安排优化,一个索引无需优化也可以运行,优化是一个耗时较多的过程</p>
 </blockquote>
@@ -212,7 +214,6 @@ http://localhost:8983/solr/admin/cores?action<span class="o">=</span>CREATE<span
 
 
 <p>在Solr的页面上,可以看到JCG核心被填充在核心选择器上,还可以看到相关统计信息</p>
-<p><a href=""></a></p>
 <h4>修改Schema.xml文件</h4>
 <p>修改schema.xml，server\solr\jcg\conf包含的字段。我们将使用随Solr的安装索引附带的示例文件“books.csv”之一。该文件所在的文件夹下  的solr-5.0.0\example\exampledocs</p>
 <p>现在，我们定位到该文件夹  server\solr目录。你会看到一个名为JCG的文件夹被创建。子文件夹conf和data分别拥有核心的配置和索引的数据。</p>

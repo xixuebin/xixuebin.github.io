@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8"> 
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="kevin.xi" />
+        <meta name="copyright" content="kevin.xi" />
+
+<meta name="keywords" content="aws, athena, idea, aws, " />
+        <title>idea-查询athena  · 寒玉 Blog
+</title>
+        <!-- <link href="http://cdn-images.mailchimp.com/embedcode/slim-081711.css" rel="stylesheet" type="text/css"> -->
+        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="/theme/css/style.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="/theme/css/solarizedlight.css" media="screen">
+        <link rel="shortcut icon" href="/theme/images/favicon.ico" type="image/x-icon" />
+        <link rel="apple-touch-icon" href="/theme/images/apple-touch-icon.png" />
+        <link rel="apple-touch-icon" sizes="57x57" href="/theme/images/apple-touch-icon-57x57.png" />
+        <link rel="apple-touch-icon" sizes="72x72" href="/theme/images/apple-touch-icon-72x72.png" />
+        <link rel="apple-touch-icon" sizes="114x114" href="/theme/images/apple-touch-icon-114x114.png" />
+        <link rel="apple-touch-icon" sizes="144x144" href="/theme/images/apple-touch-icon-144x144.png" />
+        <link rel="icon" href="/theme/images/apple-touch-icon-144x144.png" />
+    </head>
+    <body>
+        <div id="content-sans-footer">
+        <div class="navbar navbar-static-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="/"><span class=site-name>寒玉 Blog</span></a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav pull-right top-menu">
+                            <li ><a href="">Home</a></li>
+                            <li ><a href="/pages/books-date-2017-12-05-1130-ch.html">Books</a></li>
+                            <li ><a href="/pages/about-date-2015-05-10-1010-ch.html">About Me</a></li>
+                            <li ><a href="/categories.html">Categories</a></li>
+                            <li ><a href="/tags.html">Tags</a></li>
+                            <li ><a href="/archives.html">Archives</a></li>
+                            <li><form class="navbar-search" action="/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span1"></div>
+                <div class="span10">
+<article>
+<div class="row-fluid">
+    <header class="page_header span10 offset2">
+    <h1><a href="/2019-03-28-164917-ch.html"> idea-查询athena  </a></h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset2 article-content">
+
+            <hr>
+<!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets -->
+
+<blockquote>
+<p>在使用aws的云服务的时候,我们把数据存储在s3上,如果要查询数据,可以使用aws的athena服务.athena基于Presto构建,可以查询S3的数据.</p>
+</blockquote>
+<h1>使用idea访问aws服务</h1>
+<h2>配置idea的数据驱动</h2>
+<p><img alt="2019-03-28-17-41-37" src="http://xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/images/6729ff99f8724a5acef8de67643cdbf4.png"></p>
+<ul>
+<li>名称填写athena</li>
+<li>驱动类选择<code>com.simbaathena.jdbc42.Driver</code></li>
+<li>Dialect 选择<code>Generic SQL</code></li>
+<li>URL templates格式如下:</li>
+<li><code>jdbc:awsathena://athena.[{host::eu-west-1}].amazonaws.com[:{port::443}][\?&lt;;,UID={user:param},PWD={password:param},{:identifier}={:param}&gt;]</code></li>
+<li>点击保存之后,在左侧的列表中可以看见一个Athena的Driver项目</li>
+</ul>
+<h2>创建连接</h2>
+<p><img alt="2019-03-28-17-50-15" src="http://xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/images/13d0d1a867083cc315b96c3ea9fcf566.png"></p>
+<ul>
+<li>name选项输入自己的连接名字</li>
+<li>user输入自己aws的access key</li>
+<li>password输入自己aws的Secret key</li>
+<li>url按照之前的连接填写</li>
+</ul>
+<p>这样操作之后就可以在idea中访问到aws的athena服务了.</p>
+<h2>查询数据</h2>
+<p><img alt="2019-03-28-17-57-44" src="http://xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/images/75ab08930b16aecd9752f7f7316b33ad.png"></p>
+<p>这样就可以和其他数据源一样操作athena上的数据了.</p>
+<h1>参考</h1>
+<ul>
+<li><a href="https://blog.jetbrains.com/datagrip/2018/05/25/using-aws-athena-from-intellij-based-ide/">using-aws-athena-from-intellij-based-ide</a></li>
+<li><a href="https://poplindata.com/infrastructure/setting-up-aws-athena-datasource-in-jetbrains-datagrip/">Setting up AWS Athena datasource in JetBrains DataGrip</a></li>
+<li><a href="https://docs.aws.amazon.com/zh_cn/athena/latest/ug/connect-with-jdbc.html">将Athena与JDBC驱动程序结合使用</a></li>
+<li><a href="https://s3.amazonaws.com/athena-downloads/drivers/JDBC/SimbaAthenaJDBC_2.0.6/docs/Simba+Athena+JDBC+Driver+Install+and+Configuration+Guide.pdf">aws driver 安装与说明</a></li>
+</ul>
+            <aside>
+            <hr/>
+            <nav>
+            <ul class="articles_timeline">
+ 
+                <li class="previous_article">« <a href="/2019-03-28-161315-ch.html" title="Previous: linux小技巧">linux小技巧</a></li>
+ 
+                <li class="next_article"><a href="/2019-03-28-203347-ch.html" title="Next: flink源码系列-监控">flink源码系列-监控</a> »</li>
+            </ul>
+            </nav>
+            </aside>
+        </div>
+        <section>
+        <div class="span2" style="float:right;font-size:0.9em;">
+ 
+            <h4>Published</h4>
+            <time pubdate="pubdate" datetime="2019-03-28T16:49:17+08:00"> 3 28, 2019</time>
+            <h4>Category</h4>
+            <a class="category-link" href="/categories.html#aws-ref">aws</a> 
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article"> 
+                <li><a href="/tags.html#athena-ref">athena
+                    <span>3</span>
+</a></li>
+                <li><a href="/tags.html#aws-ref">aws
+                    <span>3</span>
+</a></li>
+                <li><a href="/tags.html#idea-ref">idea
+                    <span>1</span>
+</a></li>
+            </ul>
+
+        </div>
+        </section>
+</div>
+<div id="gitalk-container"></div>
+</article>
+
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+<script>
+    var gitalk = new Gitalk({
+        clientID: '55daf540951794dd3faf',
+        clientSecret: 'd6eaad9fa6d9e7ff2647ef8b6e21327da0cc7cda',
+        repo: 'blog-comment',
+        owner: 'xixuebin',
+        admin: ['xixuebin'],
+        id: location.pathname,      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+    })
+
+    gitalk.render('gitalk-container')
+</script>
+
+                </div>
+                <div class="span1"></div>
+            </div>
+        </div>
+    </div>
+<footer>
+<div id="footer">
+    <ul class="footer-content">
+        <li class="elegant-power">Powered by <a href="http://getpelican.com/" title="Pelican Home Page">Pelican</a>. Theme: <a href="http://oncrashreboot.com/pelican-elegant" title="Theme Elegant Home Page">Elegant</a> by <a href="http://oncrashreboot.com" title="Talha Mansoor Home Page">Talha Mansoor</a></li>
+    </ul>
+</div>
+</footer>            <script src="https://code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+    </body>
+</html>
