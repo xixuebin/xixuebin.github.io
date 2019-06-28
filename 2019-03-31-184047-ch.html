@@ -70,6 +70,26 @@
 date -v-1m +<span class="s2">&quot;%y%m%d&quot;</span>    <span class="c1">#获取前一个月的日期</span>
 date -v-1y +<span class="s2">&quot;%y%m%d&quot;</span>    <span class="c1">#获取去年今日日期</span>
 </pre></div>
+
+
+<h2>Install MySQL On Mac</h2>
+<h3>Install Homebrew</h3>
+<div class="highlight"><pre><span></span>/usr/bin/ruby -e <span class="s2">&quot;</span><span class="k">$(</span>curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install<span class="k">)</span><span class="s2">&quot;</span>
+</pre></div>
+
+
+<h3>Install MySQL</h3>
+<p>在命令行输入<code>brew info mysql</code>,应该返回<code>stable 5.7.15 (bottled)</code>,暗转的时候输入<code>brew install mysql</code></p>
+<h3>额外的配置</h3>
+<ul>
+<li>首先安装brew服务<code>brew tap homebrew/services</code></li>
+<li>启动MySQL服务<code>brew services start mysql</code></li>
+<li>检查MySQL服务是否被Load进来<code>brew services list</code></li>
+</ul>
+<h1>参考</h1>
+<ul>
+<li><a href="https://gist.github.com/nrollr/3f57fc15ded7dddddcc4e82fe137b58e">MySQL_macOS_Sierra</a></li>
+</ul>
             <aside>
             <hr/>
             <nav>

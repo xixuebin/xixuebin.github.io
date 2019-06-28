@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>寒玉 Blog - pcap, C, C++</title><link href="xixuebin.github.io/" rel="alternate"></link><link href="xixuebin.github.io/feeds/pcap-c-c.atom.xml" rel="self"></link><id>xixuebin.github.io/</id><updated>2019-03-25T16:31:06+08:00</updated><entry><title>pcap</title><link href="xixuebin.github.io/2019-03-25-163106-ch.html" rel="alternate"></link><published>2019-03-25T16:31:06+08:00</published><updated>2019-03-25T16:31:06+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-03-25:xixuebin.github.io/2019-03-25-163106-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;hr&gt;
+&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
+
+&lt;h1&gt;PCAP(packet capture)&lt;/h1&gt;
+&lt;blockquote&gt;
+&lt;p&gt;In the field of computer network administration, pcap (packet capture) consists of an application programming interface (API) for capturing network traffic. Unix-like systems implement pcap in the libpcap library; Windows uses a port of libpcap known as WinPcap. Monitoring software may use libpcap and/or WinPcap to capture packets travelling over a network and, in newer versions, to transmit packets on a network at the link layer, as well as to get a list of network interfaces for possible use with libpcap or WinPcap. The pcap API is written in C, so other languages such as Java, .NET languages, and scripting languages generally use a wrapper; no such wrappers are provided by libpcap or WinPcap itself. C++ programs may link directly to the C API or use an object-oriented wrapper.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;ul&gt;
+&lt;li&gt;PCAP 是一组抓取网络流量的接口组合&lt;/li&gt;
+&lt;li&gt;在类unix的系统上PCAP接口的实现是libpcap,在windows系统上是WinPcap&lt;/li&gt;
+&lt;li&gt;PCAP API都是用C写的.所以其他语言如java,net.或者脚本语言,如果要使用的话,都是对这些类库的调用&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;libpcap最初由美国劳伦斯伯克力国家实验室网络研究小组的tcpdump开发人员开发。它是tcpdump的低级数据包捕获,捕获文件读取和捕获文件分析的类库,tcpdump基于libpcap实现。&lt;/p&gt;
+&lt;p&gt;主要作用:&lt;/p&gt;
+&lt;p&gt;捕获各种数据包，例如：网络流量统计
+过滤网络数据包，例如：过滤掉本地上的一些数据，类似防火墙
+分析网络数据包，例如：分析网络协议，数据的采集
+存储网络数据包，例如：保存捕获的数据以为将来进行分析&lt;/p&gt;
+&lt;p&gt;libpcap的抓包框架&lt;/p&gt;
+&lt;p&gt;利用libpcap函数库开发应用程序的步骤&lt;/p&gt;
+&lt;p&gt;打开网络设备
+设置过滤规则
+捕获数据
+关闭网络设备&lt;/p&gt;
+&lt;h1&gt;参考&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://github.com/le4f/pcap-analyzer"&gt;https://github.com/le4f/pcap-analyzer&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.cnblogs.com/danielStudy/p/7007689.html"&gt;https://www.cnblogs.com/danielStudy/p/7007689.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://wiki.wireshark.org/Development/LibpcapFileFormat"&gt;https://wiki.wireshark.org/Development/LibpcapFileFormat&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><category term="pcap"></category></entry></feed>

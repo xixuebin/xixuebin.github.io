@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>寒玉 Blog - 工具</title><link href="xixuebin.github.io/" rel="alternate"></link><link href="xixuebin.github.io/feeds/gong-ju.atom.xml" rel="self"></link><id>xixuebin.github.io/</id><updated>2019-06-28T10:02:18+08:00</updated><entry><title>Subllime工具</title><link href="xixuebin.github.io/2019-06-28-100218-ch.html" rel="alternate"></link><published>2019-06-28T10:02:18+08:00</published><updated>2019-06-28T10:02:18+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-06-28:xixuebin.github.io/2019-06-28-100218-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
+
+&lt;h2&gt;批量删除空白行&lt;/h2&gt;
+&lt;p&gt;CTRL+H打开replace功能，勾选上左侧的regular expression，并填写
+find what栏 : \s+$  （正则表达式）
+replace with栏 : （这行留空
+接着点replace all即可&lt;/p&gt;</content><category term="sublime"></category></entry><entry><title>Mac小技巧</title><link href="xixuebin.github.io/2019-03-31-184047-ch.html" rel="alternate"></link><published>2019-03-31T18:40:47+08:00</published><updated>2019-03-31T18:40:47+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-03-31:xixuebin.github.io/2019-03-31-184047-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;hr&gt;
+&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
+
+&lt;h1&gt;Mac工具记录&lt;/h1&gt;
+&lt;h2&gt;mac shell获取昨天时间&lt;/h2&gt;
+&lt;p&gt;在mac下,date命令的参数和linux下稍有区别,如果用linux下的命令,会报错,mac下的命令参数如下:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;date -v-1d +&lt;span class="s2"&gt;&amp;quot;%y%m%d&amp;quot;&lt;/span&gt;    &lt;span class="c1"&gt;#获取昨天的日期&lt;/span&gt;
+date -v-1m +&lt;span class="s2"&gt;&amp;quot;%y%m%d&amp;quot;&lt;/span&gt;    &lt;span class="c1"&gt;#获取前一个月的日期&lt;/span&gt;
+date -v-1y +&lt;span class="s2"&gt;&amp;quot;%y%m%d&amp;quot;&lt;/span&gt;    &lt;span class="c1"&gt;#获取去年今日日期&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Install MySQL On Mac&lt;/h2&gt;
+&lt;h3&gt;Install Homebrew&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;/usr/bin/ruby -e &lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install&lt;span class="k"&gt;)&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;Install MySQL&lt;/h3&gt;
+&lt;p&gt;在命令行输入&lt;code&gt;brew info mysql&lt;/code&gt;,应该返回&lt;code&gt;stable 5.7.15 (bottled)&lt;/code&gt;,暗转的时候输入&lt;code&gt;brew install mysql&lt;/code&gt;&lt;/p&gt;
+&lt;h3&gt;额外的配置&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;首先安装brew服务&lt;code&gt;brew tap homebrew/services&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;启动MySQL服务&lt;code&gt;brew services start mysql&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;检查MySQL服务是否被Load进来&lt;code&gt;brew services list&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;参考&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://gist.github.com/nrollr/3f57fc15ded7dddddcc4e82fe137b58e"&gt;MySQL_macOS_Sierra&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><category term="工具"></category><category term="Mac"></category></entry><entry><title>Linux命令行工具</title><link href="xixuebin.github.io/2019-03-31-180919-ch.html" rel="alternate"></link><published>2019-03-31T18:09:19+08:00</published><updated>2019-03-31T18:09:19+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-03-31:xixuebin.github.io/2019-03-31-180919-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;hr&gt;
+&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
+
+&lt;h1&gt;Linux 命令行工具&lt;/h1&gt;
+&lt;h2&gt;ceho&lt;/h2&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# 除法,保留小数位&lt;/span&gt;
+&lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;scale=2;1234/1000&amp;quot;&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; bc
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;jstat&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# 查看 Java 进程的 GC 情况&lt;/span&gt;
+&lt;span class="c1"&gt;# Usage: jstat -gcutil &amp;lt;pid&amp;gt; &amp;lt;interval_ms&amp;gt;&lt;/span&gt;
+$ jstat -gcutil &lt;span class="m"&gt;24909&lt;/span&gt; &lt;span class="m"&gt;1000&lt;/span&gt;
+    S0     S1     E      O      P       YGC   YGCT     FGC   FGCT     GCT
+  &lt;span class="m"&gt;40&lt;/span&gt;.77   &lt;span class="m"&gt;0&lt;/span&gt;.00  &lt;span class="m"&gt;98&lt;/span&gt;.56   &lt;span class="m"&gt;6&lt;/span&gt;.38  &lt;span class="m"&gt;46&lt;/span&gt;.86      &lt;span class="m"&gt;2&lt;/span&gt;    &lt;span class="m"&gt;0&lt;/span&gt;.147     &lt;span class="m"&gt;0&lt;/span&gt;    &lt;span class="m"&gt;0&lt;/span&gt;.000    &lt;span class="m"&gt;0&lt;/span&gt;.147
+  &lt;span class="m"&gt;40&lt;/span&gt;.77   &lt;span class="m"&gt;0&lt;/span&gt;.00  &lt;span class="m"&gt;98&lt;/span&gt;.56   &lt;span class="m"&gt;6&lt;/span&gt;.38  &lt;span class="m"&gt;46&lt;/span&gt;.86      &lt;span class="m"&gt;2&lt;/span&gt;    &lt;span class="m"&gt;0&lt;/span&gt;.147     &lt;span class="m"&gt;0&lt;/span&gt;    &lt;span class="m"&gt;0&lt;/span&gt;.000    &lt;span class="m"&gt;0&lt;/span&gt;.147
+  &lt;span class="m"&gt;40&lt;/span&gt;.77   &lt;span class="m"&gt;0&lt;/span&gt;.00  &lt;span class="m"&gt;98&lt;/span&gt;.56   &lt;span class="m"&gt;6&lt;/span&gt;.38  &lt;span class="m"&gt;46&lt;/span&gt;.86      &lt;span class="m"&gt;2&lt;/span&gt;    &lt;span class="m"&gt;0&lt;/span&gt;.147     &lt;span class="m"&gt;0&lt;/span&gt;    &lt;span class="m"&gt;0&lt;/span&gt;.000    &lt;span class="m"&gt;0&lt;/span&gt;.147
+  &lt;span class="m"&gt;40&lt;/span&gt;.77   &lt;span class="m"&gt;0&lt;/span&gt;.00  &lt;span class="m"&gt;98&lt;/span&gt;.56   &lt;span class="m"&gt;6&lt;/span&gt;.38  &lt;span class="m"&gt;46&lt;/span&gt;.86      &lt;span class="m"&gt;2&lt;/span&gt;    &lt;span class="m"&gt;0&lt;/span&gt;.147     &lt;span class="m"&gt;0&lt;/span&gt;    &lt;span class="m"&gt;0&lt;/span&gt;.000    &lt;span class="m"&gt;0&lt;/span&gt;.147
+  &lt;span class="m"&gt;40&lt;/span&gt;.77   &lt;span class="m"&gt;0&lt;/span&gt;.00  &lt;span class="m"&gt;98&lt;/span&gt;.56   &lt;span class="m"&gt;6&lt;/span&gt;.38  &lt;span class="m"&gt;46&lt;/span&gt;.86      &lt;span class="m"&gt;2&lt;/span&gt;    &lt;span class="m"&gt;0&lt;/span&gt;.147     &lt;span class="m"&gt;0&lt;/span&gt;    &lt;span class="m"&gt;0&lt;/span&gt;.000    &lt;span class="m"&gt;0&lt;/span&gt;.147
+  &lt;span class="m"&gt;40&lt;/span&gt;.77   &lt;span class="m"&gt;0&lt;/span&gt;.00  &lt;span class="m"&gt;98&lt;/span&gt;.56   &lt;span class="m"&gt;6&lt;/span&gt;.38  &lt;span class="m"&gt;46&lt;/span&gt;.86      &lt;span class="m"&gt;2&lt;/span&gt;    &lt;span class="m"&gt;0&lt;/span&gt;.147     &lt;span class="m"&gt;0&lt;/span&gt;    &lt;span class="m"&gt;0&lt;/span&gt;.000    &lt;span class="m"&gt;0&lt;/span&gt;.147
+  &lt;span class="m"&gt;40&lt;/span&gt;.77   &lt;span class="m"&gt;0&lt;/span&gt;.00  &lt;span class="m"&gt;98&lt;/span&gt;.56   &lt;span class="m"&gt;6&lt;/span&gt;.38  &lt;span class="m"&gt;46&lt;/span&gt;.86      &lt;span class="m"&gt;2&lt;/span&gt;    &lt;span class="m"&gt;0&lt;/span&gt;.147     &lt;span class="m"&gt;0&lt;/span&gt;    &lt;span class="m"&gt;0&lt;/span&gt;.000    &lt;span class="m"&gt;0&lt;/span&gt;.147
+  &lt;span class="m"&gt;40&lt;/span&gt;.77   &lt;span class="m"&gt;0&lt;/span&gt;.00  &lt;span class="m"&gt;98&lt;/span&gt;.56   &lt;span class="m"&gt;6&lt;/span&gt;.38  &lt;span class="m"&gt;46&lt;/span&gt;.86      &lt;span class="m"&gt;2&lt;/span&gt;    &lt;span class="m"&gt;0&lt;/span&gt;.147     &lt;span class="m"&gt;0&lt;/span&gt;    &lt;span class="m"&gt;0&lt;/span&gt;.000    &lt;span class="m"&gt;0&lt;/span&gt;.147
+  &lt;span class="m"&gt;40&lt;/span&gt;.77   &lt;span class="m"&gt;0&lt;/span&gt;.00  &lt;span class="m"&gt;99&lt;/span&gt;.16   &lt;span class="m"&gt;6&lt;/span&gt;.38  &lt;span class="m"&gt;46&lt;/span&gt;.87      &lt;span class="m"&gt;2&lt;/span&gt;    &lt;span class="m"&gt;0&lt;/span&gt;.147     &lt;span class="m"&gt;0&lt;/span&gt;    &lt;span class="m"&gt;0&lt;/span&gt;.000    &lt;span class="m"&gt;0&lt;/span&gt;.147
+&lt;/pre&gt;&lt;/div&gt;</content><category term="工具"></category><category term="Linux"></category><category term="Shell"></category></entry><entry><title>linux小技巧</title><link href="xixuebin.github.io/2019-03-28-161315-ch.html" rel="alternate"></link><published>2019-03-28T16:13:15+08:00</published><updated>2019-03-28T16:13:15+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-03-28:xixuebin.github.io/2019-03-28-161315-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;hr&gt;
+&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
+
+&lt;h1&gt;Linux 常见操作&lt;/h1&gt;
+&lt;h2&gt;ubuntu crontab日志存储&lt;/h2&gt;
+&lt;p&gt;ubuntu的crontab的日志默认存储在&lt;code&gt;/var/log/syslog&lt;/code&gt;中,如要查看的话,可以使用&lt;code&gt;grep CRON /var/log/syslog&lt;/code&gt;查看&lt;/p&gt;
+&lt;p&gt;也可配置,输出到其他路径下.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# 打开文件&lt;/span&gt;
+/etc/rsyslog.d/50-default.conf
+&lt;span class="c1"&gt;# 查找cron.* 并且注释掉&lt;/span&gt;
+&lt;span class="c1"&gt;# 执行服务&lt;/span&gt;
+sudo service rsyslog restart
+&lt;span class="c1"&gt;# 这样就可以看见日志输出到cron.log中了&lt;/span&gt;
+/var/log/cron.log
+&lt;/pre&gt;&lt;/div&gt;</content><category term="工具"></category><category term="Linux"></category></entry><entry><title>Markdown文件渲染html</title><link href="xixuebin.github.io/2019-03-24-224640-sh.html" rel="alternate"></link><published>2019-03-24T22:46:40+08:00</published><updated>2019-03-24T22:46:40+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-03-24:xixuebin.github.io/2019-03-24-224640-sh.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;hr&gt;
+&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
+
+&lt;p&gt;本地使用markdown写的文档,在查看的时候,希望直接渲染成html&lt;/p&gt;
+&lt;p&gt;工具
+&lt;a href="https://chrome.google.com/webstore/detail/markdown-viewer/ckkdlimhmcjmikdlpkmbgfkaikojcbjk"&gt;Markdown Viewer&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href="https://github.com/simov/markdown-viewer#path-matching-priority"&gt;Markdown Viewer GIT 地址&lt;/a&gt;&lt;/p&gt;</content><category term="工具"></category></entry><entry><title>我的工具链</title><link href="xixuebin.github.io/2019-03-24-2242-java.html" rel="alternate"></link><published>2019-03-24T22:42:07+08:00</published><updated>2019-03-24T22:42:07+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-03-24:xixuebin.github.io/2019-03-24-2242-java.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;hr&gt;
+&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
+
+&lt;h1&gt;我的开发工具链&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="Markdown文件渲染html.md"&gt;渲染markdown文档成html显示&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;博客文章写作工作&lt;/h1&gt;
+&lt;h2&gt;pelican&lt;/h2&gt;
+&lt;h2&gt;vscode&lt;/h2&gt;
+&lt;p&gt;vscode用到的插件列表:&lt;/p&gt;
+&lt;h3&gt;&lt;a href="https://github.com/vvkee/vscode-aliyun-upload-image"&gt;aliyun oss upload image&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;该插件可以直接上传图片到阿里云上,并生成访问连接,mac下的快捷键是shit+p,配置参数如下:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="err"&gt;//&lt;/span&gt; &lt;span class="err"&gt;地区，在阿里云对象存储中bucket的概览里面有EndPoint（地域节点），oss-cn-hongkong.aliyuncs.com中的oss-cn-hongkong就是region&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;aliyun.region&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;    
+    &lt;span class="err"&gt;//&lt;/span&gt; &lt;span class="err"&gt;accessKeyId（RAM中生成的accessKeyId）&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;aliyun.accessKeyId&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="err"&gt;//&lt;/span&gt; &lt;span class="err"&gt;accessKeySecret（RAM中生成的accessKeySecret）&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;aliyun.accessKeySecret&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="err"&gt;//&lt;/span&gt; &lt;span class="err"&gt;输入你的bucket名称&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;aliyun.bucket&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="err"&gt;//&lt;/span&gt; &lt;span class="err"&gt;remotePath，您的存储目录，例如要把文件存在http://${你的yuming&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="err"&gt;/images/png，则这里填写images/png）&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;aliyun.remotePath&amp;quot;&lt;/span&gt;&lt;span class="err"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&amp;quot;&lt;/span&gt;&lt;span class="err"&gt;,&lt;/span&gt;
+    &lt;span class="err"&gt;//&lt;/span&gt; &lt;span class="err"&gt;阿里云oss域名，可以定义自己的域名，需要在oss中配置，支持https&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;aliyun.domain&amp;quot;&lt;/span&gt;&lt;span class="err"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;&amp;quot;&lt;/span&gt;&lt;span class="err"&gt;,&lt;/span&gt;
+    &lt;span class="err"&gt;//&lt;/span&gt; &lt;span class="err"&gt;本地文件，用于临时缓存（默认:&lt;/span&gt; &lt;span class="err"&gt;/tmp/.aliyun）&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;aliyun.localPath&amp;quot;&lt;/span&gt;&lt;span class="err"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;/tmp/.aliyun&amp;quot;&lt;/span&gt;
+&lt;span class="err"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;&lt;a href="https://github.com/yzhang-gh/vscode-markdown"&gt;Markdown All in One&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;可以完成vscode上,写markdown的大部分需求&lt;/p&gt;</content><category term="工具"></category></entry><entry><title>vs-code配置优化</title><link href="xixuebin.github.io/vs-code-2019-03-22-1829-ch.html" rel="alternate"></link><published>2019-03-22T18:29:59+08:00</published><updated>2019-03-22T18:29:59+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-03-22:xixuebin.github.io/vs-code-2019-03-22-1829-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;hr&gt;
+&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
+
+&lt;h1&gt;自动补全和智能感知&lt;/h1&gt;
+&lt;h2&gt;通过自动以的包路径增强感知功能&lt;/h2&gt;
+&lt;p&gt;对于那些安装在非标准位置的包,可以通过在设置中指定&lt;code&gt;python.autoComplete.extraPaths&lt;/code&gt;路径的值,实现智能感知.例如对于aws-glue-libs安装在自定义路径中,可以这样实现:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;python.autoComplete.extraPaths&amp;quot;&lt;/span&gt;: &lt;span class="o"&gt;[&lt;/span&gt;
+    &lt;span class="s2"&gt;&amp;quot;/Users/xixuebin/PycharmProjects/yeahmobi/aws-glue-libs&amp;quot;&lt;/span&gt;
+    &lt;span class="o"&gt;]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;添加多个路径到pythonPath中&lt;/h2&gt;
+&lt;p&gt;我们开启了&lt;code&gt;python.autoComplete.extraPaths&lt;/code&gt;配置项后,可以在我们的代码中,自动补全,可是当我们运行的时候,还是找不到类库,是因为我们没有把我们的类库添加到python的路径中去.&lt;/p&gt;
+&lt;p&gt;添加方法:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;在setting.json中添加环境变量文件
+  &lt;code&gt;python.envFile": "${workspaceFolder}/.env&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;在环境变量文件中添加我们的库路径
+  &lt;code&gt;PYTHONPATH="C:\path\to\a;C:\path\to\b"&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;比较完整的一个vscode 开发python的一个配置&lt;/h1&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;python.disableInstallationCheck&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;false&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;python.linting.pylintEnabled&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;python.linting.maxNumberOfProblems&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;python.linting.pylintPath&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;pylint&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;python.terminal.activateEnvironment&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;python.linting.pep8Enabled&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;python.linting.pep8Args&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
+        &lt;span class="s2"&gt;&amp;quot;--ignore=E303&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="s2"&gt;&amp;quot;--max-line-length=120&amp;quot;&lt;/span&gt;
+    &lt;span class="p"&gt;],&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;python.linting.enabled&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;python.pythonPath&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;/Users/xixuebin/PycharmProjects/py_env/yeahmobi-3.7/bin/python&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;python.autoComplete.extraPaths&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
+        &lt;span class="s2"&gt;&amp;quot;${env:SPARK_HOME}/python&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="s2"&gt;&amp;quot;${env:SPARK_HOME}/python/pyspark&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="s2"&gt;&amp;quot;/Users/xixuebin/PycharmProjects/yeahmobi/aws-glue-libs&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="s2"&gt;&amp;quot;/Users/xixuebin/PycharmProjects/yeahmobi/aws-glue-libs/awsglue&amp;quot;&lt;/span&gt;
+    &lt;span class="p"&gt;],&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;python.formatting.provider&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;autopep8&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;python.formatting.autopep8Args&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
+        &lt;span class="s2"&gt;&amp;quot;--max-line-length&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="s2"&gt;&amp;quot;120&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="s2"&gt;&amp;quot;--experimental&amp;quot;&lt;/span&gt;
+    &lt;span class="p"&gt;],&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;editor.formatOnSave&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;quot;python.envFile&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;${workspaceFolder}/.vscode/.env&amp;quot;&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h1&gt;写markdown文章&lt;/h1&gt;
+&lt;p&gt;最近发现使用vscode写markdown文章,并完成文章的维护非常流畅&lt;/p&gt;
+&lt;h2&gt;涉及插件&lt;/h2&gt;
+&lt;h3&gt;&lt;a href="https://marketplace.visualstudio.com/items?itemName=yzhang.markdown-all-in-one"&gt;Markdown All in One&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;这个插件可以完成markdown写作80的功能&lt;/p&gt;
+&lt;h3&gt;&lt;a href="https://shd101wyy.github.io/markdown-preview-enhanced/#/zh-cn/file-imports"&gt;Markdown Preview Enhanced&lt;/a&gt;&lt;/h3&gt;
+&lt;p&gt;非常棒的一个插件,可以实时预览,导出各种格式,实时预览&lt;/p&gt;
+&lt;h1&gt;注意事项&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;vscode的setting.json 要生效的话,必须重启vscode&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;参考&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://code.visualstudio.com/docs/python/editing"&gt;VScode edit doc&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://stackoverflow.com/questions/41471578/visual-studio-code-how-to-add-multiple-paths-to-python-path"&gt;VSCode add multiple path to python path&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><category term="工具"></category></entry></feed>

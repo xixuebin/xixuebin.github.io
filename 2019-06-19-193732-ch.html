@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8"> 
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="kevin.xi" />
+        <meta name="copyright" content="kevin.xi" />
+
+<meta name="keywords" content="database, binlog, mysql, database, " />
+        <title>MysqlBinlog 详解  · 寒玉 Blog
+</title>
+        <!-- <link href="http://cdn-images.mailchimp.com/embedcode/slim-081711.css" rel="stylesheet" type="text/css"> -->
+        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="/theme/css/style.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="/theme/css/solarizedlight.css" media="screen">
+        <link rel="shortcut icon" href="/theme/images/favicon.ico" type="image/x-icon" />
+        <link rel="apple-touch-icon" href="/theme/images/apple-touch-icon.png" />
+        <link rel="apple-touch-icon" sizes="57x57" href="/theme/images/apple-touch-icon-57x57.png" />
+        <link rel="apple-touch-icon" sizes="72x72" href="/theme/images/apple-touch-icon-72x72.png" />
+        <link rel="apple-touch-icon" sizes="114x114" href="/theme/images/apple-touch-icon-114x114.png" />
+        <link rel="apple-touch-icon" sizes="144x144" href="/theme/images/apple-touch-icon-144x144.png" />
+        <link rel="icon" href="/theme/images/apple-touch-icon-144x144.png" />
+    </head>
+    <body>
+        <div id="content-sans-footer">
+        <div class="navbar navbar-static-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="/"><span class=site-name>寒玉 Blog</span></a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav pull-right top-menu">
+                            <li ><a href="">Home</a></li>
+                            <li ><a href="/pages/books-date-2017-12-05-1130-ch.html">Books</a></li>
+                            <li ><a href="/pages/about-date-2015-05-10-1010-ch.html">About Me</a></li>
+                            <li ><a href="/categories.html">Categories</a></li>
+                            <li ><a href="/tags.html">Tags</a></li>
+                            <li ><a href="/archives.html">Archives</a></li>
+                            <li><form class="navbar-search" action="/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span1"></div>
+                <div class="span10">
+<article>
+<div class="row-fluid">
+    <header class="page_header span10 offset2">
+    <h1><a href="/2019-06-19-193732-ch.html"> MysqlBinlog 详解  </a></h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset2 article-content">
+
+            <!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets -->
+
+<blockquote>
+<p>Mariadb/mysql提供了4中不同的日志，分别是错误日志（error.log）、普通日志（general log）、慢日志（slow log）以及二进制日志（binlog）。错误日志记录了系统启动、运行以及停止过程中遇到的一些问题；普通日志记录了Mariadb执行的所有语句以及语句开始执行的时间等信息，用户可以选择性的打开它；慢日志记录了Mariadb所有慢查询的相关信息；而二进制日志则以事件的形式记录了mariadb的库表结构以及表数据的所有变更信息。</p>
+</blockquote>
+<h1>Mysql Binlog</h1>
+<h2>binlog的作用</h2>
+<ul>
+<li>复制</li>
+</ul>
+<p>在Mariadb/mysql的主从结构中，主库的binlog记录了主库的所有更改操作，从库通过读取主库的binlog，在本地重放获取的binlog，这样从库就拥有和主库相同的数据，达到复制目的。</p>
+<ul>
+<li>备份恢复</li>
+</ul>
+<p>binlog记录了数据库的所有更改信息，所以当Mariadb/mysql发生崩溃的时候，能够以最近备份点作为起点，然后执行在备份点之后产生的binlog中所有事件，实现数据库最大可能的恢复。</p>
+<ul>
+<li>index文件按照书序记录了Mariadb/Mysql使用的所有binlog文件，管理binlog文件。</li>
+</ul>
+<h2>参考</h2>
+<ul>
+<li><a href="https://mariadb.com/kb/en/library/binary-log/">https://mariadb.com/kb/en/library/binary-log/</a></li>
+<li><a href="https://www.cnblogs.com/skymyyang/p/7798670.html">https://www.cnblogs.com/skymyyang/p/7798670.html</a></li>
+</ul>
+            <aside>
+            <hr/>
+            <nav>
+            <ul class="articles_timeline">
+ 
+                <li class="previous_article">« <a href="/2019-05-30-141229-ch.html" title="Previous: Debezium介绍和使用">Debezium介绍和使用</a></li>
+ 
+                <li class="next_article"><a href="/2019-06-21-115455-ch.html" title="Next: knime官方node梳理">knime官方node梳理</a> »</li>
+            </ul>
+            </nav>
+            </aside>
+        </div>
+        <section>
+        <div class="span2" style="float:right;font-size:0.9em;">
+ 
+            <h4>Published</h4>
+            <time pubdate="pubdate" datetime="2019-06-19T19:37:32+08:00"> 6 19, 2019</time>
+            <h4>Category</h4>
+            <a class="category-link" href="/categories.html#database-ref">database</a> 
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article"> 
+                <li><a href="/tags.html#binlog-ref">binlog
+                    <span>1</span>
+</a></li>
+                <li><a href="/tags.html#database-ref">database
+                    <span>1</span>
+</a></li>
+                <li><a href="/tags.html#mysql-ref">mysql
+                    <span>1</span>
+</a></li>
+            </ul>
+
+        </div>
+        </section>
+</div>
+<div id="gitalk-container"></div>
+</article>
+
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+<script>
+    var gitalk = new Gitalk({
+        clientID: '55daf540951794dd3faf',
+        clientSecret: 'd6eaad9fa6d9e7ff2647ef8b6e21327da0cc7cda',
+        repo: 'blog-comment',
+        owner: 'xixuebin',
+        admin: ['xixuebin'],
+        id: location.pathname,      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+    })
+
+    gitalk.render('gitalk-container')
+</script>
+
+                </div>
+                <div class="span1"></div>
+            </div>
+        </div>
+    </div>
+<footer>
+<div id="footer">
+    <ul class="footer-content">
+        <li class="elegant-power">Powered by <a href="http://getpelican.com/" title="Pelican Home Page">Pelican</a>. Theme: <a href="http://oncrashreboot.com/pelican-elegant" title="Theme Elegant Home Page">Elegant</a> by <a href="http://oncrashreboot.com" title="Talha Mansoor Home Page">Talha Mansoor</a></li>
+    </ul>
+</div>
+</footer>            <script src="https://code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+    </body>
+</html>

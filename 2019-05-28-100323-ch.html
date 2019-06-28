@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8"> 
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="kevin.xi" />
+        <meta name="copyright" content="kevin.xi" />
+
+<meta name="keywords" content="Python, Stompy, Python, " />
+        <title>使用python链接stompy  · 寒玉 Blog
+</title>
+        <!-- <link href="http://cdn-images.mailchimp.com/embedcode/slim-081711.css" rel="stylesheet" type="text/css"> -->
+        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="/theme/css/style.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="/theme/css/solarizedlight.css" media="screen">
+        <link rel="shortcut icon" href="/theme/images/favicon.ico" type="image/x-icon" />
+        <link rel="apple-touch-icon" href="/theme/images/apple-touch-icon.png" />
+        <link rel="apple-touch-icon" sizes="57x57" href="/theme/images/apple-touch-icon-57x57.png" />
+        <link rel="apple-touch-icon" sizes="72x72" href="/theme/images/apple-touch-icon-72x72.png" />
+        <link rel="apple-touch-icon" sizes="114x114" href="/theme/images/apple-touch-icon-114x114.png" />
+        <link rel="apple-touch-icon" sizes="144x144" href="/theme/images/apple-touch-icon-144x144.png" />
+        <link rel="icon" href="/theme/images/apple-touch-icon-144x144.png" />
+    </head>
+    <body>
+        <div id="content-sans-footer">
+        <div class="navbar navbar-static-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="/"><span class=site-name>寒玉 Blog</span></a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav pull-right top-menu">
+                            <li ><a href="">Home</a></li>
+                            <li ><a href="/pages/books-date-2017-12-05-1130-ch.html">Books</a></li>
+                            <li ><a href="/pages/about-date-2015-05-10-1010-ch.html">About Me</a></li>
+                            <li ><a href="/categories.html">Categories</a></li>
+                            <li ><a href="/tags.html">Tags</a></li>
+                            <li ><a href="/archives.html">Archives</a></li>
+                            <li><form class="navbar-search" action="/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span1"></div>
+                <div class="span10">
+<article>
+<div class="row-fluid">
+    <header class="page_header span10 offset2">
+    <h1><a href="/2019-05-28-100323-ch.html"> 使用python链接stompy  </a></h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset2 article-content">
+
+            <hr>
+<!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets -->
+
+<h1>STOMP协议详解</h1>
+<blockquote>
+<p>STOMP即Simple (or Streaming) Text Orientated Messaging Protocol，简单(流)文本定向消息协议，它提供了一个可互操作的连接格式，允许STOMP客户端与任意STOMP消息代理（Broker）进行交互。STOMP协议由于设计简单，易于开发客户端，因此在多种语言和多种平台上得到广泛地应用。STOMP协议的前身是TTMP协议（一个简单的基于文本的协议），专为消息中间件设计。STOMP是一个非常简单和容易实现的协议，其设计灵感源自于HTTP的简单性。尽管STOMP协议在服务器端的实现可能有一定的难度，但客户端的实现却很容易。例如，可以使用Telnet登录到任何的STOMP代理，并与STOMP代理进行交互。</p>
+</blockquote>
+<h1>Stomp的实现</h1>
+<p>业界已经有很多优秀的Stomp的服务器/客户端的开源实现.</p>
+<h2>STOMP服务器</h2>
+<table>
+<thead>
+<tr>
+<th>项目名</th>
+<th align="center">兼容STOMP的版本</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Apache Apollo</td>
+<td align="center">1.0 1.1 1.2</td>
+<td align="left">ActiveMQ的继承者 http://activemq.apache.org/apollo</td>
+</tr>
+<tr>
+<td>Apache ActiveMQ</td>
+<td align="center">1.0 1.1</td>
+<td align="left">流行的开源消息服务器 http://activemq.apache.org/</td>
+</tr>
+<tr>
+<td>HornetQ</td>
+<td align="center">1.0</td>
+<td align="left">来自JBoss的消息中间件 http://www.jboss.org/hornetq</td>
+</tr>
+<tr>
+<td>RabbitMQ</td>
+<td align="center">1.0 1.1 1.2</td>
+<td align="left">基于Erlang、支持多种协议的消息Broker，通过插件支持STOMP协议 http://www.rabbitmq.com/plugins.html#rabbitmq-stomp</td>
+</tr>
+<tr>
+<td>Stampy</td>
+<td align="center">1.2</td>
+<td align="left">STOMP 1.2规范的一个Java实现 http://mrstampy.github.com/Stampy/</td>
+</tr>
+<tr>
+<td>StompServer</td>
+<td align="center">1.0</td>
+<td align="left">一个轻量级的纯Ruby实现的STOMP服务器 http://stompserver.rubyforge.org/</td>
+</tr>
+</tbody>
+</table>
+<h2>STOMP客户端</h2>
+<table>
+<thead>
+<tr>
+<th>项目名</th>
+<th align="left">兼容STOMP的版本</th>
+<th align="left">描述</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>activemessaging</td>
+<td align="left">1.0</td>
+<td align="left">Ruby客户端库 http://code.google.com/p/activemessaging/</td>
+</tr>
+<tr>
+<td>onstomp</td>
+<td align="left">1.0 1.1</td>
+<td align="left">Ruby客户端库 https://rubygems.org/gems/onstomp</td>
+</tr>
+<tr>
+<td>Apache CMS</td>
+<td align="left">1.0</td>
+<td align="left">C++客户端库 http://activemq.apache.org/cms/</td>
+</tr>
+<tr>
+<td>Net::STOMP::Client</td>
+<td align="left">1.0 1.1 1.2</td>
+<td align="left">Perl客户端库 http://search.cpan.org/dist/Net-STOMP-Client/</td>
+</tr>
+<tr>
+<td>Gozirra</td>
+<td align="left">1.0</td>
+<td align="left">Java客户端库 http://www.germane-software.com/software/Java/Gozirra/</td>
+</tr>
+<tr>
+<td>libstomp</td>
+<td align="left">1.0</td>
+<td align="left">C客户端库，基于APR库 http://stomp.codehaus.org/C</td>
+</tr>
+<tr>
+<td>Stampy</td>
+<td align="left">1.2</td>
+<td align="left">Java客户端库 http://mrstampy.github.com/Stampy/</td>
+</tr>
+<tr>
+<td>stomp.js</td>
+<td align="left">1.0 1.1</td>
+<td align="left">JavaScript客户端库 http://jmesnil.net/stomp-websocket/doc/</td>
+</tr>
+<tr>
+<td>stompest</td>
+<td align="left">1.0 1.1 1.2</td>
+<td align="left">Python客户端库，全功能实现，包括同步和异步 https://github.com/nikipore/stompest</td>
+</tr>
+<tr>
+<td>StompKit</td>
+<td align="left">1.2</td>
+<td align="left">Objective-C客户端库，事件驱动 https://github.com/mobile-web-messaging/StompKit/</td>
+</tr>
+<tr>
+<td>stompngo</td>
+<td align="left">1.0 1.1 1.2</td>
+<td align="left">Go客户端库 https://github.com/gmallard/stompngo</td>
+</tr>
+<tr>
+<td>stomp.py</td>
+<td align="left">1.0 1.1 1.2</td>
+<td align="left">Python客户端库 https://github.com/jasonrbriggs/stomp.py</td>
+</tr>
+<tr>
+<td>tStomp</td>
+<td align="left">1.1</td>
+<td align="left">TCL客户端库 https://github.com/siemens/tstomp</td>
+</tr>
+</tbody>
+</table>
+<h2>STOMP协议分析</h2>
+<p>STOMP协议与HTTP协议很相似，它基于TCP协议，使用了以下命令：</p>
+<ul>
+<li>CONNECT</li>
+<li>SEND</li>
+<li>SUBSCRIBE</li>
+<li>UNSUBSCRIBE</li>
+<li>BEGIN</li>
+<li>COMMIT</li>
+<li>ABORT</li>
+<li>ACK</li>
+<li>NACK</li>
+<li>DISCONNECT</li>
+</ul>
+<p>STOMP的客户端和服务器之间的通信是通过“帧”（Frame）实现的，每个帧由多“行”（Line）组成。
+第一行包含了命令，然后紧跟键值对形式的Header内容。
+第二行必须是空行。
+第三行开始就是Body内容，末尾都以空字符结尾。
+STOMP的客户端和服务器之间的通信是通过MESSAGE帧、RECEIPT帧或ERROR帧实现的，它们的格式相似。</p>
+<h1>Stomp的python Demo</h1>
+<p>在demo中,我们选择的类库是stomp.py, 使用的版本是4.1.20,<code>stomp.py==4.1.20</code>.</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">stomp</span>
+<span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">from</span> <span class="nn">config</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">engine.common</span> <span class="kn">import</span> <span class="n">case_log</span>
+
+
+<span class="k">def</span> <span class="nf">default_call_back</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;******************Receive New Data******************&quot;</span><span class="p">)</span>
+    <span class="k">print</span> <span class="n">data</span>
+    <span class="k">print</span><span class="p">(</span><span class="s2">&quot;****************************************************&quot;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">MyListener</span><span class="p">(</span><span class="n">stomp</span><span class="o">.</span><span class="n">ConnectionListener</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">callback</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">callback</span> <span class="o">=</span> <span class="n">callback</span>
+
+    <span class="k">def</span> <span class="nf">on_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">headers</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;received an error </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">message</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">on_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">headers</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;received a headers </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">headers</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s1">&#39;received a message </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">message</span><span class="p">)</span>
+        <span class="c1"># key = headers.get(&#39;ack&#39;, None)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">callback</span><span class="p">(</span><span class="n">headers</span><span class="p">,</span> <span class="n">message</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">MessSendOrRecv</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ip</span><span class="o">=</span><span class="s1">&#39;127.0.0.1&#39;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">61613</span><span class="p">,</span> <span class="n">user</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">pwd</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">callback</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;stomp init&quot;</span><span class="p">)</span>
+        <span class="n">case_log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;stomp init.[{0}]:[{1}]&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ip</span><span class="p">,</span><span class="n">port</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn</span> <span class="o">=</span> <span class="n">stomp</span><span class="o">.</span><span class="n">Connection12</span><span class="p">([(</span><span class="n">ip</span><span class="p">,</span> <span class="n">port</span><span class="p">)])</span>
+        <span class="n">call_back</span> <span class="o">=</span> <span class="n">callback</span> <span class="k">if</span> <span class="n">callback</span> <span class="k">else</span> <span class="n">default_call_back</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">set_listener</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;logicServerQueue&#39;</span><span class="p">,</span>
+                               <span class="n">lstnr</span><span class="o">=</span><span class="n">MyListener</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">call_back</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">wait</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="s2">&quot;ip: {0}, port: {1} ,connected!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ip</span><span class="p">,</span> <span class="n">port</span><span class="p">))</span>
+        <span class="n">case_log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;ip: {0}, port: {1} ,connected!&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ip</span><span class="p">,</span><span class="n">port</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">send_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">destination</span><span class="o">=</span><span class="s2">&quot;QLOUD_TEST_ENGINE&quot;</span><span class="p">,</span>
+                     <span class="n">message</span><span class="o">=</span><span class="sa">b</span><span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;send_id&#39;</span><span class="p">:</span><span class="s1">&#39;123456&#39;</span><span class="p">,</span> <span class="s1">&#39;content_type&#39;</span><span class="p">:</span><span class="s1">&#39;text/plain&#39;</span><span class="p">}):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        发布信息到事业总线,发送消息到testQueue队列，指定consumerId=&#39;88.3@6006</span>
+<span class="sd">        :param destination: 接收消息的队列名称</span>
+<span class="sd">        :param message: 消息内容</span>
+<span class="sd">        :return: </span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># print(&quot;start to send message...&quot;)</span>
+        <span class="n">case_log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Start to send message......&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">send</span><span class="p">(</span>
+            <span class="n">body</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">message</span><span class="p">),</span>
+            <span class="n">destination</span><span class="o">=</span><span class="n">destination</span><span class="p">,</span>
+            <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">recv_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">destination</span><span class="o">=</span><span class="s2">&quot;QLOUD_TEST_ENGINE&quot;</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                     <span class="n">subscription_id</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        从testQueue队列中接收消息，用selector过滤，只接收consumerId = &#39;88.3@6006&#39;的消息</span>
+<span class="sd">        :param destination: 消息发送到的队列名称</span>
+<span class="sd">        :param subscription_id: 消息订阅者的ID</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">case_log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Listen Topic:&quot;</span><span class="o">+</span><span class="n">destination</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">subscribe</span><span class="p">(</span><span class="n">destination</span><span class="o">=</span><span class="n">destination</span><span class="p">,</span>
+                             <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">,</span>
+                            <span class="nb">id</span><span class="o">=</span><span class="n">subscription_id</span><span class="p">,</span>
+                            <span class="n">ack</span><span class="o">=</span><span class="s1">&#39;auto&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">ack_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">transaction</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">receipt</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">ack</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">key</span><span class="p">,</span> <span class="n">transaction</span><span class="o">=</span><span class="n">transaction</span><span class="p">,</span> <span class="n">receipt</span><span class="o">=</span><span class="n">receipt</span><span class="p">)</span>
+        <span class="n">case_log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Send ACK Message, keyID:{0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">key</span><span class="p">))</span>
+
+    <span class="k">def</span> <span class="nf">disconnect</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">1.5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">conn</span><span class="o">.</span><span class="n">disconnect</span><span class="p">()</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">run_forever</span><span class="p">():</span>
+        <span class="k">print</span> <span class="s2">&quot;run forever&quot;</span>
+        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">stompmess</span> <span class="o">=</span> <span class="n">MessSendOrRecv</span><span class="p">(</span><span class="n">ip</span><span class="o">=</span><span class="s2">&quot;127.0.0.1&quot;</span><span class="p">,</span> <span class="n">port</span><span class="o">=</span><span class="mi">30211</span><span class="p">)</span>
+    <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;send_id&#39;</span><span class="p">:</span><span class="mi">123456</span><span class="p">}</span>
+    <span class="n">msg</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;order&quot;</span><span class="p">:</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">}</span>
+    <span class="n">stompmess</span><span class="o">.</span><span class="n">recv_message</span><span class="p">(</span><span class="n">destination</span><span class="o">=</span><span class="s1">&#39;TEST_ENGINE&#39;</span><span class="p">,</span> <span class="n">subscription_id</span><span class="o">=</span><span class="mi">9527</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="n">headers</span><span class="p">)</span>
+    <span class="n">stompmess</span><span class="o">.</span><span class="n">send_message</span><span class="p">(</span><span class="n">destination</span><span class="o">=</span><span class="s1">&#39;TEST_ENGINE&#39;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="n">msg</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;send_id&#39;</span><span class="p">:</span><span class="mi">123</span><span class="p">,</span> <span class="s1">&#39;content-text&#39;</span><span class="p">:</span><span class="s1">&#39;application/json&#39;</span><span class="p">})</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">stompmess</span><span class="o">.</span><span class="n">run_forever</span><span class="p">()</span>
+    <span class="c1"># stompmess.disconnect()</span>
+</pre></div>
+
+
+<h1>参考</h1>
+<ul>
+<li><a href="https://blog.csdn.net/jhfyuf/article/details/86800382">https://blog.csdn.net/jhfyuf/article/details/86800382</a></li>
+</ul>
+            <aside>
+            <hr/>
+            <nav>
+            <ul class="articles_timeline">
+ 
+                <li class="previous_article">« <a href="/2019-04-28-093340-ch.html" title="Previous: Java线程池原理及简单介绍">Java线程池原理及简单介绍</a></li>
+ 
+                <li class="next_article"><a href="/2019-05-28-103541-ch.html" title="Next: Redash环境搭建及二次开发">Redash环境搭建及二次开发</a> »</li>
+            </ul>
+            </nav>
+            </aside>
+        </div>
+        <section>
+        <div class="span2" style="float:right;font-size:0.9em;">
+ 
+            <h4>Published</h4>
+            <time pubdate="pubdate" datetime="2019-05-28T10:03:23+08:00"> 5 28, 2019</time>
+            <h4>Category</h4>
+            <a class="category-link" href="/categories.html#Python-ref">Python</a> 
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article"> 
+                <li><a href="/tags.html#Python-ref">Python
+                    <span>4</span>
+</a></li>
+                <li><a href="/tags.html#Stompy-ref">Stompy
+                    <span>1</span>
+</a></li>
+            </ul>
+
+        </div>
+        </section>
+</div>
+<div id="gitalk-container"></div>
+</article>
+
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+<script>
+    var gitalk = new Gitalk({
+        clientID: '55daf540951794dd3faf',
+        clientSecret: 'd6eaad9fa6d9e7ff2647ef8b6e21327da0cc7cda',
+        repo: 'blog-comment',
+        owner: 'xixuebin',
+        admin: ['xixuebin'],
+        id: location.pathname,      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+    })
+
+    gitalk.render('gitalk-container')
+</script>
+
+                </div>
+                <div class="span1"></div>
+            </div>
+        </div>
+    </div>
+<footer>
+<div id="footer">
+    <ul class="footer-content">
+        <li class="elegant-power">Powered by <a href="http://getpelican.com/" title="Pelican Home Page">Pelican</a>. Theme: <a href="http://oncrashreboot.com/pelican-elegant" title="Theme Elegant Home Page">Elegant</a> by <a href="http://oncrashreboot.com" title="Talha Mansoor Home Page">Talha Mansoor</a></li>
+    </ul>
+</div>
+</footer>            <script src="https://code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+    </body>
+</html>

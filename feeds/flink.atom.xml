@@ -1,0 +1,1173 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>寒玉 Blog - flink</title><link href="xixuebin.github.io/" rel="alternate"></link><link href="xixuebin.github.io/feeds/flink.atom.xml" rel="self"></link><id>xixuebin.github.io/</id><updated>2019-04-01T17:47:16+08:00</updated><entry><title>flink系列文章</title><link href="xixuebin.github.io/2019-04-01-174716-ch.html" rel="alternate"></link><published>2019-04-01T17:47:16+08:00</published><updated>2019-04-01T17:47:16+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-04-01:xixuebin.github.io/2019-04-01-174716-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;hr&gt;
+&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
+
+&lt;h1&gt;Flink 系列文章&lt;/h1&gt;
+&lt;h2&gt;flink源码系列-监控&lt;/h2&gt;
+&lt;!-- ## Apache Flink 介绍
+
+## Mac 上搭建 Flink 1.6.0 环境并构建运行简单程序入门
+
+## Flink 配置文件详解
+
+## Data Source 介绍
+
+## 如何自定义 Data Source ？
+
+## Data Sink 介绍
+
+## 如何自定义 Data Sink ？
+
+## Flink Data transformation(转换)
+
+## 介绍 Flink 中的 Stream Windows
+
+## Flink 中的几种 Time 详解
+
+## Flink 读取 Kafka 数据写入到 ElasticSearch
+
+## Flink 项目如何运行？
+
+## Flink 读取 Kafka 数据写入到 Kafka
+
+## Flink JobManager 高可用性配置
+
+## Flink parallelism 和 Slot 介绍
+
+## Flink 读取 Kafka 数据批量写入到 MySQL
+
+## Flink 读取 Kafka 数据写入到 RabbitMQ
+
+## Flink 读取 Kafka 数据写入到 HBase
+
+## Flink 读取 Kafka 数据写入到 HDFS
+
+## Flink 读取 Kafka 数据写入到 Redis
+
+## Flink 读取 Kafka 数据写入到 Cassandra
+
+## Flink 读取 Kafka 数据写入到 Flume
+
+## Flink 读取 Kafka 数据写入到 InfluxDB
+
+## Flink 读取 Kafka 数据写入到 RocketMQ
+
+## 你上传的 jar 包藏到哪里去了
+
+## 你的 Flink job 日志跑到哪里去了 --&gt;</content><category term="flink"></category></entry><entry><title>flink源码系列-监控</title><link href="xixuebin.github.io/2019-03-28-203347-ch.html" rel="alternate"></link><published>2019-03-28T20:33:47+08:00</published><updated>2019-03-28T20:33:47+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-03-28:xixuebin.github.io/2019-03-28-203347-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;hr&gt;
+&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Flink对于指标监测有一套自己的实现，指标的统计方式有四种，这些指标都实现了Metric这个接口，而Metric这个接口只是一个标识，本身并没有定义如何方法接口.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h1&gt;Metric&lt;/h1&gt;
+&lt;p&gt;metric的类集成关系如下:&lt;/p&gt;
+&lt;p&gt;从图中可以看出，Metric这个接口有四个直接子类，分别是:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Gauge —— 最简单的度量指标，只是简单的返回一个值，比如返回一个队列中当前元素的个数；&lt;/li&gt;
+&lt;li&gt;Counter —— 计数器，在一些情况下，会比Gauge高效，比如通过一个AtomicLong变量来统计一个队列的长度；&lt;/li&gt;
+&lt;li&gt;Meter —— 吞吐量的度量，也就是一系列事件发生的速率，例如TPS；&lt;/li&gt;
+&lt;li&gt;Histogram —— 度量值的统计结果，如最大值、最小值、平均值，以及分布情况等。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;以MeterView为例，分析一个Metric的具体实现。MeterView还实现View接口，实现View接口的类，表示其会定期的执行update方法，进行数据的更新&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;publicclassMeterViewimplementsMeter&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="n"&gt;View&lt;/span&gt;&lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="c1"&gt;//底层使用的计算器&lt;/span&gt;
+    &lt;span class="cm"&gt;/**Theunderlyingcountermaintainingthecount.*/&lt;/span&gt;
+    &lt;span class="n"&gt;privatefinalCountercounter&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+    &lt;span class="c1"&gt;//计算平均值的时间跨度&lt;/span&gt;
+    &lt;span class="cm"&gt;/**Thetime-spanoverwhichtheaverageiscalculated.*/&lt;/span&gt;
+    &lt;span class="n"&gt;privatefinalinttimeSpanInSeconds&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+    &lt;span class="c1"&gt;//包含历史数据的循环数组&lt;/span&gt;
+    &lt;span class="cm"&gt;/**Circulararraycontainingthehistoryofvalues.*/&lt;/span&gt;
+    &lt;span class="n"&gt;privatefinallong&lt;/span&gt;&lt;span class="o"&gt;[]&lt;/span&gt;&lt;span class="n"&gt;values&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+    &lt;span class="c1"&gt;//当前时间在数组内的索引&lt;/span&gt;
+    &lt;span class="cm"&gt;/**Theindexinthearrayforthecurrenttime.*/&lt;/span&gt;
+    &lt;span class="n"&gt;privateinttime&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+    &lt;span class="c1"&gt;//最近计算的比率&lt;/span&gt;
+    &lt;span class="cm"&gt;/**Thelastratewecomputed.*/&lt;/span&gt;
+    &lt;span class="n"&gt;privatedoublecurrentRate&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+    &lt;span class="n"&gt;publicMeterView&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;inttimeSpanInSeconds&lt;/span&gt;&lt;span class="o"&gt;){&lt;/span&gt;
+        &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;newSimpleCounter&lt;/span&gt;&lt;span class="o"&gt;(),&lt;/span&gt;&lt;span class="n"&gt;timeSpanInSeconds&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+    &lt;span class="n"&gt;publicMeterView&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Countercounter&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="n"&gt;inttimeSpanInSeconds&lt;/span&gt;&lt;span class="o"&gt;){&lt;/span&gt;
+        &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;counter&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;counter&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+        &lt;span class="c1"&gt;//这里的操作是为了让时间跨度刚好是UPDATE_INTERVAL_SECONDS的整数倍&lt;/span&gt;
+        &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;timeSpanInSeconds&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;timeSpanInSeconds&lt;/span&gt;&lt;span class="o"&gt;-(&lt;/span&gt;&lt;span class="n"&gt;timeSpanInSeconds&lt;/span&gt;&lt;span class="o"&gt;%&lt;/span&gt;&lt;span class="n"&gt;UPDATE_INTERVAL_SECONDS&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+        &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;values&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;newlong&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;timeSpanInSeconds&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;UPDATE_INTERVAL_SECONDS&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;];&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+    &lt;span class="nd"&gt;@Override&lt;/span&gt;
+    &lt;span class="n"&gt;publicvoidmarkEvent&lt;/span&gt;&lt;span class="o"&gt;(){&lt;/span&gt;
+        &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;counter&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;inc&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+    &lt;span class="nd"&gt;@Override&lt;/span&gt;
+    &lt;span class="n"&gt;publicvoidmarkEvent&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;longn&lt;/span&gt;&lt;span class="o"&gt;){&lt;/span&gt;
+        &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;counter&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;inc&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+    &lt;span class="nd"&gt;@Override&lt;/span&gt;
+    &lt;span class="n"&gt;publiclonggetCount&lt;/span&gt;&lt;span class="o"&gt;(){&lt;/span&gt;
+        &lt;span class="n"&gt;returncounter&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getCount&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+    &lt;span class="nd"&gt;@Override&lt;/span&gt;
+    &lt;span class="n"&gt;publicdoublegetRate&lt;/span&gt;&lt;span class="o"&gt;(){&lt;/span&gt;
+        &lt;span class="n"&gt;returncurrentRate&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+    &lt;span class="nd"&gt;@Override&lt;/span&gt;
+    &lt;span class="n"&gt;publicvoidupdate&lt;/span&gt;&lt;span class="o"&gt;(){&lt;/span&gt;
+        &lt;span class="n"&gt;time&lt;/span&gt;&lt;span class="o"&gt;=(&lt;/span&gt;&lt;span class="n"&gt;time&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;)%&lt;/span&gt;&lt;span class="n"&gt;values&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;length&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+        &lt;span class="n"&gt;values&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="n"&gt;time&lt;/span&gt;&lt;span class="o"&gt;]=&lt;/span&gt;&lt;span class="n"&gt;counter&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getCount&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+        &lt;span class="n"&gt;currentRate&lt;/span&gt;&lt;span class="o"&gt;=((&lt;/span&gt;&lt;span class="kt"&gt;double&lt;/span&gt;&lt;span class="o"&gt;)(&lt;/span&gt;&lt;span class="n"&gt;values&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="n"&gt;time&lt;/span&gt;&lt;span class="o"&gt;]-&lt;/span&gt;&lt;span class="n"&gt;values&lt;/span&gt;&lt;span class="o"&gt;[(&lt;/span&gt;&lt;span class="n"&gt;time&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;)%&lt;/span&gt;&lt;span class="n"&gt;values&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;length&lt;/span&gt;&lt;span class="o"&gt;])&lt;/span&gt;
+            &lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;timeSpanInSeconds&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;从类的属性变量中可以看出，MeterView是在一个Counter计数器的基础之上，封装了一层，从而实现事件每秒的平均速率。以values这个长整型的数组，作为环形数组，实现对最新的历史数据的保存。 在构造函数中，会对入参timeSpanInSeconds这个时间跨度进行修正，使其刚好是UPDATE_INTERVAL_SECONDS的整数倍，另外values数组的长度是timeSpanInSeconds对UPDATE_INTERVAL_SECONDS倍数，再加上1，这样这个数组的最新数据和最老的数据之间的时间间隔就刚好是timeSpanInSeconds。 假设values数组的长度为n，则索引n-1处的统计值，和索引0处的统计值，时间间隔就是timeSpanInSeconds由于是环形数组，所以索引0处的统计值，和索引1处的统计值的时间间隔就是timeSpanInSeconds
+所以索引i处的统计值，和索引(i+1)%n处的统计值，时间间隔是timeSpanInSeconds&lt;/p&gt;
+&lt;p&gt;MetricGroup
+为了便于对Metric进行方便的管理和区分，可以对Metric进行分组，MetricGroup就是用来实现这个功能的。 
+MetricGroup的相关子类的继承关系如下所示。&lt;/p&gt;
+&lt;p&gt;其中:
+ProxyMetricGroup —— 这是一个代理类，就是把新Metric或者新的子MetricGroup的注册，委托给代理MetricGroup进行处理；
+AbstractMetricGroup —— 对新增Metric和子MetricGroup的相关方法进行了实现；
+在AbstractMetricGroup中有这些属性&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;//用来保存这个MetricGroup的父MetricGroup&lt;/span&gt;
+&lt;span class="n"&gt;protectedfinalAparent&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+&lt;span class="c1"&gt;//这个map，是用来保存当前MetricGroup中注册的Metric；&lt;/span&gt;
+&lt;span class="n"&gt;privatefinalMap&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="n"&gt;Metric&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;metrics&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;newHashMap&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&amp;gt;();&lt;/span&gt;
+&lt;span class="c1"&gt;//这个map，是用来保存当前MetricGroup中注册子MetricGroup；&lt;/span&gt;
+&lt;span class="n"&gt;privatefinalMap&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="n"&gt;AbstractMetricGroup&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;groups&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;newHashMap&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&amp;gt;();&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;在MetricGroup中，可以建立一个树状的结构，用来存储和归类相关的Metric。&lt;/p&gt;
+&lt;p&gt;MetricReporter
+MetricReporter是用来向外披露Metric的监测结果的接口。 
+由于MetricReporter的子类在实例化时，都是通过反射机制，所以对于其实现子类，需要有一个公共，无参的构造函数，这个接口的定义如下:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;publicinterfaceMetricReporter&lt;/span&gt;&lt;span class="o"&gt;{&lt;/span&gt;
+&lt;span class="n"&gt;voidopen&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;MetricConfigconfig&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="n"&gt;voidclose&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+&lt;span class="n"&gt;voidnotifyOfAddedMetric&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Metricmetric&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="n"&gt;StringmetricName&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="n"&gt;MetricGroupgroup&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="n"&gt;voidnotifyOfRemovedMetric&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Metricmetric&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="n"&gt;StringmetricName&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="n"&gt;MetricGroupgroup&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;open —— 由于子类都是用无参构造函数，通过反射进行实例化，所以相关初始化的工作都是放在这里进行的，并且这个方法需要在实例化后，就需要调用该方法进行相关初始化的工作；
+close —— 这里就是在关闭时，进行资源回收等相关操作的；
+notifyOfAddedMetric —— 当有一个新的Metric注册时，会调用该方法来通知MetricReporter； notifyOfRemovedMetric —— 当有一个Metric被移除时，通过这个方法来通知MetricReporter；
+Metric Report的类集成图:&lt;/p&gt;
+&lt;p&gt;从图上可以看出flink只是的report类型有:Slf4j,StatsD,Ganglia,Graphite,JMX,Prometheus,Datadog.
+MetricRegistry
+MetricGroup是用来对Metric进行分组管理，MetricReporter是用来对外披露Metric，而MetricRegistry就是这两者之间的桥梁，通过MetricRegistry，就可以让MetricReporter感知到在MetricGroup中的Metric发生的变化情况。 对于MetricRegistry这个接口，其实现为MetricRegistryImpl，而其在实例化时，构造函数的入参是一个MetricRegistryConfiguration实例。
+MetricRegistryConfiguration
+MetricRegistryConfiguration顾名思义，就是MetricRegistry的相关配置参数，主要有三个属性，如下：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="cm"&gt;/**flink中不同组件的范围格式*/&lt;/span&gt;
+&lt;span class="n"&gt;privatefinalScopeFormatsscopeFormats&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+&lt;span class="cm"&gt;/**字符串的分隔符，这是一个全局的分隔符*/&lt;/span&gt;
+&lt;span class="n"&gt;privatefinalchardelimiter&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+&lt;span class="cm"&gt;/**配置中每个reporter的名称和其对应的配置对象的列表*/&lt;/span&gt;
+&lt;span class="n"&gt;privatefinalList&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Tuple2&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="n"&gt;Configuration&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;reporterConfigurations&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;这些属性，都是从配置参数中获取而来，逻辑如下：&lt;/p&gt;
+&lt;p&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;publicstaticMetricRegistryConfigurationfromConfiguration&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Configurationconfiguration&lt;/span&gt;&lt;span class="o"&gt;){&lt;/span&gt;
+&lt;span class="cm"&gt;/**获取scopeFormats*/&lt;/span&gt;
+&lt;span class="n"&gt;ScopeFormatsscopeFormats&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+&lt;span class="k"&gt;try&lt;/span&gt;&lt;span class="o"&gt;{&lt;/span&gt;
+&lt;span class="n"&gt;scopeFormats&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;ScopeFormats&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;fromConfig&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;configuration&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;&lt;span class="k"&gt;catch&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Exceptione&lt;/span&gt;&lt;span class="o"&gt;){&lt;/span&gt;
+&lt;span class="n"&gt;LOG&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;warn&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Failedtoparsescopeformat,usingdefaultscopeformats&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="n"&gt;scopeFormats&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;ScopeFormats&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;fromConfig&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;newConfiguration&lt;/span&gt;&lt;span class="o"&gt;());&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="cm"&gt;/**获取分隔符*/&lt;/span&gt;
+&lt;span class="n"&gt;chardelim&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+&lt;span class="k"&gt;try&lt;/span&gt;&lt;span class="o"&gt;{&lt;/span&gt;
+&lt;span class="n"&gt;delim&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;configuration&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getString&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;MetricOptions&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;SCOPE_DELIMITER&lt;/span&gt;&lt;span class="o"&gt;).&lt;/span&gt;&lt;span class="na"&gt;charAt&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;&lt;span class="k"&gt;catch&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Exceptione&lt;/span&gt;&lt;span class="o"&gt;){&lt;/span&gt;
+&lt;span class="n"&gt;LOG&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;warn&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Failedtoparsedelimiter,usingdefaultdelimiter.&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="n"&gt;delim&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="sc"&gt;&amp;#39;.&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="cm"&gt;/**获取MetricReporter相关的配置信息，MetricReporter的配置格式是metrics.reporters=foo,bar*/&lt;/span&gt;
+&lt;span class="n"&gt;finalStringdefinedReporters&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;configuration&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getString&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;MetricOptions&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;REPORTERS_LIST&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="n"&gt;List&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Tuple2&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="n"&gt;Configuration&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;reporterConfigurations&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+&lt;span class="k"&gt;if&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;definedReporters&lt;/span&gt;&lt;span class="o"&gt;==&lt;/span&gt;&lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;){&lt;/span&gt;
+&lt;span class="cm"&gt;/**如果没有配置，则返回空集合*/&lt;/span&gt;
+&lt;span class="n"&gt;reporterConfigurations&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;Collections&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;emptyList&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;&lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="o"&gt;{&lt;/span&gt;
+&lt;span class="cm"&gt;/**按模式匹配分割，如上述的配置，则namedReporters={&amp;quot;foo&amp;quot;,&amp;quot;bar&amp;quot;}*/&lt;/span&gt;
+&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;[]&lt;/span&gt;&lt;span class="n"&gt;namedReporters&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;splitPattern&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;split&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;definedReporters&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="n"&gt;reporterConfigurations&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;newArrayList&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&amp;gt;(&lt;/span&gt;&lt;span class="n"&gt;namedReporters&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;length&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="k"&gt;for&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;StringnamedReporter&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="n"&gt;namedReporters&lt;/span&gt;&lt;span class="o"&gt;){&lt;/span&gt;
+&lt;span class="cm"&gt;/**&lt;/span&gt;
+&lt;span class="cm"&gt;*这里是获取一个代理配置对象，就是在原来配置对象的基础上，在查询key时，需要加上这里配置的前缀&lt;/span&gt;
+&lt;span class="cm"&gt;    ，&lt;/span&gt;
+&lt;span class="cm"&gt;*如metrics.reporter.foo.，这样就可以获取特定reporter的配置&lt;/span&gt;
+&lt;span class="cm"&gt;*/&lt;/span&gt;
+&lt;span class="n"&gt;DelegatingConfigurationdelegatingConfiguration&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;newDelegatingConfiguration&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;
+&lt;span class="n"&gt;configuration&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+&lt;span class="n"&gt;ConfigConstants&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;METRICS_REPORTER_PREFIX&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="n"&gt;namedReporter&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="sc"&gt;&amp;#39;.&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="n"&gt;reporterConfigurations&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;add&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Tuple2&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;of&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;namedReporter&lt;/span&gt;&lt;span class="o"&gt;,(&lt;/span&gt;&lt;span class="n"&gt;Configuration&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;&lt;span class="n"&gt;delegatingConfiguration&lt;/span&gt;&lt;span class="o"&gt;));&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="n"&gt;returnnewMetricRegistryConfiguration&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;scopeFormats&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="n"&gt;delim&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="n"&gt;reporterConfigurations&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;ScopeFormat&lt;/p&gt;
+&lt;p&gt;上述的ScopeFormats也是配置对象中获取的，如下：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;publicstaticScopeFormatsfromConfig&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Configurationconfig&lt;/span&gt;&lt;span class="o"&gt;){&lt;/span&gt;
+&lt;span class="n"&gt;StringjmFormat&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;config&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getString&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;MetricOptions&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;SCOPE_NAMING_JM&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="n"&gt;StringjmJobFormat&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;config&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getString&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;MetricOptions&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;SCOPE_NAMING_JM_JOB&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="n"&gt;StringtmFormat&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;config&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getString&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;MetricOptions&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;SCOPE_NAMING_TM&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="n"&gt;StringtmJobFormat&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;config&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getString&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;MetricOptions&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;SCOPE_NAMING_TM_JOB&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="n"&gt;StringtaskFormat&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;config&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getString&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;MetricOptions&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;SCOPE_NAMING_TASK&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="n"&gt;StringoperatorFormat&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;config&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getString&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;MetricOptions&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;SCOPE_NAMING_OPERATOR&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="n"&gt;returnnewScopeFormats&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;jmFormat&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="n"&gt;jmJobFormat&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="n"&gt;tmFormat&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="n"&gt;tmJobFormat&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="n"&gt;taskFormat&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="n"&gt;operatorFormat&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;ScopeFormat的类继承关系如下:&lt;/p&gt;
+&lt;p&gt;从图中可以看出，Flink中的每个组件，都有对应的格式。
+首先看下ScopeFormat中的主要属性对象：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="cm"&gt;/**这是原生格式，比如&amp;lt;host&amp;gt;.jobmanager，如果为空，则是&amp;lt;empty&amp;gt;*/&lt;/span&gt;
+&lt;span class="n"&gt;privatefinalStringformat&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+&lt;span class="cm"&gt;/**format按照分割符分割后的数组，如template={&amp;quot;&amp;lt;host&amp;gt;&amp;quot;,&amp;quot;jobmanager”}，被&amp;lt;&amp;gt;包裹的元素，是变量元素*/&lt;/span&gt;
+&lt;span class="n"&gt;privatefinalString&lt;/span&gt;&lt;span class="o"&gt;[]&lt;/span&gt;&lt;span class="n"&gt;template&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+&lt;span class="cm"&gt;/**这是template数组中，变量元素的索引，如&amp;quot;&amp;lt;host&amp;gt;&amp;quot;是变量，在template中的索引是0，则templatePos={0}&lt;/span&gt;
+&lt;span class="cm"&gt;    */&lt;/span&gt;
+&lt;span class="n"&gt;privatefinalint&lt;/span&gt;&lt;span class="o"&gt;[]&lt;/span&gt;&lt;span class="n"&gt;templatePos&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+&lt;span class="cm"&gt;/**这个是template中变量元素对应的真实的值，在values数组中的位置，详见构造函数和#bindVariables方法&lt;/span&gt;
+&lt;span class="cm"&gt;    */&lt;/span&gt;
+&lt;span class="n"&gt;privatefinalint&lt;/span&gt;&lt;span class="o"&gt;[]&lt;/span&gt;&lt;span class="n"&gt;valuePos&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;这里以JobManagerScopeFormat为例进行分析说明，在ScopeFormats中，默认传给JobManagerScopeFormat的构造函数的入参值是 .jobmanager 。 则JobManagerScopeFormat的构造过程如下:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="cm"&gt;/**format的默认值是&amp;lt;host&amp;gt;.jobmanager*/&lt;/span&gt;
+&lt;span class="n"&gt;publicJobManagerScopeFormat&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Stringformat&lt;/span&gt;&lt;span class="o"&gt;){&lt;/span&gt;
+&lt;span class="kd"&gt;super&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="n"&gt;newString&lt;/span&gt;&lt;span class="o"&gt;[]{&lt;/span&gt;
+&lt;span class="n"&gt;SCOPE_HOST&lt;/span&gt;
+&lt;span class="o"&gt;});&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;接着看起父类ScopeFormat的构造过程：&lt;/p&gt;
+&lt;p&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="cm"&gt;/**接上面，入参值为format=&amp;quot;&amp;lt;host&amp;gt;.jobmanager&amp;quot;，parent=null，variables={&amp;quot;&amp;lt;host&amp;gt;&amp;quot;}*/&lt;/span&gt;
+&lt;span class="n"&gt;protectedScopeFormat&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Stringformat&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="n"&gt;ScopeFormatparent&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;[]&lt;/span&gt;&lt;span class="n"&gt;variables&lt;/span&gt;&lt;span class="o"&gt;){&lt;/span&gt;
+&lt;span class="n"&gt;checkNotNull&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;formatisnull&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="cm"&gt;/**将format这个字符串分割，rawComponents={&amp;quot;&amp;lt;host&amp;gt;&amp;quot;,&amp;quot;jobmanager&amp;quot;}*/&lt;/span&gt;
+&lt;span class="n"&gt;finalString&lt;/span&gt;&lt;span class="o"&gt;[]&lt;/span&gt;&lt;span class="n"&gt;rawComponents&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;split&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;\\&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="n"&gt;SCOPE_SEPARATOR&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="cm"&gt;/**根据rawComponents的第一个元素是为&amp;quot;*&amp;quot;，来判断是否要继承父组的范围*/&lt;/span&gt;
+&lt;span class="n"&gt;finalbooleanparentAsPrefix&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;rawComponents&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;length&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;rawComponents&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="o"&gt;].&lt;/span&gt;&lt;span class="na"&gt;equals&lt;/span&gt;
+    &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;SCOPE_INHERIT_PARENT&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="k"&gt;if&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;parentAsPrefix&lt;/span&gt;&lt;span class="o"&gt;){&lt;/span&gt;
+&lt;span class="cm"&gt;/**需要继承父组的范围，而父组有是null，则抛出异常*/&lt;/span&gt;
+&lt;span class="k"&gt;if&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;parent&lt;/span&gt;&lt;span class="o"&gt;==&lt;/span&gt;&lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;){&lt;/span&gt;
+&lt;span class="n"&gt;thrownewIllegalArgumentException&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Componentscopeformatrequiresparentprefix&lt;/span&gt;
+&lt;span class="s"&gt;    (startswith&amp;#39;&amp;quot;&lt;/span&gt;
+&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="n"&gt;SCOPE_INHERIT_PARENT&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;&amp;#39;),butthiscomponenthasnoparent(isrootcomponent).&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="cm"&gt;/**如果以&amp;quot;*.&amp;quot;开头，则format至少需要有3个字符，否则就是无效字符，设置为&amp;quot;&amp;lt;empty&amp;gt;&amp;quot;*/&lt;/span&gt;
+&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;format&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;length&lt;/span&gt;&lt;span class="o"&gt;()&amp;gt;&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="o"&gt;?&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;substring&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="o"&gt;):&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;&amp;lt;empty&amp;gt;&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;[]&lt;/span&gt;&lt;span class="n"&gt;parentTemplate&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;parent&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;template&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+&lt;span class="n"&gt;intparentLen&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;parentTemplate&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;length&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+&lt;span class="cm"&gt;/**将父组的范围和自身的范围，合并到一起*/&lt;/span&gt;
+&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;template&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;newString&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="n"&gt;parentLen&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="n"&gt;rawComponents&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;length&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;];&lt;/span&gt;
+&lt;span class="n"&gt;System&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;arraycopy&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;parentTemplate&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;template&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="n"&gt;parentLen&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="n"&gt;System&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;arraycopy&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;rawComponents&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;template&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="n"&gt;parentLen&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="n"&gt;rawComponents&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;length&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="k"&gt;else&lt;/span&gt;&lt;span class="o"&gt;{&lt;/span&gt;
+&lt;span class="cm"&gt;/**不需要继承父组的范围，则直接赋值，format=&amp;quot;&amp;lt;host&amp;gt;.jobmanager&amp;quot;，template={&amp;quot;&amp;lt;host&amp;gt;&amp;quot;&lt;/span&gt;
+&lt;span class="cm"&gt;    ,&amp;quot;jobmanager&amp;quot;}*/&lt;/span&gt;
+&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;format&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;isEmpty&lt;/span&gt;&lt;span class="o"&gt;()?&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;&amp;lt;empty&amp;gt;&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;template&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;rawComponents&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="cm"&gt;/**将variables={&amp;quot;&amp;lt;host&amp;gt;&amp;quot;}转换为map{&amp;quot;&amp;lt;host&amp;gt;&amp;quot;-&amp;gt;0}*/&lt;/span&gt;
+&lt;span class="n"&gt;HashMap&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="n"&gt;Integer&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;varToValuePos&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;arrayToMap&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;variables&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="n"&gt;List&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Integer&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;templatePos&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;newArrayList&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&amp;gt;();&lt;/span&gt;
+&lt;span class="n"&gt;List&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Integer&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;valuePos&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;newArrayList&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&amp;gt;();&lt;/span&gt;
+&lt;span class="k"&gt;for&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;inti&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;template&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;length&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="o"&gt;++){&lt;/span&gt;
+&lt;span class="n"&gt;finalStringcomponent&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;template&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="o"&gt;];&lt;/span&gt;
+&lt;span class="cm"&gt;/**检查当前这个组件是否是一个变量*/&lt;/span&gt;
+&lt;span class="k"&gt;if&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;component&lt;/span&gt;&lt;span class="o"&gt;!=&lt;/span&gt;&lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;component&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;length&lt;/span&gt;&lt;span class="o"&gt;()&amp;gt;=&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt;
+&lt;span class="n"&gt;component&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;charAt&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="o"&gt;)==&lt;/span&gt;&lt;span class="sc"&gt;&amp;#39;&amp;lt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;component&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;charAt&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;component&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;length&lt;/span&gt;&lt;span class="o"&gt;()-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;)==&lt;/span&gt;&lt;span class="sc"&gt;&amp;#39;&amp;gt;&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;){&lt;/span&gt;
+&lt;span class="cm"&gt;/**这是一个变量，则从上面的map中，获取其索引*/&lt;/span&gt;
+&lt;span class="n"&gt;IntegerreplacementPos&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;varToValuePos&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;get&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;component&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="k"&gt;if&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;replacementPos&lt;/span&gt;&lt;span class="o"&gt;!=&lt;/span&gt;&lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;){&lt;/span&gt;
+&lt;span class="n"&gt;templatePos&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;add&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="n"&gt;valuePos&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;add&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;replacementPos&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;templatePos&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;integerListToArray&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;templatePos&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;valuePos&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;integerListToArray&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;valuePos&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;经过这个构造过程，ScopeFormat中的四个属性的值如下：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;format&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="err"&gt;“&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;jobmanager&lt;/span&gt;&lt;span class="err"&gt;”&lt;/span&gt;
+&lt;span class="n"&gt;template&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;&lt;span class="err"&gt;“”&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="err"&gt;“&lt;/span&gt;&lt;span class="n"&gt;jobmanager&lt;/span&gt;&lt;span class="err"&gt;”&lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="n"&gt;templatePos&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="n"&gt;valuePos&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;对于JobManagerScopeFormat来说，构建一个具体的范围数组的逻辑如下：&lt;/p&gt;
+&lt;p&gt;
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+publicString[]formatScope(Stringhostname){
+/&lt;strong&gt;获取template数组的一份拷贝，深拷贝*/
+finalString[]template=copyTemplate();
+finalString[]values={hostname};
+/&lt;/strong&gt;使用hostname替换掉template中索引为0的元素&lt;host&gt;&lt;em&gt;/
+returnbindVariables(template,values);
+}
+protectedfinalString[]copyTemplate(){
+String[]copy=newString[template.length];
+System.arraycopy(template,0,copy,0,template.length);
+returncopy;
+}
+/&lt;/em&gt;&lt;em&gt;在结合这个逻辑，就知道ScopeFormat中的属性valuePos的作用了&lt;/em&gt;/
+protectedfinalString[]bindVariables(String[]template,String[]values){
+finalintlen=templatePos.length;
+for(inti=0;i&amp;lt;len;i++){
+template[templatePos[i]]=values[valuePos[i]];
+}
+returntemplate;
+}&lt;/p&gt;
+&lt;p&gt;MetricRegistryImpl
+﻿﻿在获取了MetricRegistryConfiguration实例后，在看MetricRegistryImpl的构造函数的实现逻辑。&lt;/p&gt;
+&lt;p&gt;
+1
+this.executor=Executors.newSingleThreadScheduledExecutor(newExecutorThreadFactory("Flink
+    -MetricRegistry"));&lt;/p&gt;
+&lt;p&gt;这里给executor这个属性，设置了一个单线程可调度的执行器。 接下来主要看下对MetricReporter相关的初始化工作。&lt;/p&gt;
+&lt;p&gt;
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+/&lt;strong&gt;变量配置中配置的reporter的配置*/
+for(Tuple2&lt;String,Configuration&gt;reporterConfiguration:reporterConfigurations){
+StringnamedReporter=reporterConfiguration.f0;
+/&lt;/strong&gt;reporterConfig是Configuration的子类DelegatingConfiguration，会肯定定义的前缀来找key&lt;em&gt;/
+ConfigurationreporterConfig=reporterConfiguration.f1;
+/&lt;strong&gt;获取MetricReporter的具体实现子类的全限定类型，配置的key如：metrics.reporter.foo.class*/
+finalStringclassName=reporterConfig.getString(ConfigConstants.METRICS_REPORTER_CLASS_SUFFIX
+    ,null);
+if(className==null){
+LOG.error("Noreporterclasssetforreporter"+namedReporter+".Metricsmightnotbeexposed
+    /reported.");
+continue;
+}
+try{
+/&lt;/strong&gt;获取配置的定期执行的时间间隔，key的格式如：metrics.reporter.foo.interval&lt;/em&gt;/
+StringconfiguredPeriod=reporterConfig.getString(ConfigConstants
+    .METRICS_REPORTER_INTERVAL_SUFFIX,null);
+TimeUnittimeunit=TimeUnit.SECONDS;
+longperiod=10;
+if(configuredPeriod!=null){
+try{
+String[]interval=configuredPeriod.split("");
+period=Long.parseLong(interval[0]);
+timeunit=TimeUnit.valueOf(interval[1]);
+}
+catch(Exceptione){
+LOG.error("Cannotparsereportintervalfromconfig:"+configuredPeriod+
+"-pleaseusevalueslike'10SECONDS'or'500MILLISECONDS'."+
+"Usingdefaultreportinginterval.");
+}
+}
+/&lt;strong&gt;实例化MetricReporter的子类*/
+Class&amp;lt;?&amp;gt;reporterClass=Class.forName(className);
+MetricReporterreporterInstance=(MetricReporter)reporterClass.newInstance();
+/&lt;/strong&gt;构造MetricConfig的实例，并把reporterConfig中的配置key-value都添加到metricConfig中&lt;em&gt;/
+MetricConfigmetricConfig=newMetricConfig();
+reporterConfig.addAllToProperties(metricConfig);
+LOG.info("Configuring{}with{}.",reporterClass.getSimpleName(),metricConfig);
+/&lt;strong&gt;这里就是reporter进行初始化操作的地方*/
+reporterInstance.open(metricConfig);
+/&lt;/strong&gt;如果reporter实现了Scheduled接口，则通过executor进行定期调度执行，执行时间间隔就是上面获取的时
+    间间隔&lt;/em&gt;/
+if(reporterInstanceinstanceofScheduled){
+LOG.info("Periodicallyreportingmetricsinintervalsof{}{}forreporter{}oftype{}."
+    ,period,timeunit.name(),namedReporter,className);
+/&lt;strong&gt;将reporter封装成一个task，并调度定期更新执行*/
+executor.scheduleWithFixedDelay(
+newMetricRegistryImpl.ReporterTask((Scheduled)reporterInstance),period,period
+    ,timeunit);
+}else{
+LOG.info("Reportingmetricsforreporter{}oftype{}.",namedReporter,className);
+}
+/&lt;/strong&gt;将reporter添加到集合中&lt;em&gt;/
+reporters.add(reporterInstance);
+/&lt;/em&gt;&lt;em&gt;获取reporter定制化的分隔符，如果没有设置，则设置为全局分割符&lt;/em&gt;/
+StringdelimiterForReporter=reporterConfig.getString(ConfigConstants
+    .METRICS_REPORTER_SCOPE_DELIMITER,String.valueOf(globalDelimiter));
+if(delimiterForReporter.length()!=1){
+LOG.warn("Failedtoparsedelimiter'{}'forreporter'{}',usingglobaldelimiter'{}'."
+    ,delimiterForReporter,namedReporter,globalDelimiter);
+delimiterForReporter=String.valueOf(globalDelimiter);
+}
+this.delimiters.add(delimiterForReporter.charAt(0));
+}
+catch(Throwablet){
+LOG.error("Couldnotinstantiatemetricsreporter{}.Metricsmightnotbeexposed/reported."
+    ,namedReporter,t);
+}
+}
+其中Schedule接口，只有一个report接口。&lt;/p&gt;
+&lt;p&gt;
+1
+2
+3
+publicinterfaceScheduled{
+voidreport();
+}
+实现Scheduled接口的reporter，表示其需要被定期调度执行，定期执行的就是其report方法，没有实现Scheduled接口的reporter方法，是不会被定期调度的。
+Slf4jReporter这个MetricReporter的子类就实现了Scheduled接口，而其report方法，就是将注册的Metric的信息打印到日志里；
+JMXReporter这个子类是没有实现Scheduled接口的，但可以通过JMX服务来获取注册的Metric的信息。
+添加Metric的过程
+Metric的添加逻辑的入口在AbstractMetricGroup的addMetric方法中，逻辑如下：&lt;/p&gt;
+&lt;p&gt;
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+protectedvoidaddMetric(Stringname,Metricmetric){
+if(metric==null){
+LOG.warn("Ignoringattemptedregistrationofametricduetobeingnullforname{}.",name);
+return;
+}
+/&lt;strong&gt;只有group仍然打开的情况下,才添加这个metric*/
+synchronized(this){
+if(!closed){
+/&lt;/strong&gt;
+&lt;em&gt;在没有进行"contains"校验下,立即进行put操作,来优化常见的情况(没有碰撞)
+&lt;/em&gt;碰撞的情况后面会处理。
+&lt;em&gt;/
+Metricprior=metrics.put(name,metric);
+/&lt;strong&gt;检查与其他度量名称的冲突*/
+if(prior==null){
+/&lt;/strong&gt;这个名字还没有其他指标，也就是与注册在当前group下的metric没有名称冲突&lt;/em&gt;/
+if(groups.containsKey(name)){
+/&lt;strong&gt;与注册在group下的子groups的名称由冲突，这里给出warn日志,而不是fail
+    ,因为metrics是工具,当使用错误时,不应该使得程序失败*/
+LOG.warn("Namecollision:Addingametricwiththesamenameasametricsubgroup:'"+
+name+"'.Metricmightnotgetproperlyreported."+Arrays.toString
+    (scopeComponents));
+}
+/&lt;/strong&gt;这里就是桥梁起作用的地方&lt;em&gt;/
+registry.register(metric,name,this);
+}
+else{
+/&lt;/em&gt;&lt;em&gt;有碰撞,放回原来的metric&lt;/em&gt;/
+metrics.put(name,prior);
+LOG.warn("Namecollision:GroupalreadycontainsaMetricwiththename'"+
+name+"'.Metricwillnotbereported."+Arrays.toString(scopeComponents));
+}
+}
+}
+}
+上述逻辑就是把Metric注册到当前Group中，接着看调用了MetricRegistry的register里的逻辑。&lt;/p&gt;
+&lt;p&gt;
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+publicvoidregister(Metricmetric,StringmetricName,AbstractMetricGroupgroup){
+synchronized(lock){
+if(isShutdown()){
+LOG.warn("Cannotregistermetric,becausetheMetricRegistryhasalreadybeenshutdown.");
+}else{
+if(reporters!=null){
+/&lt;strong&gt;通知所有的reporters，注册了一个metric，以及对应的metricName，group*/
+for(inti=0;i&lt;reporters.size();i++){
+MetricReporterreporter=reporters.get(i);
+try{
+if(reporter!=null){
+/**
+*这里会将group，以及这个reporter在reporters这个列表中的索引，一起封装到FrontMetr
+    icGroup这个代理类中
+*这里封装索引的目的，是可以通过#getDelimiter方法，获取这个reporter配置的特制分
+    隔符
+*/
+FrontMetricGroupfront=newFrontMetricGroup&lt;AbstractMetricGroup&lt;?&gt;&amp;gt;(i,group);
+/&lt;/strong&gt;然后调用reporter的接口方法，通知reporter&lt;em&gt;/
+reporter.notifyOfAddedMetric(metric,metricName,front);
+}
+}catch(Exceptione){
+LOG.warn("Errorwhileregisteringmetric.",e);
+}
+}
+}
+try{
+/&lt;strong&gt;如果queryService不为null，则也通知它*/
+if(queryService!=null){
+MetricQueryService.notifyOfAddedMetric(queryService,metric,metricName,group);
+}
+}catch(Exceptione){
+LOG.warn("Errorwhileregisteringmetric.",e);
+}
+try{
+/&lt;/strong&gt;如果metric实现了View接口，则将其添加到定期更新的viewUpdater中&lt;/em&gt;/
+if(metricinstanceofView){
+if(viewUpdater==null){
+viewUpdater=newViewUpdater(executor);
+}
+viewUpdater.notifyOfAddedView((View)metric);
+}
+}catch(Exceptione){
+LOG.warn("Errorwhileregisteringmetric.",e);
+}
+}
+}
+}
+从上述逻辑，可以看出MetricRegistry所起的桥梁作用了，它会再依次通知配置的各个reporter，前面已经介绍过AbstractReporter这个抽象子类实现。
+View接口
+View接口的定义如下:&lt;/p&gt;
+&lt;p&gt;
+1
+2
+3
+4
+5
+6
+7
+publicinterfaceView{
+/&lt;strong&gt;metrics更新的间隔*/
+intUPDATE_INTERVAL_SECONDS=5;
+/&lt;/strong&gt;被定期调用进行metric更新的方法*/
+voidupdate();
+}
+实现了View接口的Metric，需要定期的调用update方法，进行状态的更新，而这个定期更新的功能是通过ViewUpdater实现的，其构造函数中，就是在executor中添加了一个定期执行的task。&lt;/p&gt;
+&lt;p&gt;
+1
+2
+3
+publicViewUpdater(ScheduledExecutorServiceexecutor){
+executor.scheduleWithFixedDelay(newViewUpdaterTask(lock,toAdd,toRemove),5
+    ,UPDATE_INTERVAL_SECONDS,TimeUnit.SECONDS);
+}
+新增一个Metric时，通知viewUpdater时的逻辑如下:&lt;/p&gt;
+&lt;p&gt;
+1
+2
+3
+4
+5
+publicvoidnotifyOfAddedView(Viewview){
+synchronized(lock){
+toAdd.add(view);
+}
+}
+就是想toAdd这个Set中添加一个新的元素，通过lock这个锁来实现同步。 
+而ViewUpdaterTask的run方法中，就会调用注册的Metric的update方法，同时更新几个Set。逻辑如下：&lt;/p&gt;
+&lt;p&gt;publicvoidrun(){
+for(ViewtoUpdate:this.views){
+toUpdate.update();
+}
+synchronized(lock){
+views.addAll(toAdd);
+toAdd.clear();
+views.removeAll(toRemove);
+toRemove.clear();
+}
+}
+MetricQueryService
+在MetricRegistryImpl中有一个属性queryService，是一个ActorRef，对应的具体实现是MetricQueryService。在MetricQueryService中也维护了注册的各种Metric，并且也是从MetricRegistry那里接受Metric的添加和删除的消息.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="cm"&gt;/**用来接收Metric添加的消息*/&lt;/span&gt;
+&lt;span class="n"&gt;publicstaticvoidnotifyOfAddedMetric&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ActorRefservice&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="n"&gt;Metricmetric&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="n"&gt;StringmetricName&lt;/span&gt;
+    &lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="n"&gt;AbstractMetricGroupgroup&lt;/span&gt;&lt;span class="o"&gt;){&lt;/span&gt;
+&lt;span class="n"&gt;service&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;tell&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;newAddMetric&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;metricName&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="n"&gt;metric&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="n"&gt;group&lt;/span&gt;&lt;span class="o"&gt;),&lt;/span&gt;&lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="cm"&gt;/**用于接收Metric删除的消息*/&lt;/span&gt;
+&lt;span class="n"&gt;publicstaticvoidnotifyOfRemovedMetric&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ActorRefservice&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;&lt;span class="n"&gt;Metricmetric&lt;/span&gt;&lt;span class="o"&gt;){&lt;/span&gt;
+&lt;span class="n"&gt;service&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;tell&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;newRemoveMetric&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;metric&lt;/span&gt;&lt;span class="o"&gt;),&lt;/span&gt;&lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;MetricQueryService在接收到这类消息后，会在onReceive方法中根据不同的消息类型进行相应的处理，添加和删除Metric就是在四类Metric对应的map属性上进行相应的添加删除操作。以此来实现对Metric信息的维护。 onReceive方法中还会接收到一类消息，叫CreateDump消息，接收到这个消息后，就会把当前所有的Metric数据进行序列化操作，得到一个MetricDumpSerialization.MetricSerializationResult序列化后的结果实例，并发送给请求者。 对于Metric的序列化和反序列化的实现都在MetricDumpSerialization这个类中。
+通过MetricDumpSerializer进行序列化，序列化后的结果为MetricSerializationResult；
+通过MetricDumpDeserializer进行反序列化，反序列化后的结果为MetricDump；&lt;/p&gt;
+&lt;h1&gt;参考&lt;/h1&gt;
+&lt;p&gt;https://blog.csdn.net/qq_21653785/article/details/79625601&lt;/p&gt;</content><category term="flink"></category></entry><entry><title>flink四层运行模型</title><link href="xixuebin.github.io/2019-03-25-172756-ch.html" rel="alternate"></link><published>2019-03-25T17:27:56+08:00</published><updated>2019-03-25T17:27:56+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-03-25:xixuebin.github.io/2019-03-25-172756-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;hr&gt;
+&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
+
+&lt;h1&gt;执行计划ExecutionGraph的生成&lt;/h1&gt;
+&lt;blockquote&gt;
+&lt;p&gt;flink的运行时执行计划为ExecutionGraph,是JobManager运行时候的抽象.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;StreamGraph和JobGraph都是在client生成的,但是ExecutionGrap是在JobMaster端生成的.&lt;/p&gt;
+&lt;h2&gt;客户端JobGraph的提交&lt;/h2&gt;
+&lt;p&gt;客户端的&lt;code&gt;JobGraph&lt;/code&gt;生成之后,通过&lt;code&gt;LeaderRetrivalService&lt;/code&gt;获取&lt;code&gt;JobManager&lt;/code&gt;的地址,然后将&lt;code&gt;JobGraph&lt;/code&gt;提交给&lt;code&gt;JobManager&lt;/code&gt;去执行.flink的核心进程通信是通过Akka来完成的.&lt;code&gt;JobManager&lt;/code&gt;,&lt;code&gt;TaskManager&lt;/code&gt;都是一个Akka system,所以在提交的时候需要先生成一个客户端actor与&lt;code&gt;JobManager&lt;/code&gt;交互,然后执行rpc命令.&lt;/p&gt;
+&lt;p&gt;下面方法发送一个&lt;code&gt;JobGraph&lt;/code&gt;到&lt;code&gt;JobManager&lt;/code&gt;.这个方法会一直block直到job返回或者&lt;code&gt;JobManager&lt;/code&gt;不在处于alive状态.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;static&lt;/span&gt; &lt;span class="n"&gt;JobExecutionResult&lt;/span&gt; &lt;span class="nf"&gt;submitJobAndWait&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;
+    &lt;span class="n"&gt;ActorSystem&lt;/span&gt; &lt;span class="n"&gt;actorSystem&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;Configuration&lt;/span&gt; &lt;span class="n"&gt;config&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;HighAvailabilityServices&lt;/span&gt; &lt;span class="n"&gt;highAvailabilityServices&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;JobGraph&lt;/span&gt; &lt;span class="n"&gt;jobGraph&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;FiniteDuration&lt;/span&gt; &lt;span class="n"&gt;timeout&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+    &lt;span class="kt"&gt;boolean&lt;/span&gt; &lt;span class="n"&gt;sysoutLogUpdates&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;ClassLoader&lt;/span&gt; &lt;span class="n"&gt;classLoader&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="kd"&gt;throws&lt;/span&gt; &lt;span class="n"&gt;JobExecutionException&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;JobListeningContext&lt;/span&gt; &lt;span class="n"&gt;jobListeningContext&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;submitJob&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;
+        &lt;span class="n"&gt;actorSystem&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;config&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;highAvailabilityServices&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;jobGraph&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;timeout&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;sysoutLogUpdates&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;classLoader&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;awaitJobResult&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;jobListeningContext&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;真正提交Job并且返回JobListeningContext&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;static&lt;/span&gt; &lt;span class="n"&gt;JobListeningContext&lt;/span&gt; &lt;span class="nf"&gt;submitJob&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;
+        &lt;span class="n"&gt;ActorSystem&lt;/span&gt; &lt;span class="n"&gt;actorSystem&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;Configuration&lt;/span&gt; &lt;span class="n"&gt;config&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;HighAvailabilityServices&lt;/span&gt; &lt;span class="n"&gt;highAvailabilityServices&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;JobGraph&lt;/span&gt; &lt;span class="n"&gt;jobGraph&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;FiniteDuration&lt;/span&gt; &lt;span class="n"&gt;timeout&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+        &lt;span class="kt"&gt;boolean&lt;/span&gt; &lt;span class="n"&gt;sysoutLogUpdates&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;ClassLoader&lt;/span&gt; &lt;span class="n"&gt;classLoader&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+
+    &lt;span class="n"&gt;checkNotNull&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;actorSystem&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;The actorSystem must not be null.&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+    &lt;span class="n"&gt;checkNotNull&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;highAvailabilityServices&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;The high availability services must not be null.&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+    &lt;span class="n"&gt;checkNotNull&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;jobGraph&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;The jobGraph must not be null.&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+    &lt;span class="n"&gt;checkNotNull&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;timeout&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;The timeout must not be null.&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+
+    &lt;span class="c1"&gt;// for this job, we create a proxy JobClientActor that deals with all communication with&lt;/span&gt;
+    &lt;span class="c1"&gt;// the JobManager. It forwards the job submission, checks the success/failure responses, logs&lt;/span&gt;
+    &lt;span class="c1"&gt;// update messages, watches for disconnect between client and JobManager, ...&lt;/span&gt;
+
+    &lt;span class="n"&gt;Props&lt;/span&gt; &lt;span class="n"&gt;jobClientActorProps&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;JobSubmissionClientActor&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;createActorProps&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;
+        &lt;span class="n"&gt;highAvailabilityServices&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getJobManagerLeaderRetriever&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;HighAvailabilityServices&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;DEFAULT_JOB_ID&lt;/span&gt;&lt;span class="o"&gt;),&lt;/span&gt;
+        &lt;span class="n"&gt;timeout&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;sysoutLogUpdates&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;config&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+
+    &lt;span class="n"&gt;ActorRef&lt;/span&gt; &lt;span class="n"&gt;jobClientActor&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;actorSystem&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;actorOf&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;jobClientActorProps&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+
+    &lt;span class="n"&gt;Future&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Object&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;submissionFuture&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Patterns&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;ask&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;
+            &lt;span class="n"&gt;jobClientActor&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+            &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;JobClientMessages&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;SubmitJobAndWait&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;jobGraph&lt;/span&gt;&lt;span class="o"&gt;),&lt;/span&gt;
+            &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Timeout&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;AkkaUtils&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;INF_TIMEOUT&lt;/span&gt;&lt;span class="o"&gt;()));&lt;/span&gt;
+
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;JobListeningContext&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;
+        &lt;span class="n"&gt;jobGraph&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getJobID&lt;/span&gt;&lt;span class="o"&gt;(),&lt;/span&gt;
+        &lt;span class="n"&gt;submissionFuture&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;jobClientActor&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;timeout&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;classLoader&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;highAvailabilityServices&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;提交Job的基本流程如下:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="2019-04-08-19-10-30" src="http://xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/images/c6b5327e6f2d279637026cdb277a41e1.png"&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;启动&lt;code&gt;JobClientActor&lt;/code&gt;用来和&lt;code&gt;JobManager&lt;/code&gt;交互&lt;/li&gt;
+&lt;li&gt;启动&lt;code&gt;LeaderRetrievalService&lt;/code&gt;获取&lt;code&gt;JobManager&lt;/code&gt;的地址&lt;/li&gt;
+&lt;li&gt;上传用户Jar包&lt;/li&gt;
+&lt;li&gt;提交SubmitJob命令&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;JobManager执行生成计划&lt;/h2&gt;
+&lt;p&gt;客户端上传完jar包和JobGraph，flink 会进一步解析封装成运行时的执行计划&lt;code&gt;ExecutionGraph&lt;/code&gt;&lt;/p&gt;
+&lt;h3&gt;执行计划ExecutionGraph的生成&lt;/h3&gt;
+&lt;p&gt;flink的运行时执行计划为&lt;code&gt;ExecutionGraph&lt;/code&gt;，&lt;code&gt;ExecutionGraph&lt;/code&gt;对应之前的&lt;code&gt;JobGraph&lt;/code&gt;，一个&lt;code&gt;ExecutionGraph&lt;/code&gt;包含多个 &lt;code&gt;ExecutionJobVertex&lt;/code&gt;节点&lt;code&gt;JobGraph&lt;/code&gt;的&lt;code&gt;JobVertex&lt;/code&gt;，每个&lt;code&gt;ExecutionJobVertex&lt;/code&gt;节点的并发子&lt;code&gt;task&lt;/code&gt;对应一个&lt;code&gt;ExecutionVertex&lt;/code&gt;，每个&lt;code&gt;ExecutionVertex&lt;/code&gt;的一次attempt执行被抽象为一次&lt;code&gt;Execution&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;client生成JobGraph之后，就通过submitJob提交至JobMaster。在其构造函数中，会生成ExecutionGraph.下面代码是&lt;code&gt;ExecutionGraph&lt;/code&gt;的构造函数.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="nf"&gt;ExecutionGraph&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;
+        &lt;span class="n"&gt;JobInformation&lt;/span&gt; &lt;span class="n"&gt;jobInformation&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;ScheduledExecutorService&lt;/span&gt; &lt;span class="n"&gt;futureExecutor&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;Executor&lt;/span&gt; &lt;span class="n"&gt;ioExecutor&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;Time&lt;/span&gt; &lt;span class="n"&gt;rpcTimeout&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;RestartStrategy&lt;/span&gt; &lt;span class="n"&gt;restartStrategy&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;FailoverStrategy&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;Factory&lt;/span&gt; &lt;span class="n"&gt;failoverStrategyFactory&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;SlotProvider&lt;/span&gt; &lt;span class="n"&gt;slotProvider&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;ClassLoader&lt;/span&gt; &lt;span class="n"&gt;userClassLoader&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;BlobWriter&lt;/span&gt; &lt;span class="n"&gt;blobWriter&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+        &lt;span class="n"&gt;Time&lt;/span&gt; &lt;span class="n"&gt;allocationTimeout&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="kd"&gt;throws&lt;/span&gt; &lt;span class="n"&gt;IOException&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+
+    &lt;span class="n"&gt;checkNotNull&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;futureExecutor&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+
+    &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;jobInformation&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Preconditions&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;checkNotNull&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;jobInformation&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+
+    &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;blobWriter&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Preconditions&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;checkNotNull&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;blobWriter&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+
+    &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;jobInformationOrBlobKey&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;BlobWriter&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;serializeAndTryOffload&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;jobInformation&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;jobInformation&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getJobId&lt;/span&gt;&lt;span class="o"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;blobWriter&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+
+    &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;futureExecutor&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Preconditions&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;checkNotNull&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;futureExecutor&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+    &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;ioExecutor&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Preconditions&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;checkNotNull&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ioExecutor&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+
+    &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;slotProvider&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Preconditions&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;checkNotNull&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;slotProvider&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;scheduler&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+    &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;userClassLoader&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Preconditions&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;checkNotNull&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;userClassLoader&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;userClassLoader&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+
+    &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;tasks&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;ConcurrentHashMap&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&amp;gt;(&lt;/span&gt;&lt;span class="mi"&gt;16&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+    &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;intermediateResults&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;ConcurrentHashMap&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&amp;gt;(&lt;/span&gt;&lt;span class="mi"&gt;16&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+    &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;verticesInCreationOrder&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;ArrayList&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&amp;gt;(&lt;/span&gt;&lt;span class="mi"&gt;16&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+    &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;currentExecutions&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;ConcurrentHashMap&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&amp;gt;(&lt;/span&gt;&lt;span class="mi"&gt;16&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+
+    &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;jobStatusListeners&lt;/span&gt;  &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;CopyOnWriteArrayList&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&amp;gt;();&lt;/span&gt;
+    &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;executionListeners&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;CopyOnWriteArrayList&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&amp;gt;();&lt;/span&gt;
+
+    &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;stateTimestamps&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="kt"&gt;long&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="n"&gt;JobStatus&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;values&lt;/span&gt;&lt;span class="o"&gt;().&lt;/span&gt;&lt;span class="na"&gt;length&lt;/span&gt;&lt;span class="o"&gt;];&lt;/span&gt;
+    &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;stateTimestamps&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="n"&gt;JobStatus&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;CREATED&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;ordinal&lt;/span&gt;&lt;span class="o"&gt;()]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;System&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;currentTimeMillis&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+
+    &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;rpcTimeout&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;checkNotNull&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;rpcTimeout&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+    &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;allocationTimeout&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;checkNotNull&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;allocationTimeout&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+
+    &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;restartStrategy&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;restartStrategy&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+    &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;kvStateLocationRegistry&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;KvStateLocationRegistry&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;jobInformation&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getJobId&lt;/span&gt;&lt;span class="o"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;getAllVertices&lt;/span&gt;&lt;span class="o"&gt;());&lt;/span&gt;
+
+    &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;verticesFinished&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;AtomicInteger&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+
+    &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;globalModVersion&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1L&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+
+    &lt;span class="c1"&gt;// the failover strategy must be instantiated last, so that the execution graph&lt;/span&gt;
+    &lt;span class="c1"&gt;// is ready by the time the failover strategy sees it&lt;/span&gt;
+    &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;failoverStrategy&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;checkNotNull&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;failoverStrategyFactory&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;create&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;),&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;null failover strategy&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+
+    &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;schedulingFuture&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+    &lt;span class="n"&gt;LOG&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;info&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Job recovers via failover strategy: {}&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;failoverStrategy&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getStrategyName&lt;/span&gt;&lt;span class="o"&gt;());&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;从构造函数中可以看到&lt;code&gt;EexcutionGraph&lt;/code&gt;为维护Job信息,运行的Task信息,状态切换信息等.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;ExecutionGraph&lt;/code&gt;的构建是在JobManager的构造函数中.具体方法为&lt;code&gt;createAndRestoreExecutionGraph&lt;/code&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;executionGraph&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;createAndRestoreExecutionGraph&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;jobManagerJobMetricGroup&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+
+&lt;span class="kd"&gt;private&lt;/span&gt; &lt;span class="n"&gt;ExecutionGraph&lt;/span&gt; &lt;span class="nf"&gt;createAndRestoreExecutionGraph&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;JobManagerJobMetricGroup&lt;/span&gt; &lt;span class="n"&gt;currentJobManagerJobMetricGroup&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="kd"&gt;throws&lt;/span&gt; &lt;span class="n"&gt;Exception&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;ExecutionGraph&lt;/span&gt; &lt;span class="n"&gt;newExecutionGraph&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;createExecutionGraph&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;currentJobManagerJobMetricGroup&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+
+    &lt;span class="kd"&gt;final&lt;/span&gt; &lt;span class="n"&gt;CheckpointCoordinator&lt;/span&gt; &lt;span class="n"&gt;checkpointCoordinator&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;newExecutionGraph&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getCheckpointCoordinator&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;checkpointCoordinator&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="c1"&gt;// check whether we find a valid checkpoint&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(!&lt;/span&gt;&lt;span class="n"&gt;checkpointCoordinator&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;restoreLatestCheckpointedState&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;
+            &lt;span class="n"&gt;newExecutionGraph&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getAllVertices&lt;/span&gt;&lt;span class="o"&gt;(),&lt;/span&gt;
+            &lt;span class="kc"&gt;false&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+            &lt;span class="kc"&gt;false&lt;/span&gt;&lt;span class="o"&gt;))&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+
+            &lt;span class="c1"&gt;// check whether we can restore from a savepoint&lt;/span&gt;
+            &lt;span class="n"&gt;tryRestoreExecutionGraphFromSavepoint&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;newExecutionGraph&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;jobGraph&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getSavepointRestoreSettings&lt;/span&gt;&lt;span class="o"&gt;());&lt;/span&gt;
+        &lt;span class="o"&gt;}&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;newExecutionGraph&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;通过层层调用,真正执行的方法是&lt;code&gt;public static ExecutionGraph buildGraph&lt;/code&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;checkNotNull&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;jobGraph&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;job graph cannot be null&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+
+&lt;span class="kd"&gt;final&lt;/span&gt; &lt;span class="n"&gt;String&lt;/span&gt; &lt;span class="n"&gt;jobName&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;jobGraph&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getName&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+&lt;span class="kd"&gt;final&lt;/span&gt; &lt;span class="n"&gt;JobID&lt;/span&gt; &lt;span class="n"&gt;jobId&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;jobGraph&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getJobID&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+
+&lt;span class="kd"&gt;final&lt;/span&gt; &lt;span class="n"&gt;FailoverStrategy&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;Factory&lt;/span&gt; &lt;span class="n"&gt;failoverStrategy&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;
+        &lt;span class="n"&gt;FailoverStrategyLoader&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;loadFailoverStrategy&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;jobManagerConfig&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;log&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+
+&lt;span class="kd"&gt;final&lt;/span&gt; &lt;span class="n"&gt;JobInformation&lt;/span&gt; &lt;span class="n"&gt;jobInformation&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;JobInformation&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;
+    &lt;span class="n"&gt;jobId&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;jobName&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+    &lt;span class="n"&gt;jobGraph&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getSerializedExecutionConfig&lt;/span&gt;&lt;span class="o"&gt;(),&lt;/span&gt;
+    &lt;span class="n"&gt;jobGraph&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getJobConfiguration&lt;/span&gt;&lt;span class="o"&gt;(),&lt;/span&gt;
+    &lt;span class="n"&gt;jobGraph&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getUserJarBlobKeys&lt;/span&gt;&lt;span class="o"&gt;(),&lt;/span&gt;
+    &lt;span class="n"&gt;jobGraph&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getClasspaths&lt;/span&gt;&lt;span class="o"&gt;());&lt;/span&gt;
+
+&lt;span class="c1"&gt;// create a new execution graph, if none exists so far&lt;/span&gt;
+&lt;span class="kd"&gt;final&lt;/span&gt; &lt;span class="n"&gt;ExecutionGraph&lt;/span&gt; &lt;span class="n"&gt;executionGraph&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+&lt;span class="k"&gt;try&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;executionGraph&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;prior&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;?&lt;/span&gt; &lt;span class="n"&gt;prior&lt;/span&gt; &lt;span class="o"&gt;:&lt;/span&gt;
+        &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;ExecutionGraph&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;
+            &lt;span class="n"&gt;jobInformation&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+            &lt;span class="n"&gt;futureExecutor&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+            &lt;span class="n"&gt;ioExecutor&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+            &lt;span class="n"&gt;rpcTimeout&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+            &lt;span class="n"&gt;restartStrategy&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+            &lt;span class="n"&gt;failoverStrategy&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+            &lt;span class="n"&gt;slotProvider&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+            &lt;span class="n"&gt;classLoader&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+            &lt;span class="n"&gt;blobWriter&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+            &lt;span class="n"&gt;allocationTimeout&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="k"&gt;catch&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;IOException&lt;/span&gt; &lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;throw&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;JobException&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Could not create the ExecutionGraph.&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+
+&lt;span class="c1"&gt;// set the basic properties&lt;/span&gt;
+
+&lt;span class="c1"&gt;//setScheduleMode schedule mode固定是EAGER的&lt;/span&gt;
+&lt;span class="n"&gt;executionGraph&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;setScheduleMode&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;jobGraph&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getScheduleMode&lt;/span&gt;&lt;span class="o"&gt;());&lt;/span&gt;
+&lt;span class="n"&gt;executionGraph&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;setQueuedSchedulingAllowed&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;jobGraph&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getAllowQueuedScheduling&lt;/span&gt;&lt;span class="o"&gt;());&lt;/span&gt;
+
+&lt;span class="k"&gt;try&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;executionGraph&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;setJsonPlan&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;JsonPlanGenerator&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;generatePlan&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;jobGraph&lt;/span&gt;&lt;span class="o"&gt;));&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="k"&gt;catch&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Throwable&lt;/span&gt; &lt;span class="n"&gt;t&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;log&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;warn&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Cannot create JSON plan for job&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;t&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+    &lt;span class="c1"&gt;// give the graph an empty plan&lt;/span&gt;
+    &lt;span class="n"&gt;executionGraph&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;setJsonPlan&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;{}&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+
+&lt;span class="c1"&gt;// initialize the vertices that have a master initialization hook&lt;/span&gt;
+&lt;span class="c1"&gt;// file output formats create directories here, input formats create splits&lt;/span&gt;
+
+&lt;span class="kd"&gt;final&lt;/span&gt; &lt;span class="kt"&gt;long&lt;/span&gt; &lt;span class="n"&gt;initMasterStart&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;System&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;nanoTime&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+&lt;span class="n"&gt;log&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;info&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Running initialization on master for job {} ({}).&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;jobName&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;jobId&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+
+&lt;span class="c1"&gt;// 按拓扑顺序，获取所有的JobVertex列表&lt;/span&gt;
+&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;JobVertex&lt;/span&gt; &lt;span class="n"&gt;vertex&lt;/span&gt; &lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;jobGraph&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getVertices&lt;/span&gt;&lt;span class="o"&gt;())&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;String&lt;/span&gt; &lt;span class="n"&gt;executableClass&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;vertex&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getInvokableClassName&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;executableClass&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt; &lt;span class="o"&gt;||&lt;/span&gt; &lt;span class="n"&gt;executableClass&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;isEmpty&lt;/span&gt;&lt;span class="o"&gt;())&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;throw&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;JobSubmissionException&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;jobId&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+                &lt;span class="s"&gt;&amp;quot;The vertex &amp;quot;&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;vertex&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getID&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="s"&gt;&amp;quot; (&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;vertex&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getName&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;) has no invokable class.&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;vertex&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getParallelism&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="n"&gt;ExecutionConfig&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;PARALLELISM_AUTO_MAX&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;parallelismForAutoMax&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+            &lt;span class="k"&gt;throw&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;JobSubmissionException&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;
+                &lt;span class="n"&gt;jobId&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+                &lt;span class="n"&gt;PARALLELISM_AUTO_MAX_ERROR_MESSAGE&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+        &lt;span class="o"&gt;}&lt;/span&gt;
+        &lt;span class="k"&gt;else&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+            &lt;span class="n"&gt;vertex&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;setParallelism&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;parallelismForAutoMax&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+        &lt;span class="o"&gt;}&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+
+    &lt;span class="k"&gt;try&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;vertex&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;initializeOnMaster&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;classLoader&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+    &lt;span class="k"&gt;catch&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Throwable&lt;/span&gt; &lt;span class="n"&gt;t&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+            &lt;span class="k"&gt;throw&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;JobExecutionException&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;jobId&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+                    &lt;span class="s"&gt;&amp;quot;Cannot initialize task &amp;#39;&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;vertex&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getName&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;&amp;#39;: &amp;quot;&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;t&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getMessage&lt;/span&gt;&lt;span class="o"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;t&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+
+&lt;span class="n"&gt;log&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;info&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Successfully ran initialization on master in {} ms.&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+        &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;System&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;nanoTime&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;initMasterStart&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="mi"&gt;1_000_000&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+
+&lt;span class="c1"&gt;// topologically sort the job vertices and attach the graph to the existing one&lt;/span&gt;
+&lt;span class="n"&gt;List&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;JobVertex&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;sortedTopology&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;jobGraph&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getVerticesSortedTopologicallyFromSources&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;log&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;isDebugEnabled&lt;/span&gt;&lt;span class="o"&gt;())&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;log&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;debug&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Adding {} vertices from job graph {} ({}).&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;sortedTopology&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;size&lt;/span&gt;&lt;span class="o"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;jobName&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;jobId&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="n"&gt;executionGraph&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;attachJobGraph&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;sortedTopology&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;最后一行，&lt;code&gt;ExecutionGraph.attachJobGraph&lt;/code&gt;方法是比较关键的方法,该方法构建婉节点,生成执行计划DAG：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;attachJobGraph&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;List&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;JobVertex&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;topologiallySorted&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="kd"&gt;throws&lt;/span&gt; &lt;span class="n"&gt;JobException&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+
+    &lt;span class="n"&gt;LOG&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;debug&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Attaching {} topologically sorted vertices to existing job graph with {} &amp;quot;&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt;
+            &lt;span class="s"&gt;&amp;quot;vertices and {} intermediate results.&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+            &lt;span class="n"&gt;topologiallySorted&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;size&lt;/span&gt;&lt;span class="o"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;tasks&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;size&lt;/span&gt;&lt;span class="o"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;intermediateResults&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;size&lt;/span&gt;&lt;span class="o"&gt;());&lt;/span&gt;
+
+    &lt;span class="kd"&gt;final&lt;/span&gt; &lt;span class="n"&gt;ArrayList&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;ExecutionJobVertex&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;newExecJobVertices&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;ArrayList&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&amp;gt;(&lt;/span&gt;&lt;span class="n"&gt;topologiallySorted&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;size&lt;/span&gt;&lt;span class="o"&gt;());&lt;/span&gt;
+    &lt;span class="kd"&gt;final&lt;/span&gt; &lt;span class="kt"&gt;long&lt;/span&gt; &lt;span class="n"&gt;createTimestamp&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;System&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;currentTimeMillis&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+
+    &lt;span class="c1"&gt;//遍历Job vertex&lt;/span&gt;
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;JobVertex&lt;/span&gt; &lt;span class="n"&gt;jobVertex&lt;/span&gt; &lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;topologiallySorted&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;jobVertex&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;isInputVertex&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="o"&gt;!&lt;/span&gt;&lt;span class="n"&gt;jobVertex&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;isStoppable&lt;/span&gt;&lt;span class="o"&gt;())&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+            &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;isStoppable&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kc"&gt;false&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+        &lt;span class="o"&gt;}&lt;/span&gt;
+        &lt;span class="c1"&gt;// 根据Job vertex创建对应的ExecutionVertex&lt;/span&gt;
+        &lt;span class="c1"&gt;// create the execution job vertex and attach it to the graph&lt;/span&gt;
+        &lt;span class="n"&gt;ExecutionJobVertex&lt;/span&gt; &lt;span class="n"&gt;ejv&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;ExecutionJobVertex&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;
+            &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+            &lt;span class="n"&gt;jobVertex&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+            &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+            &lt;span class="n"&gt;rpcTimeout&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+            &lt;span class="n"&gt;globalModVersion&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+            &lt;span class="n"&gt;createTimestamp&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+        &lt;span class="c1"&gt;// 将创建的ExecutionJobVertex与前置的IntermediateResult连接起来&lt;/span&gt;
+        &lt;span class="n"&gt;ejv&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;connectToPredecessors&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;intermediateResults&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+
+        &lt;span class="n"&gt;ExecutionJobVertex&lt;/span&gt; &lt;span class="n"&gt;previousTask&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;tasks&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;putIfAbsent&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;jobVertex&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getID&lt;/span&gt;&lt;span class="o"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;ejv&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;previousTask&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+            &lt;span class="k"&gt;throw&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;JobException&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;format&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Encountered two job vertices with ID %s : previous=[%s] / new=[%s]&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+                    &lt;span class="n"&gt;jobVertex&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getID&lt;/span&gt;&lt;span class="o"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;ejv&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;previousTask&lt;/span&gt;&lt;span class="o"&gt;));&lt;/span&gt;
+        &lt;span class="o"&gt;}&lt;/span&gt;
+
+        &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;IntermediateResult&lt;/span&gt; &lt;span class="n"&gt;res&lt;/span&gt; &lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;ejv&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getProducedDataSets&lt;/span&gt;&lt;span class="o"&gt;())&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+            &lt;span class="n"&gt;IntermediateResult&lt;/span&gt; &lt;span class="n"&gt;previousDataSet&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;intermediateResults&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;putIfAbsent&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;res&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getId&lt;/span&gt;&lt;span class="o"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;res&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+            &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;previousDataSet&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+                &lt;span class="k"&gt;throw&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;JobException&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;format&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Encountered two intermediate data set with ID %s : previous=[%s] / new=[%s]&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+                        &lt;span class="n"&gt;res&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getId&lt;/span&gt;&lt;span class="o"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;res&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;previousDataSet&lt;/span&gt;&lt;span class="o"&gt;));&lt;/span&gt;
+            &lt;span class="o"&gt;}&lt;/span&gt;
+        &lt;span class="o"&gt;}&lt;/span&gt;
+
+        &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;verticesInCreationOrder&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;add&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ejv&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+        &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;numVerticesTotal&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="n"&gt;ejv&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getParallelism&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+        &lt;span class="n"&gt;newExecJobVertices&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;add&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ejv&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+
+    &lt;span class="n"&gt;terminationFuture&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;CompletableFuture&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&amp;gt;();&lt;/span&gt;
+    &lt;span class="n"&gt;failoverStrategy&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;notifyNewVertices&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;newExecJobVertices&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;这个方法中的&lt;code&gt;connectToPredecessors&lt;/code&gt;是链接执行节点的关键方法:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;connectToPredecessors&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Map&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;IntermediateDataSetID&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;IntermediateResult&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;intermediateDataSets&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="kd"&gt;throws&lt;/span&gt; &lt;span class="n"&gt;JobException&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+
+    &lt;span class="c1"&gt;//获取输入的JobEdge列表&lt;/span&gt;
+    &lt;span class="n"&gt;List&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;JobEdge&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;inputs&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;jobVertex&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getInputs&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;LOG&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;isDebugEnabled&lt;/span&gt;&lt;span class="o"&gt;())&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;LOG&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;debug&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;format&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Connecting ExecutionJobVertex %s (%s) to %d predecessors.&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;jobVertex&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getID&lt;/span&gt;&lt;span class="o"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;jobVertex&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getName&lt;/span&gt;&lt;span class="o"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;inputs&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;size&lt;/span&gt;&lt;span class="o"&gt;()));&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+
+    &lt;span class="c1"&gt;// 遍历每条JobEdge&lt;/span&gt;
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;num&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt; &lt;span class="n"&gt;num&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;inputs&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;size&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt; &lt;span class="n"&gt;num&lt;/span&gt;&lt;span class="o"&gt;++)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;JobEdge&lt;/span&gt; &lt;span class="n"&gt;edge&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;inputs&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;get&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;num&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;LOG&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;isDebugEnabled&lt;/span&gt;&lt;span class="o"&gt;())&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+            &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;edge&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getSource&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+                &lt;span class="n"&gt;LOG&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;debug&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;format&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Connecting input %d of vertex %s (%s) to intermediate result referenced via ID %s.&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+                        &lt;span class="n"&gt;num&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;jobVertex&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getID&lt;/span&gt;&lt;span class="o"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;jobVertex&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getName&lt;/span&gt;&lt;span class="o"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;edge&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getSourceId&lt;/span&gt;&lt;span class="o"&gt;()));&lt;/span&gt;
+            &lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="k"&gt;else&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+                &lt;span class="n"&gt;LOG&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;debug&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;format&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Connecting input %d of vertex %s (%s) to intermediate result referenced via predecessor %s (%s).&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+                        &lt;span class="n"&gt;num&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;jobVertex&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getID&lt;/span&gt;&lt;span class="o"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;jobVertex&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getName&lt;/span&gt;&lt;span class="o"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;edge&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getSource&lt;/span&gt;&lt;span class="o"&gt;().&lt;/span&gt;&lt;span class="na"&gt;getProducer&lt;/span&gt;&lt;span class="o"&gt;().&lt;/span&gt;&lt;span class="na"&gt;getID&lt;/span&gt;&lt;span class="o"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;edge&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getSource&lt;/span&gt;&lt;span class="o"&gt;().&lt;/span&gt;&lt;span class="na"&gt;getProducer&lt;/span&gt;&lt;span class="o"&gt;().&lt;/span&gt;&lt;span class="na"&gt;getName&lt;/span&gt;&lt;span class="o"&gt;()));&lt;/span&gt;
+            &lt;span class="o"&gt;}&lt;/span&gt;
+        &lt;span class="o"&gt;}&lt;/span&gt;
+
+        &lt;span class="c1"&gt;// fetch the intermediate result via ID. if it does not exist, then it either has not been created, or the order&lt;/span&gt;
+        &lt;span class="c1"&gt;// in which this method is called for the job vertices is not a topological order&lt;/span&gt;
+        &lt;span class="c1"&gt;// 获取当前JobEdge的输入所对应的IntermediateResult&lt;/span&gt;
+        &lt;span class="n"&gt;IntermediateResult&lt;/span&gt; &lt;span class="n"&gt;ires&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;intermediateDataSets&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;get&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;edge&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getSourceId&lt;/span&gt;&lt;span class="o"&gt;());&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ires&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="kc"&gt;null&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+            &lt;span class="k"&gt;throw&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;JobException&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Cannot connect this job graph to the previous graph. No previous intermediate result found for ID &amp;quot;&lt;/span&gt;
+                    &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;edge&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getSourceId&lt;/span&gt;&lt;span class="o"&gt;());&lt;/span&gt;
+        &lt;span class="o"&gt;}&lt;/span&gt;
+
+        &lt;span class="c1"&gt;// 将IntermediateResult加入到当前ExecutionJobVertex的输入中。&lt;/span&gt;
+        &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;inputs&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;add&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ires&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+
+        &lt;span class="c1"&gt;// 为IntermediateResult注册consumer consumerIndex跟IntermediateResult的出度相关&lt;/span&gt;
+        &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;consumerIndex&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ires&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;registerConsumer&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+
+        &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;parallelism&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="o"&gt;++)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+            &lt;span class="n"&gt;ExecutionVertex&lt;/span&gt; &lt;span class="n"&gt;ev&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;taskVertices&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="o"&gt;];&lt;/span&gt;
+            &lt;span class="c1"&gt;// 将ExecutionVertex与IntermediateResult关联起来&lt;/span&gt;
+            &lt;span class="n"&gt;ev&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;connectSource&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;num&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;ires&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;edge&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;consumerIndex&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+        &lt;span class="o"&gt;}&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;改方法最后通过一个connectSource方法将ExecutionVertex链接起来.有两种链接策略&lt;code&gt;POINT_WISE&lt;/code&gt;和&lt;code&gt;ALL_TO_ALL&lt;/code&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;POINTWISE&lt;/li&gt;
+&lt;li&gt;Each producing sub task is connected to one or more subtask(s) of the consuming task.&lt;/li&gt;
+&lt;li&gt;ALL_TO_ALL&lt;/li&gt;
+&lt;li&gt;Each producing sub task is connected to each sub task of the consuming task.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;具体来说,如果是非shuffle的操作就是&lt;code&gt;POINTWISE&lt;/code&gt;,否则就是&lt;code&gt;ALL_TO_ALL&lt;/code&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;connectSource&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;inputNumber&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;IntermediateResult&lt;/span&gt; &lt;span class="n"&gt;source&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;JobEdge&lt;/span&gt; &lt;span class="n"&gt;edge&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;consumerNumber&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+
+    &lt;span class="kd"&gt;final&lt;/span&gt; &lt;span class="n"&gt;DistributionPattern&lt;/span&gt; &lt;span class="n"&gt;pattern&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;edge&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getDistributionPattern&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+    &lt;span class="kd"&gt;final&lt;/span&gt; &lt;span class="n"&gt;IntermediateResultPartition&lt;/span&gt;&lt;span class="o"&gt;[]&lt;/span&gt; &lt;span class="n"&gt;sourcePartitions&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;source&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getPartitions&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+
+    &lt;span class="n"&gt;ExecutionEdge&lt;/span&gt;&lt;span class="o"&gt;[]&lt;/span&gt; &lt;span class="n"&gt;edges&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+
+    &lt;span class="k"&gt;switch&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;pattern&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="n"&gt;POINTWISE&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+            &lt;span class="n"&gt;edges&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;connectPointwise&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;sourcePartitions&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;inputNumber&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+            &lt;span class="k"&gt;break&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+
+        &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="n"&gt;ALL_TO_ALL&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+            &lt;span class="n"&gt;edges&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;connectAllToAll&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;sourcePartitions&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;inputNumber&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+            &lt;span class="k"&gt;break&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+
+&lt;span class="nl"&gt;        default:&lt;/span&gt;
+            &lt;span class="k"&gt;throw&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;RuntimeException&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Unrecognized distribution pattern.&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+
+    &lt;span class="o"&gt;}&lt;/span&gt;
+
+    &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;inputEdges&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="n"&gt;inputNumber&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;edges&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+
+    &lt;span class="c1"&gt;// add the consumers to the source&lt;/span&gt;
+    &lt;span class="c1"&gt;// for now (until the receiver initiated handshake is in place), we need to register the&lt;/span&gt;
+    &lt;span class="c1"&gt;// edges as the execution graph&lt;/span&gt;
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ExecutionEdge&lt;/span&gt; &lt;span class="n"&gt;ee&lt;/span&gt; &lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;edges&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;ee&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getSource&lt;/span&gt;&lt;span class="o"&gt;().&lt;/span&gt;&lt;span class="na"&gt;addConsumer&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ee&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;consumerNumber&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;运行到这里的时候,&lt;code&gt;ExecutionGraph&lt;/code&gt;就已经生成了.&lt;/p&gt;</content><category term="bigdata"></category><category term="flink"></category></entry></feed>

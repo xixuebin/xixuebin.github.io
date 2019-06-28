@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8"> 
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="kevin.xi" />
+        <meta name="copyright" content="kevin.xi" />
+
+<meta name="keywords" content="bigdata, knime, bigdata, " />
+        <title>knime官方node梳理  · 寒玉 Blog
+</title>
+        <!-- <link href="http://cdn-images.mailchimp.com/embedcode/slim-081711.css" rel="stylesheet" type="text/css"> -->
+        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="/theme/css/style.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="/theme/css/solarizedlight.css" media="screen">
+        <link rel="shortcut icon" href="/theme/images/favicon.ico" type="image/x-icon" />
+        <link rel="apple-touch-icon" href="/theme/images/apple-touch-icon.png" />
+        <link rel="apple-touch-icon" sizes="57x57" href="/theme/images/apple-touch-icon-57x57.png" />
+        <link rel="apple-touch-icon" sizes="72x72" href="/theme/images/apple-touch-icon-72x72.png" />
+        <link rel="apple-touch-icon" sizes="114x114" href="/theme/images/apple-touch-icon-114x114.png" />
+        <link rel="apple-touch-icon" sizes="144x144" href="/theme/images/apple-touch-icon-144x144.png" />
+        <link rel="icon" href="/theme/images/apple-touch-icon-144x144.png" />
+    </head>
+    <body>
+        <div id="content-sans-footer">
+        <div class="navbar navbar-static-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="/"><span class=site-name>寒玉 Blog</span></a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav pull-right top-menu">
+                            <li ><a href="">Home</a></li>
+                            <li ><a href="/pages/books-date-2017-12-05-1130-ch.html">Books</a></li>
+                            <li ><a href="/pages/about-date-2015-05-10-1010-ch.html">About Me</a></li>
+                            <li ><a href="/categories.html">Categories</a></li>
+                            <li ><a href="/tags.html">Tags</a></li>
+                            <li ><a href="/archives.html">Archives</a></li>
+                            <li><form class="navbar-search" action="/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span1"></div>
+                <div class="span10">
+<article>
+<div class="row-fluid">
+    <header class="page_header span10 offset2">
+    <h1><a href="/2019-06-21-115455-ch.html"> knime官方node梳理  </a></h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset2 article-content">
+
+            <!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets -->
+
+<ul>
+<li><a href="#Knime%E5%AE%98%E6%96%B9Nodes">Knime官方Nodes</a><ul>
+<li><a href="#IO">IO</a><ul>
+<li><a href="#Read">Read</a></li>
+<li><a href="#File-Handling">File Handling</a></li>
+<li><a href="#Other">Other</a></li>
+<li><a href="#Cache">Cache</a></li>
+<li><a href="#Write">Write</a></li>
+</ul>
+</li>
+<li><a href="#Database">Database</a><ul>
+<li><a href="#Utility">Utility</a></li>
+<li><a href="#ReadWrite">Read/Write</a></li>
+<li><a href="#Connector">Connector</a></li>
+<li><a href="#Manipulation">Manipulation</a></li>
+</ul>
+</li>
+<li><a href="#Structured-Data">Structured Data</a><ul>
+<li><a href="#XML">XML</a></li>
+<li><a href="#JSON">JSON</a></li>
+</ul>
+</li>
+<li><a href="#KNIME-Labs">KNIME Labs</a><ul>
+<li><a href="#PMML-Translation">PMML Translation</a></li>
+</ul>
+</li>
+<li><a href="#Manipulation-1">Manipulation</a><ul>
+<li><a href="#Row">Row</a></li>
+<li><a href="#PMML">PMML</a></li>
+<li><a href="#Column">Column</a></li>
+<li><a href="#Table">Table</a></li>
+</ul>
+</li>
+<li><a href="#Workflow-Control">Workflow Control</a><ul>
+<li><a href="#Automation">Automation</a></li>
+<li><a href="#Switches">Switches</a></li>
+<li><a href="#Loop-Support">Loop Support</a></li>
+<li><a href="#Variables">Variables</a></li>
+<li><a href="#Meta-Nodes">Meta Nodes</a></li>
+<li><a href="#Error-Handling">Error Handling</a></li>
+</ul>
+</li>
+<li><a href="#Other-Data-Types">Other Data Types</a><ul>
+<li><a href="#Time-Series">Time Series</a></li>
+</ul>
+</li>
+<li><a href="#Scripting">Scripting</a><ul>
+<li><a href="#Java">Java</a></li>
+</ul>
+</li>
+<li><a href="#Tools--Services">Tools &amp; Services</a><ul>
+<li><a href="#REST-Web-Services">REST Web Services</a></li>
+<li><a href="#Apache-Spark">Apache Spark</a></li>
+</ul>
+</li>
+<li><a href="#Views">Views</a><ul>
+<li><a href="#Spark-Line-Appender">Spark Line Appender</a></li>
+<li><a href="#Radar-Plot-Appender">Radar Plot Appender</a></li>
+<li><a href="#Property">Property</a></li>
+<li><a href="#Box-Plot">Box Plot</a></li>
+<li><a href="#Conditional-Box-Plot">Conditional Box Plot</a></li>
+<li><a href="#HiLite-Table">HiLite Table</a></li>
+<li><a href="#Histogram">Histogram</a></li>
+<li><a href="#Histogram-interactive">Histogram (interactive)</a></li>
+<li><a href="#Interactive-Table">Interactive Table</a></li>
+<li><a href="#Lift-Chart">Lift Chart</a></li>
+<li><a href="#Line-Plot">Line Plot</a></li>
+<li><a href="#Parallel-Coordinates">Parallel Coordinates</a></li>
+<li><a href="#Pie-chart">Pie chart</a></li>
+<li><a href="#Pie-chart-interactive">Pie chart (interactive)</a></li>
+<li><a href="#Scatter-Matrix">Scatter Matrix</a></li>
+<li><a href="#Scatter-Plot">Scatter Plot</a></li>
+<li><a href="#Utility-1">Utility</a></li>
+</ul>
+</li>
+<li><a href="#Reporting">Reporting</a><ul>
+<li><a href="#Data-to-Report">Data to Report</a></li>
+<li><a href="#Image-to-Report">Image to Report</a></li>
+</ul>
+</li>
+<li><a href="#Analytics">Analytics</a><ul>
+<li><a href="#Mining">Mining</a></li>
+<li><a href="#Distance-Calculation">Distance Calculation</a></li>
+<li><a href="#Statistics">Statistics</a></li>
+</ul>
+</li>
+<li><a href="#Spark-Node-Demo">Spark Node Demo</a><ul>
+<li><a href="#Spark-on-Hadoop">Spark on Hadoop</a></li>
+<li><a href="#hive-to-spark-to-hive">hive to spark to hive</a></li>
+<li><a href="#Comprehensive-Model-Learning-Mass-Prediction">Comprehensive Model Learning Mass Prediction</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1>Knime官方Nodes</h1>
+<h2>IO</h2>
+<h3>Read</h3>
+<ul>
+<li>File Reader</li>
+<li>ARFF Reader</li>
+<li>CSV Reader</li>
+<li>Line Reader</li>
+<li>Table Reader</li>
+<li>PMML Reader</li>
+<li>Model Reader</li>
+<li>Fixed Width File Reader</li>
+<li>List Files</li>
+<li>Read Images</li>
+<li>Explorer Browser</li>
+<li>Excel Reader (XLS)</li>
+<li>Read Excel Sheet Names (XLS)</li>
+</ul>
+<h3>File Handling</h3>
+<ul>
+<li>
+<p>Remote</p>
+<ul>
+<li>
+<p>Connections</p>
+<ul>
+<li>Create Directory</li>
+<li>Delete Files</li>
+<li>Download</li>
+<li>Download / Upload from List</li>
+<li>List Remote Files</li>
+<li>Upload</li>
+<li>HDFS File Permission</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Zip</p>
+<ul>
+<li>Unzip Files</li>
+<li>Zip Files</li>
+</ul>
+</li>
+<li>
+<p>Binary Objects</p>
+<ul>
+<li>Binary Objects to Files</li>
+<li>Binary Objects to PNGs</li>
+<li>Binary Objects to Strings</li>
+<li>Files to Binary Objects</li>
+<li>PNGs to Binary Objects</li>
+<li>Strings to Binary Objects</li>
+</ul>
+</li>
+<li>
+<p>URI</p>
+<ul>
+<li>Extract URI Info</li>
+<li>Port to URI</li>
+<li>String to URI</li>
+<li>URI Port to Variable</li>
+<li>URI to Port</li>
+<li>URI to String</li>
+<li>URL to File Path</li>
+<li>URL to File Path (Variable)</li>
+</ul>
+</li>
+<li>
+<p>Copy/Move Files</p>
+</li>
+<li>File Meta Info</li>
+<li>Find MIME-Type</li>
+<li>List MIME-Types</li>
+</ul>
+<h3>Other</h3>
+<ul>
+<li>Table Creator</li>
+<li>Data Generator</li>
+<li>Create Table Structure</li>
+<li>Create Temp Dir</li>
+<li>Send Email</li>
+<li>Extract System Properties</li>
+<li>Extract Context Properties</li>
+</ul>
+<h3>Cache</h3>
+<h3>Write</h3>
+<ul>
+<li>Explorer Writer</li>
+<li>CSV Writer</li>
+<li>ARFF Writer</li>
+<li>Table Writer</li>
+<li>PMML Writer</li>
+<li>Model Writer</li>
+<li>Image Port Writer</li>
+<li>Image Column Writer</li>
+<li>Excel Sheet Appender (XLS)</li>
+<li>Excel Writer (XLS)</li>
+</ul>
+<h2>Database</h2>
+<h3>Utility</h3>
+<ul>
+<li>Database Drop Table</li>
+<li>Database SQL Executor</li>
+<li>SQL Extract</li>
+<li>SQL Inject</li>
+</ul>
+<h3>Read/Write</h3>
+<ul>
+<li>Database Reader</li>
+<li>Database Table Connector</li>
+<li>Database Connection Table Reader</li>
+<li>Database Connection Table Writer</li>
+<li>Database Looping</li>
+<li>Parameterized Database Query</li>
+<li>Database Table Selector</li>
+<li>Database Writer</li>
+<li>Database Update</li>
+<li>Database Delete</li>
+<li>Impala Loader</li>
+<li>Hive Loader</li>
+</ul>
+<h3>Connector</h3>
+<ul>
+<li>Impala Connector</li>
+<li>Vertica Connector</li>
+<li>Database Connector</li>
+<li>Hive Connector</li>
+<li>H2 Connector</li>
+<li>Microsoft SQL Server Connector</li>
+<li>MySQL Connector</li>
+<li>PostgreSQL Connector</li>
+<li>SQLite Connector</li>
+</ul>
+<h3>Manipulation</h3>
+<ul>
+<li>Database Apply-Binner</li>
+<li>Database Auto-Binner</li>
+<li>Database Column Rename</li>
+<li>Database Numeric-Binner</li>
+<li>Database Pivot</li>
+<li>Database Row Filter</li>
+<li>Database Query</li>
+<li>Database Column Filter</li>
+<li>Database Sorter</li>
+<li>Database GroupBy</li>
+<li>Database Joiner</li>
+<li>Database Table Creator</li>
+<li>Database Sampling</li>
+</ul>
+<h2>Structured Data</h2>
+<h3>XML</h3>
+<ul>
+<li>XML Reader</li>
+<li>XML Writer</li>
+<li>String To XML</li>
+<li>XPath</li>
+<li>XSLT</li>
+<li>Column To XML</li>
+<li>XML Column Combiner</li>
+<li>XML Row Combiner</li>
+<li>XML Row Combine and Write</li>
+</ul>
+<h3>JSON</h3>
+<ul>
+<li>Container Input (JSON)</li>
+<li>Container Output (JSON)</li>
+<li>JSON Reader</li>
+<li>JSON Writer</li>
+<li>String to JSON</li>
+<li>Table to JSON</li>
+<li>JSON to Table</li>
+<li>Columns to JSON</li>
+<li>XML To JSON</li>
+<li>JSON To XML</li>
+<li>JSON Path</li>
+<li>JSON Path (Dictionary)</li>
+<li>JSON Column Combiner</li>
+<li>JSON Row Combiner</li>
+<li>JSON Row Combiner and Writer</li>
+<li>JSON Transformer</li>
+<li>JSON Schema Validator</li>
+<li>JSON Diff</li>
+</ul>
+<h2>KNIME Labs</h2>
+<h3>PMML Translation</h3>
+<ul>
+<li>
+<p>PMML to Java</p>
+<ul>
+<li>PMML Compiling Predictor</li>
+<li>PMML Compiler</li>
+<li>Compiled Model Predictor</li>
+</ul>
+</li>
+</ul>
+<h2>Manipulation</h2>
+<h3>Row</h3>
+<ul>
+<li>
+<p>Filter</p>
+<ul>
+<li>Filter Apply</li>
+<li>Filter Apply Row Splitter</li>
+<li>Filter Definition Merger</li>
+<li>HiLite Row Splitter</li>
+<li>Nominal Value Row Filter</li>
+<li>Nominal Value Row Splitter</li>
+<li>Numeric Row Splitter</li>
+<li>Reference Row Filter</li>
+<li>Reference Row Splitter</li>
+<li>Row Filter</li>
+<li>Row Splitter</li>
+<li>Rule-based Row Filter</li>
+<li>Rule-based Row Filter (Dictionary)</li>
+<li>Rule-based Row Splitter</li>
+<li>Rule-based Row Splitter (Dictionary)</li>
+</ul>
+</li>
+<li>
+<p>Transform</p>
+<ul>
+<li>Concatenate</li>
+<li>Concatenate (Optional in)</li>
+<li>GroupBy</li>
+<li>Ungroup</li>
+<li>Partitioning</li>
+<li>Pivoting</li>
+<li>Unpivoting</li>
+<li>Rank</li>
+<li>Row Sampling</li>
+<li>Bootstrap Sampling</li>
+<li>Equal Size Sampling</li>
+<li>Shuffle</li>
+<li>SorterRule-based Row Splitter (Dictionary)</li>
+</ul>
+</li>
+<li>
+<p>Other</p>
+<ul>
+<li>Rule Engine</li>
+<li>Rule Engine (Dictionary)</li>
+<li>Add Empty Rows</li>
+<li>Extract Column Header</li>
+<li>Insert Column Header</li>
+<li>RowID</li>
+</ul>
+</li>
+</ul>
+<h3>PMML</h3>
+<ul>
+<li>Cell To PMML</li>
+<li>PMML To Cell</li>
+<li>Column Filter (PMML)</li>
+<li>Denormalizer (PMML)</li>
+<li>Many to One (PMML)</li>
+<li>Normalizer (PMML)</li>
+<li>Normalizer Apply (PMML)</li>
+<li>Number To String (PMML)</li>
+<li>Numeric Binner (PMML)</li>
+<li>One to Many (PMML)</li>
+<li>String To Number (PMML)</li>
+<li>XML To PMML</li>
+<li>Ruleset Editor</li>
+<li>Ruleset Predictor</li>
+<li>Ruleset to Table</li>
+</ul>
+<h3>Column</h3>
+<ul>
+<li>
+<p>Transform</p>
+<ul>
+<li>Case Converter</li>
+<li>Column Comparator</li>
+<li>Column Resorter</li>
+<li>Lag Column</li>
+<li>Reference Column Resorter</li>
+<li>Denormalizer</li>
+<li>Extract Missing Value Cause</li>
+<li>Missing Value</li>
+<li>Missing Value (Apply)</li>
+<li>Normalizer</li>
+<li>Normalizer (Apply)</li>
+<li>One to Many</li>
+<li>Many to One</li>
+<li>SMOTE</li>
+<li>Set Operator</li>
+<li>Subset Matcher</li>
+</ul>
+</li>
+<li>
+<p>Binning</p>
+<ul>
+<li>Auto-Binner</li>
+<li>Auto-Binner (Apply)</li>
+<li>Numeric Binner</li>
+<li>Binner (Dictionary)</li>
+<li>CAIM Binner</li>
+<li>CAIM Applier</li>
+</ul>
+</li>
+<li>
+<p>Interactive HiLite Collector</p>
+</li>
+<li>Table Validator</li>
+<li>Table Validator (Reference)</li>
+<li>
+<p>Convert &amp; Replace</p>
+<ul>
+<li>String Manipulation</li>
+<li>Category To Number</li>
+<li>Category To Number (Apply)</li>
+<li>Cell Replacer</li>
+<li>Column Auto Type Cast</li>
+<li>Column Rename</li>
+<li>Column Rename (Regex)</li>
+<li>Constant Value Column</li>
+<li>Number To Category (Apply)</li>
+<li>Number To String</li>
+<li>String To Number</li>
+<li>Double To Int</li>
+<li>Round Double</li>
+<li>String Replace (Dictionary)</li>
+<li>String Replacer</li>
+<li>Domain Calculator</li>
+<li>Edit Numeric Domain</li>
+<li>Edit Nominal Domain (Dictionary)</li>
+<li>Edit Nominal Domain</li>
+<li>Target Shuffling</li>
+<li>Math Formula</li>
+<li>Math Formula (Multi Column)</li>
+</ul>
+</li>
+<li>
+<p>Filter</p>
+<ul>
+<li>Column Filter</li>
+<li>Reference Column Filter</li>
+<li>Constant Value Column Filter</li>
+<li>Missing Value Column Filter</li>
+<li>Reference Column Splitter</li>
+</ul>
+</li>
+<li>
+<p>Split &amp; Combine</p>
+<ul>
+<li>Cell Splitter</li>
+<li>Cell Splitter By Position</li>
+<li>Column Aggregator</li>
+<li>Column Combiner</li>
+<li>Column Merger</li>
+<li>Column Splitter</li>
+<li>Column Appender</li>
+<li>Column to Grid</li>
+<li>Create Bit Vector</li>
+<li>Expand Bit Vector</li>
+<li>Create Collection Column</li>
+<li>Split Collection Column</li>
+<li>Create Byte Vector</li>
+<li>Expand Byte Vector</li>
+<li>Joiner</li>
+<li>Cross Joiner</li>
+<li>Regex Split</li>
+</ul>
+</li>
+</ul>
+<h3>Table</h3>
+<ul>
+<li>Extract Table Dimension</li>
+<li>Extract Table Spec</li>
+<li>Transpose</li>
+</ul>
+<h2>Workflow Control</h2>
+<h3>Automation</h3>
+<ul>
+<li>Call Local Workflow (Row Based)</li>
+<li>Container Input (Credentials)</li>
+<li>Container Input (Table)</li>
+<li>Container Input (Variable)</li>
+<li>Container Output (Table)</li>
+<li>Wait...</li>
+<li>Save Workflow</li>
+<li>Timer Info</li>
+<li>Global Timer Info</li>
+</ul>
+<h3>Switches</h3>
+<ul>
+<li>Java IF (Table)</li>
+<li>IF Switch</li>
+<li>End IF</li>
+<li>CASE Switch Data (Start)</li>
+<li>CASE Switch Data (End)</li>
+<li>CASE Switch Model (Start)</li>
+<li>CASE Switch Model (End)</li>
+<li>CASE Switch Variable (Start)</li>
+<li>CASE Switch Variable (End)</li>
+<li>Empty Table Switch</li>
+</ul>
+<h3>Loop Support</h3>
+<ul>
+<li>Breakpoint</li>
+<li>Counting Loop Start</li>
+<li>Chunk Loop Start</li>
+<li>Column List Loop Start</li>
+<li>Generic Loop Start</li>
+<li>Table Row To Variable Loop Start</li>
+<li>Loop End</li>
+<li>Variable Condition Loop End</li>
+<li>Group Loop Start</li>
+<li>Interval Loop Start</li>
+<li>Loop End (2 ports)</li>
+<li>Loop End (Column Append)</li>
+<li>Recursive Loop End</li>
+<li>Recursive Loop End (2 ports)</li>
+<li>Recursive Loop Start</li>
+<li>Recursive Loop Start (2 ports)</li>
+<li>Variable Loop End</li>
+</ul>
+<h3>Variables</h3>
+<ul>
+<li>Create File Name</li>
+<li>Inject Variables (Data)</li>
+<li>Inject Variables (Database)</li>
+<li>Extract Variables (Data)</li>
+<li>Extract Variables (Database)</li>
+<li>Table Column to Variable</li>
+<li>Table Row to Variable</li>
+<li>Variable to Table Column</li>
+<li>Variable to Table Row</li>
+<li>Merge Variables</li>
+<li>Java Edit Variable</li>
+<li>Rule Engine Variable</li>
+<li>Rule Engine Variable (Dictionary)</li>
+<li>String Manipulation (Variable)</li>
+<li>Java Edit Variable (simple)</li>
+<li>Math Formula (Variable)</li>
+</ul>
+<h3>Meta Nodes</h3>
+<ul>
+<li>Variables Loop (Data)</li>
+<li>Variables Loop (Database)</li>
+<li>Iterate List of Files</li>
+<li>Loop x-times</li>
+</ul>
+<h3>Error Handling</h3>
+<ul>
+<li>Catch Errors (DB Ports)</li>
+<li>Catch Errors (Data Ports)</li>
+<li>Catch Errors (Generic Ports)</li>
+<li>Catch Errors (Var Ports)</li>
+<li>Try (Data Ports)</li>
+<li>Try (Variable Ports)</li>
+<li>Active Branch Inverter</li>
+</ul>
+<h2>Other Data Types</h2>
+<h3>Time Series</h3>
+<ul>
+<li>
+<p>Meta Nodes</p>
+<ul>
+<li>Time-Series Auto-Prediction Predictor</li>
+<li>Time-Series Auto-Prediction Training</li>
+<li>Seasonality Correction</li>
+</ul>
+</li>
+<li>
+<p>Time Series (legacy)</p>
+<ul>
+<li>Date Field Extractor (legacy)</li>
+<li>Time Field Extractor (legacy)</li>
+<li>Date/Time Shift (legacy)</li>
+<li>Extract Time Window (legacy)</li>
+<li>Mask Date/Time (legacy)</li>
+<li>Preset Date/Time (legacy)</li>
+<li>String to Date/Time (legacy)</li>
+<li>Time Difference (legacy)</li>
+<li>Time Generator (legacy)</li>
+<li>Time to String (legacy)</li>
+</ul>
+</li>
+<li>
+<p>Manipulate</p>
+<ul>
+<li>Create Date&amp;Time Range</li>
+<li>Date &amp; Time Difference</li>
+<li>Date &amp; Time Shift</li>
+<li>Date &amp; Time-based Row Filter</li>
+<li>Modify Date</li>
+<li>Modify Time</li>
+<li>Modify Time Zone</li>
+</ul>
+</li>
+<li>
+<p>Smoothing</p>
+<ul>
+<li>Moving Aggregation</li>
+<li>Moving Average</li>
+</ul>
+</li>
+<li>
+<p>Transform</p>
+<ul>
+<li>Date&amp;Time to String</li>
+<li>String to Date&amp;Time</li>
+<li>UNIX Timestamp to Date&amp;Time</li>
+<li>Duration to String</li>
+<li>Duration to Number</li>
+<li>String to Duration</li>
+<li>Date&amp;Time to legacy Date&amp;Time</li>
+<li>Legacy Date&amp;Time to Date&amp;Time</li>
+<li>Extract Date&amp;Time Fields</li>
+<li>Extract Duration Fields</li>
+<li>Window Loop Start</li>
+</ul>
+</li>
+</ul>
+<h2>Scripting</h2>
+<h3>Java</h3>
+<ul>
+<li>Java Snippet</li>
+<li>Java Snippet (simple)</li>
+<li>Java Snippet Row Filter</li>
+<li>Java Snippet Row Splitter</li>
+</ul>
+<h2>Tools &amp; Services</h2>
+<h3>REST Web Services</h3>
+<ul>
+<li>GET Request</li>
+<li>POST Request</li>
+<li>PUT Request</li>
+<li>DELETE Request</li>
+</ul>
+<h3>Apache Spark</h3>
+<ul>
+<li>
+<p>Misc</p>
+<ul>
+<li>
+<p>PySpark</p>
+<ul>
+<li>PySpark Script (1 to 1)</li>
+<li>PySpark Script (1 to 2)</li>
+<li>PySpark Script (2 to 1)</li>
+<li>PySpark Script (2 to 2)</li>
+<li>PySpark Script Source</li>
+</ul>
+</li>
+<li>
+<p>Spark SQL Query</p>
+</li>
+<li>
+<p>Java Snippet</p>
+<ul>
+<li>Spark DataFrame Java Snippet</li>
+<li>Spark DataFrame Java Snippet (Sink)</li>
+<li>Spark DataFrame Java Snippet (Source)</li>
+<li>Spark RDD Java Snippet</li>
+<li>Spark RDD Java Snippet (Sink)</li>
+<li>Spark RDD Java Snippet (Source)</li>
+</ul>
+</li>
+<li>
+<p>Management</p>
+<ul>
+<li>List Spark DataFrames/RDDs</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Column</p>
+<ul>
+<li>Spark Column Filter</li>
+<li>
+<p>Transform</p>
+<ul>
+<li>Spark Missing Value</li>
+<li>Spark Missing Value (Apply)</li>
+</ul>
+</li>
+<li>
+<p>Convert &amp; Replace</p>
+<ul>
+<li>Spark Category To Number</li>
+<li>Spark Column Rename</li>
+<li>Spark Column Rename (Regex)</li>
+<li>Spark Compiled Transformations Applier</li>
+<li>Spark Normalizer</li>
+<li>Spark Number To Category (Apply)</li>
+<li>Spark Transformations Applier</li>
+</ul>
+</li>
+<li>
+<p>Split &amp; Combine</p>
+<ul>
+<li>Spark Joiner</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Row</p>
+<ul>
+<li>Spark Concatenate</li>
+<li>Spark GroupBy</li>
+<li>Spark Partitioning</li>
+<li>Spark Pivot</li>
+<li>Spark Row Filter</li>
+<li>Spark Row Sampling</li>
+<li>Spark Sorter</li>
+</ul>
+</li>
+<li>
+<p>Statistics</p>
+<ul>
+<li>Spark Correlation Filter</li>
+<li>Spark Correlation Matrix</li>
+<li>Spark Linear Correlation</li>
+<li>Spark Statistics</li>
+</ul>
+</li>
+<li>
+<p>IO</p>
+<ul>
+<li>
+<p>Write</p>
+<ul>
+<li>Spark to Avro</li>
+<li>Spark to CSV</li>
+<li>Spark to JSON</li>
+<li>Spark to ORC</li>
+<li>Spark to Parquet</li>
+<li>Spark to Table</li>
+<li>Spark to Text</li>
+</ul>
+</li>
+<li>
+<p>Database</p>
+<ul>
+<li>Database to Spark</li>
+<li>Hive to Spark</li>
+<li>Impala to Spark</li>
+<li>Spark to Database</li>
+<li>Spark to Hive</li>
+<li>Spark to Impala</li>
+</ul>
+</li>
+<li>
+<p>Persist Spark DataFrame/RDD</p>
+</li>
+<li>Unpersist Spark DataFrame/RDD</li>
+<li>
+<p>Read</p>
+<ul>
+<li>Avro to Spark</li>
+<li>CSV to Spark</li>
+<li>JSON to Spark</li>
+<li>ORC to Spark</li>
+<li>Parquet to Spark</li>
+<li>Table to Spark</li>
+<li>Text to Spark</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Create Big Data Test Environment</p>
+</li>
+<li>Create Local Big Data Environment</li>
+<li>Create Spark Context (Jobserver)</li>
+<li>Create Spark Context (Livy)</li>
+<li>Destroy Spark Context</li>
+<li>
+<p>Mining</p>
+<ul>
+<li>
+<p>Scoring</p>
+<ul>
+<li>Spark Entropy Scorer</li>
+<li>Spark Numeric Scorer</li>
+<li>Spark Scorer</li>
+</ul>
+</li>
+<li>
+<p>Clustering</p>
+<ul>
+<li>Spark Cluster Assigner</li>
+<li>Spark k-Means</li>
+</ul>
+</li>
+<li>
+<p>Spark Collaborative Filtering Learner</p>
+</li>
+<li>
+<p>PMML</p>
+<ul>
+<li>Spark Compiled Model Predictor</li>
+<li>Spark MLlib to PMML</li>
+<li>Spark PMML Model Predictor</li>
+</ul>
+</li>
+<li>
+<p>Dimensionality Reduction</p>
+<ul>
+<li>Spark PCA</li>
+<li>Spark SVD</li>
+</ul>
+</li>
+<li>
+<p>Prediction</p>
+<ul>
+<li>Spark Decision Tree Learner</li>
+<li>Spark Gradient-Boosted Trees Learner</li>
+<li>Spark Linear Regression Learner</li>
+<li>Spark Linear SVM Learner</li>
+<li>Spark Logistic Regression Learner</li>
+<li>Spark Naive Bayes Learner</li>
+<li>Spark Predictor</li>
+<li>Spark Random Forests Learner</li>
+</ul>
+</li>
+<li>
+<p>Item Sets / Association Rules</p>
+<ul>
+<li>Spark Association Rule (Apply)</li>
+<li>Spark Association Rule Learner</li>
+<li>Spark Frequent Item Sets</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2>Views</h2>
+<h3>Spark Line Appender</h3>
+<h3>Radar Plot Appender</h3>
+<h3>Property</h3>
+<ul>
+<li>Color Manager</li>
+<li>Size Manager</li>
+<li>Shape Manager</li>
+<li>Color Appender</li>
+<li>Size Appender</li>
+<li>Shape Appender</li>
+<li>Extract Color</li>
+</ul>
+<h3>Box Plot</h3>
+<h3>Conditional Box Plot</h3>
+<h3>HiLite Table</h3>
+<h3>Histogram</h3>
+<h3>Histogram (interactive)</h3>
+<h3>Interactive Table</h3>
+<h3>Lift Chart</h3>
+<h3>Line Plot</h3>
+<h3>Parallel Coordinates</h3>
+<h3>Pie chart</h3>
+<h3>Pie chart (interactive)</h3>
+<h3>Scatter Matrix</h3>
+<h3>Scatter Plot</h3>
+<h3>Utility</h3>
+<ul>
+<li>Renderer to Image</li>
+<li>String To SVG</li>
+<li>Image To Table</li>
+<li>Table To Image</li>
+</ul>
+<h2>Reporting</h2>
+<h3>Data to Report</h3>
+<h3>Image to Report</h3>
+<h2>Analytics</h2>
+<h3>Mining</h3>
+<ul>
+<li>
+<p>Rule Induction</p>
+<ul>
+<li>
+<p>Fuzzy Rules</p>
+<ul>
+<li>Fuzzy Rule Learner</li>
+<li>Fuzzy Rule Predictor</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Neural Network</p>
+<ul>
+<li>
+<p>MLP</p>
+<ul>
+<li>MultiLayerPerceptron Predictor</li>
+<li>RProp MLP Learner</li>
+</ul>
+</li>
+<li>
+<p>PNN</p>
+<ul>
+<li>PNN Learner (DDA)</li>
+<li>PNN Predictor</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Linear/Polynomial Regression</p>
+<ul>
+<li>Linear Regression Learner</li>
+<li>Polynomial Regression Learner</li>
+<li>Regression Predictor</li>
+</ul>
+</li>
+<li>
+<p>Misc Classifiers</p>
+<ul>
+<li>K Nearest Neighbor</li>
+<li>K Nearest Neighbor (Distance Function)</li>
+</ul>
+</li>
+<li>
+<p>Item Sets / Association Rules</p>
+<ul>
+<li>Association Rule Learner</li>
+<li>Create Bit Vector</li>
+<li>Subset Matcher</li>
+</ul>
+</li>
+<li>
+<p>Scoring</p>
+<ul>
+<li>
+<p>Meta Nodes</p>
+<ul>
+<li>Cross Validation</li>
+</ul>
+</li>
+<li>
+<p>Scorer</p>
+</li>
+<li>Numeric Scorer</li>
+<li>Entropy Scorer</li>
+<li>ROC Curve</li>
+<li>Enrichment Plotter</li>
+<li>
+<p>Cross Validation</p>
+<ul>
+<li>X-Partitioner</li>
+<li>X-Aggregator</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Logistic Regression</p>
+<ul>
+<li>Logistic Regression Learner</li>
+<li>Logistic Regression Predictor</li>
+</ul>
+</li>
+<li>
+<p>Bayes</p>
+<ul>
+<li>Naive Bayes Learner</li>
+<li>Naive Bayes Predictor</li>
+</ul>
+</li>
+<li>
+<p>Feature Selection</p>
+<ul>
+<li>
+<p>Meta Nodes</p>
+<ul>
+<li>Backward Feature Elimination</li>
+<li>Forward Feature Selection</li>
+</ul>
+</li>
+<li>
+<p>Feature Selection Loop Start (1:1)</p>
+</li>
+<li>Feature Selection Loop Start (2:2)</li>
+<li>Feature Selection Loop End</li>
+<li>Feature Selection Filter</li>
+<li>Linear Correlation</li>
+<li>Correlation Filter</li>
+<li>Low Variance Filter</li>
+</ul>
+</li>
+<li>
+<p>Decision Tree Ensemble</p>
+<ul>
+<li>
+<p>Random Forest</p>
+<ul>
+<li>Random Forest Distance</li>
+<li>Tree Ensemble Model Extract</li>
+<li>Tree Ensemble Statistics</li>
+<li>Regression</li>
+<li>Classification</li>
+</ul>
+</li>
+<li>
+<p>Gradient Boosting</p>
+<ul>
+<li>
+<p>Regression</p>
+<ul>
+<li>Gradient Boosted Trees Learner (Regression)</li>
+<li>Gradient Boosted Trees Predictor (Regression)</li>
+<li>PMML Gradient Boosted Trees Predictor (Regression)</li>
+</ul>
+</li>
+<li>
+<p>Gradient Boosted Trees to PMML</p>
+</li>
+<li>
+<p>Classification</p>
+<ul>
+<li>Gradient Boosted Trees Learner</li>
+<li>Gradient Boosted Trees Predictor</li>
+<li>PMML Gradient Boosted Trees Predictor</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>Decision Tree</p>
+<ul>
+<li>PMML Simple Regression Tree Predictor</li>
+<li>Simple Regression Tree Learner</li>
+<li>Simple Regression Tree Predictor</li>
+<li>Simple Regression Tree to PMML</li>
+<li>Decision Tree to Ruleset</li>
+<li>Decision Tree Learner</li>
+<li>Decision Tree Predictor</li>
+<li>Decision Tree To Image</li>
+</ul>
+</li>
+<li>
+<p>PCA</p>
+<ul>
+<li>PCA</li>
+<li>PCA Compute</li>
+<li>PCA Apply</li>
+<li>PCA Inversion</li>
+</ul>
+</li>
+<li>
+<p>Clustering</p>
+<ul>
+<li>DBSCAN</li>
+<li>k-Medoids</li>
+<li>Hierarchical Clustering (DistMatrix)</li>
+<li>Hierarchical Cluster View</li>
+<li>Hierarchical Cluster Assigner</li>
+<li>Cluster Assigner</li>
+<li>Fuzzy c-Means</li>
+<li>Hierarchical Clustering</li>
+<li>SOTA Learner</li>
+<li>SOTA Predictor</li>
+<li>k-Means</li>
+</ul>
+</li>
+<li>
+<p>Ensemble Learning</p>
+<ul>
+<li>Boosting Learner Loop End</li>
+<li>Boosting Learner Loop Start</li>
+<li>Boosting Predictor Loop End</li>
+<li>Boosting Predictor Loop Start</li>
+<li>Cell To Model</li>
+<li>Model Loop End</li>
+<li>Model Loop Start</li>
+<li>Model to Cell</li>
+<li>Prediction Fusion</li>
+<li>Voting Loop End</li>
+<li>
+<p>Meta Nodes</p>
+<ul>
+<li>Bagging</li>
+<li>Boosting Learner</li>
+<li>Boosting Predictor</li>
+<li>Delegating</li>
+</ul>
+</li>
+<li>
+<p>PMML</p>
+<ul>
+<li>PMML Ensemble Loop End</li>
+<li>PMML Ensemble Predictor</li>
+<li>PMML Ensemble to Table</li>
+<li>Table to PMML Ensemble</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>MDS</p>
+<ul>
+<li>MDS (DistMatrix)</li>
+<li>MDS Projection (DistMatrix)</li>
+<li>MDS</li>
+<li>MDS Projection</li>
+</ul>
+</li>
+<li>
+<p>SVM</p>
+<ul>
+<li>SVM Learner</li>
+<li>SVM Predictor</li>
+</ul>
+</li>
+<li>
+<p>PMML</p>
+<ul>
+<li>PMML Predictor</li>
+</ul>
+</li>
+</ul>
+<h3>Distance Calculation</h3>
+<ul>
+<li>
+<p>Distance Matrix</p>
+<ul>
+<li>Distance Matrix Reader</li>
+<li>Distance Matrix Writer</li>
+<li>Distance Matrix Calculate</li>
+<li>Distance Matrix Pair Extractor</li>
+<li>Similarity Search</li>
+</ul>
+</li>
+<li>
+<p>Distance Functions</p>
+<ul>
+<li>Numeric Distances</li>
+<li>String Distances</li>
+<li>Bit Vector Distances</li>
+<li>Byte Vector Distances</li>
+<li>Mahalanobis Distance</li>
+<li>Matrix Distance</li>
+<li>Aggregated Distance</li>
+<li>Java Distance</li>
+</ul>
+</li>
+</ul>
+<h3>Statistics</h3>
+<ul>
+<li>Crosstab</li>
+<li>Value Counter</li>
+<li>Linear Correlation</li>
+</ul>
+<h2>Spark Node Demo</h2>
+<h3>Spark on Hadoop</h3>
+<p><img alt="2019-06-21-18-03-17" src="http://xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/images/d623f1e4a074694948d241eddcfd7cda.png"></p>
+<p>This workflow demonstrates the usage of the Spark MLlib Decision Tree Learner and Spark Predictor. It also demonstrates the conversion of categorical columns into numerical columns which is necessary since the MLlib algorithms only support numerical features and labels.</p>
+<p>Requirements:
+- KNIME Analytics Platform
+    + KNIME Extension for Apache Spark
+- Hadoop Cluster e.g. Hortonworks Sandbox (http://hortonworks.com/products/hortonworks-sandbox/)
+    + Spark Job Server needs to be installed and configured
+    + Apache Spark 1.2.1 to 2.2
+For details see https://www.knime.org/knime-spark-executor</p>
+<h3>hive to spark to hive</h3>
+<p><img alt="2019-06-21-18-17-07" src="http://xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/images/03a59830f72d0202a20544231118d7e8.png"></p>
+<p>This workflow demonstrates the usage of the Hive to Spark and Spark to Hive nodes that allow you to transfer data between Apache Spark and Apache Hive.</p>
+<p>Requirements:
+- KNIME Analytics Platform
+    + KNIME Big Data Connectors
+    + KNIME extension for Apache Spark
+- Hadoop Cluster e.g. Hortonworks Sandbox (http://hortonworks.com/products/hortonworks-sandbox/)
+    + Spark Job Server needs to be installed and configured
+    + Apache Spark 1.2.1 to 2.2
+For details see https://www.knime.org/knime-spark-executor and
+https://www.knime.org/knime-big-data-connectors</p>
+<h3>Comprehensive Model Learning Mass Prediction</h3>
+<p><img alt="2019-06-21-19-04-32" src="http://xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/images/de973d6d1b357b57b90339aaec169358.png"></p>
+<p>This workflow demonstrates the usage of the Spark Compiled Model Predictor node which converts a given PMML model into machine code and uses the compiled model to predict vast amounts of data in parallel within Apache Spark.</p>
+<p>Requirements:
+- KNIME Analytics Platform
+    + KNIME Ensemble Learning Wrappers
+    + KNIME Extension for Apache Spark
+- Hadoop Cluster e.g. Hortonworks Sandbox (http://hortonworks.com/products/hortonworks-sandbox/)
+    + Spark Job Server needs to be installed and configured
+    + Apache Spark 1.2.1 to 2.2
+For details see https://www.knime.org/knime-spark-executor  </p>
+<p><em>XMind: ZEN - Trial Version</em></p>
+            <aside>
+            <hr/>
+            <nav>
+            <ul class="articles_timeline">
+ 
+                <li class="previous_article">« <a href="/2019-06-19-193732-ch.html" title="Previous: MysqlBinlog 详解">MysqlBinlog 详解</a></li>
+            </ul>
+            </nav>
+            </aside>
+        </div>
+        <section>
+        <div class="span2" style="float:right;font-size:0.9em;">
+ 
+            <h4>Published</h4>
+            <time pubdate="pubdate" datetime="2019-06-21T11:54:55+08:00"> 6 21, 2019</time>
+            <h4>Category</h4>
+            <a class="category-link" href="/categories.html#bigdata-ref">bigdata</a> 
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article"> 
+                <li><a href="/tags.html#bigdata-ref">bigdata
+                    <span>11</span>
+</a></li>
+                <li><a href="/tags.html#knime-ref">knime
+                    <span>1</span>
+</a></li>
+            </ul>
+
+        </div>
+        </section>
+</div>
+<div id="gitalk-container"></div>
+</article>
+
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+<script>
+    var gitalk = new Gitalk({
+        clientID: '55daf540951794dd3faf',
+        clientSecret: 'd6eaad9fa6d9e7ff2647ef8b6e21327da0cc7cda',
+        repo: 'blog-comment',
+        owner: 'xixuebin',
+        admin: ['xixuebin'],
+        id: location.pathname,      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+    })
+
+    gitalk.render('gitalk-container')
+</script>
+
+                </div>
+                <div class="span1"></div>
+            </div>
+        </div>
+    </div>
+<footer>
+<div id="footer">
+    <ul class="footer-content">
+        <li class="elegant-power">Powered by <a href="http://getpelican.com/" title="Pelican Home Page">Pelican</a>. Theme: <a href="http://oncrashreboot.com/pelican-elegant" title="Theme Elegant Home Page">Elegant</a> by <a href="http://oncrashreboot.com" title="Talha Mansoor Home Page">Talha Mansoor</a></li>
+    </ul>
+</div>
+</footer>            <script src="https://code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+    </body>
+</html>

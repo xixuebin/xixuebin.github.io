@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>寒玉 Blog - aws</title><link href="xixuebin.github.io/" rel="alternate"></link><link href="xixuebin.github.io/feeds/aws.atom.xml" rel="self"></link><id>xixuebin.github.io/</id><updated>2019-04-03T17:04:11+08:00</updated><entry><title>Aws Athena Add Column</title><link href="xixuebin.github.io/2019-04-03-170411-ch.html" rel="alternate"></link><published>2019-04-03T17:04:11+08:00</published><updated>2019-04-03T17:04:11+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-04-03:xixuebin.github.io/2019-04-03-170411-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;hr&gt;
+&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
+
+&lt;h1&gt;AWS Athena添加列&lt;/h1&gt;
+&lt;p&gt;在给AWS athena添加新的字段的时候,aws文档给出的方案主要是删除重新创建table,因为athena的数据本身是外部数据,我们删除的的只是元数据.本身这种操作方法没有问题,但是如果在我们的数据量非常大的时候,分区较多的情况下回出现新创建的表需要花费很长时间去重新load分区,这段时间内,没有load进来的数据,不能对外提供服务.&lt;/p&gt;
+&lt;h2&gt;AWS文档中的在末尾添加列&lt;/h2&gt;
+&lt;p&gt;如果您以 Athena 支持的任何格式（如 Parquet、ORC、Avro、JSON、CSV 和 TSV）创建表，则可以在表的末尾添加新的列。如果您使用 ORC 格式，必须配置 ORC 以便按名称读取。Parquet 默认是按名称读取的。有关信息，请参阅 ORC 和 Parquet 中的索引访问。&lt;/p&gt;
+&lt;p&gt;在以下示例中，将删除现有 Parquet 表，并添加新 Parquet 表，在表的末尾新增 &lt;code&gt;comment&lt;/code&gt; 列：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;DROP&lt;/span&gt; &lt;span class="k"&gt;TABLE&lt;/span&gt; &lt;span class="n"&gt;orders_parquet&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="k"&gt;CREATE&lt;/span&gt; &lt;span class="k"&gt;EXTERNAL&lt;/span&gt; &lt;span class="k"&gt;TABLE&lt;/span&gt; &lt;span class="n"&gt;orders_parquet&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;
+   &lt;span class="o"&gt;`&lt;/span&gt;&lt;span class="n"&gt;orderkey&lt;/span&gt;&lt;span class="o"&gt;`&lt;/span&gt; &lt;span class="nb"&gt;int&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+   &lt;span class="o"&gt;`&lt;/span&gt;&lt;span class="n"&gt;orderstatus&lt;/span&gt;&lt;span class="o"&gt;`&lt;/span&gt; &lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+   &lt;span class="o"&gt;`&lt;/span&gt;&lt;span class="n"&gt;totalprice&lt;/span&gt;&lt;span class="o"&gt;`&lt;/span&gt; &lt;span class="n"&gt;double&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+   &lt;span class="o"&gt;`&lt;/span&gt;&lt;span class="n"&gt;orderdate&lt;/span&gt;&lt;span class="o"&gt;`&lt;/span&gt; &lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+   &lt;span class="o"&gt;`&lt;/span&gt;&lt;span class="n"&gt;orderpriority&lt;/span&gt;&lt;span class="o"&gt;`&lt;/span&gt; &lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+   &lt;span class="o"&gt;`&lt;/span&gt;&lt;span class="n"&gt;clerk&lt;/span&gt;&lt;span class="o"&gt;`&lt;/span&gt; &lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+   &lt;span class="o"&gt;`&lt;/span&gt;&lt;span class="n"&gt;shippriority&lt;/span&gt;&lt;span class="o"&gt;`&lt;/span&gt; &lt;span class="nb"&gt;int&lt;/span&gt;
+   &lt;span class="o"&gt;`&lt;/span&gt;&lt;span class="k"&gt;comment&lt;/span&gt;&lt;span class="o"&gt;`&lt;/span&gt; &lt;span class="n"&gt;string&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="n"&gt;STORED&lt;/span&gt; &lt;span class="k"&gt;AS&lt;/span&gt; &lt;span class="n"&gt;PARQUET&lt;/span&gt;
+&lt;span class="k"&gt;LOCATION&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;s3://schema_updates/orders_parquet/&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;在以下示例中，将删除现有 CSV 表，并添加新 CSV 表，在表的末尾新增 &lt;code&gt;comment&lt;/code&gt; 列：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;DROP&lt;/span&gt; &lt;span class="k"&gt;TABLE&lt;/span&gt; &lt;span class="n"&gt;orders_csv&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="k"&gt;CREATE&lt;/span&gt; &lt;span class="k"&gt;EXTERNAL&lt;/span&gt; &lt;span class="k"&gt;TABLE&lt;/span&gt; &lt;span class="n"&gt;orders_csv&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;
+   &lt;span class="o"&gt;`&lt;/span&gt;&lt;span class="n"&gt;orderkey&lt;/span&gt;&lt;span class="o"&gt;`&lt;/span&gt; &lt;span class="nb"&gt;int&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+   &lt;span class="o"&gt;`&lt;/span&gt;&lt;span class="n"&gt;orderstatus&lt;/span&gt;&lt;span class="o"&gt;`&lt;/span&gt; &lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+   &lt;span class="o"&gt;`&lt;/span&gt;&lt;span class="n"&gt;totalprice&lt;/span&gt;&lt;span class="o"&gt;`&lt;/span&gt; &lt;span class="n"&gt;double&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+   &lt;span class="o"&gt;`&lt;/span&gt;&lt;span class="n"&gt;orderdate&lt;/span&gt;&lt;span class="o"&gt;`&lt;/span&gt; &lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+   &lt;span class="o"&gt;`&lt;/span&gt;&lt;span class="n"&gt;orderpriority&lt;/span&gt;&lt;span class="o"&gt;`&lt;/span&gt; &lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+   &lt;span class="o"&gt;`&lt;/span&gt;&lt;span class="n"&gt;clerk&lt;/span&gt;&lt;span class="o"&gt;`&lt;/span&gt; &lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+   &lt;span class="o"&gt;`&lt;/span&gt;&lt;span class="n"&gt;shippriority&lt;/span&gt;&lt;span class="o"&gt;`&lt;/span&gt; &lt;span class="nb"&gt;int&lt;/span&gt;
+   &lt;span class="o"&gt;`&lt;/span&gt;&lt;span class="k"&gt;comment&lt;/span&gt;&lt;span class="o"&gt;`&lt;/span&gt; &lt;span class="n"&gt;string&lt;/span&gt;
+&lt;span class="p"&gt;)&lt;/span&gt; 
+&lt;span class="k"&gt;ROW&lt;/span&gt; &lt;span class="n"&gt;FORMAT&lt;/span&gt; &lt;span class="n"&gt;DELIMITED&lt;/span&gt; &lt;span class="n"&gt;FIELDS&lt;/span&gt; &lt;span class="n"&gt;TERMINATED&lt;/span&gt; &lt;span class="k"&gt;BY&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;,&amp;#39;&lt;/span&gt;
+&lt;span class="k"&gt;LOCATION&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;s3://schema_updates/orders_csv/&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;经过和同事的研究,其实可以在不删除表的情况下修改athena的schema信息,操作方法是使用gule来更新athena的元数据.&lt;/p&gt;
+&lt;h2&gt;通过glue给athana添加列&lt;/h2&gt;
+&lt;p&gt;操作过程&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;在glue页面,选择数据库,表的tab项目&lt;/li&gt;
+&lt;li&gt;选择要操作的表,点击进入&lt;/li&gt;
+&lt;li&gt;选择添加列&lt;/li&gt;
+&lt;li&gt;输入列名,类型,列编号(字段顺序),是否是分区键&lt;/li&gt;
+&lt;li&gt;操作完,点击保存之后,可以到athena页面看到新加的字段&lt;/li&gt;
+&lt;/ol&gt;
+&lt;p&gt;&lt;img alt="2019-04-03-17-16-06" src="http://xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/images/1f0c0024fdf3ec52e6c0694df15d5ab1.png"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt="2019-04-03-17-21-49" src="http://xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/images/b03e472b3bd2d4444e386b3829791485.png"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt="2019-04-03-17-18-05" src="http://xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/images/0e615830d694d2f97862343313c23dd1.png"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt="2019-04-03-17-20-09" src="http://xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/images/d4a363cbf6455b7c55c4c4bdfafb2ba0.png"&gt;&lt;/p&gt;
+&lt;p&gt;使用这种方法,不用重新建表,不需要重新load分区&lt;/p&gt;
+&lt;h2&gt;通过类似impala的语法,直接操作athena&lt;/h2&gt;
+&lt;p&gt;同事说也可以通过类似impala的语法,直接操作athena,添加列.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;ALTER&lt;/span&gt; &lt;span class="k"&gt;TABLE&lt;/span&gt; &lt;span class="n"&gt;test_hive&lt;/span&gt; &lt;span class="k"&gt;ADD&lt;/span&gt; &lt;span class="n"&gt;COLUMNS&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;pkg_name&lt;/span&gt; &lt;span class="n"&gt;STRING&lt;/span&gt; &lt;span class="k"&gt;COMMENT&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;add new field pkg_name&amp;#39;&lt;/span&gt; &lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;ALTER&lt;/span&gt; &lt;span class="k"&gt;TABLE&lt;/span&gt; &lt;span class="n"&gt;test_hive&lt;/span&gt; &lt;span class="k"&gt;ADD&lt;/span&gt; &lt;span class="n"&gt;COLUMNS&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;gift&lt;/span&gt; &lt;span class="n"&gt;STRING&lt;/span&gt; &lt;span class="k"&gt;COMMENT&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;add new field gift&amp;#39;&lt;/span&gt; &lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h1&gt;参考&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://docs.aws.amazon.com/zh_cn/athena/latest/ug/handling-schema-updates-chapter.html"&gt;Aws Athena处理结构更新&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><category term="aws"></category><category term="athena"></category><category term="glue"></category></entry><entry><title>idea-查询athena</title><link href="xixuebin.github.io/2019-03-28-164917-ch.html" rel="alternate"></link><published>2019-03-28T16:49:17+08:00</published><updated>2019-03-28T16:49:17+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-03-28:xixuebin.github.io/2019-03-28-164917-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;hr&gt;
+&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;在使用aws的云服务的时候,我们把数据存储在s3上,如果要查询数据,可以使用aws的athena服务.athena基于Presto构建,可以查询S3的数据.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h1&gt;使用idea访问aws服务&lt;/h1&gt;
+&lt;h2&gt;配置idea的数据驱动&lt;/h2&gt;
+&lt;p&gt;&lt;img alt="2019-03-28-17-41-37" src="http://xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/images/6729ff99f8724a5acef8de67643cdbf4.png"&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;名称填写athena&lt;/li&gt;
+&lt;li&gt;驱动类选择&lt;code&gt;com.simbaathena.jdbc42.Driver&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;Dialect 选择&lt;code&gt;Generic SQL&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;URL templates格式如下:&lt;/li&gt;
+&lt;li&gt;&lt;code&gt;jdbc:awsathena://athena.[{host::eu-west-1}].amazonaws.com[:{port::443}][\?&amp;lt;;,UID={user:param},PWD={password:param},{:identifier}={:param}&amp;gt;]&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;点击保存之后,在左侧的列表中可以看见一个Athena的Driver项目&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;创建连接&lt;/h2&gt;
+&lt;p&gt;&lt;img alt="2019-03-28-17-50-15" src="http://xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/images/13d0d1a867083cc315b96c3ea9fcf566.png"&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;name选项输入自己的连接名字&lt;/li&gt;
+&lt;li&gt;user输入自己aws的access key&lt;/li&gt;
+&lt;li&gt;password输入自己aws的Secret key&lt;/li&gt;
+&lt;li&gt;url按照之前的连接填写&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;这样操作之后就可以在idea中访问到aws的athena服务了.&lt;/p&gt;
+&lt;h2&gt;查询数据&lt;/h2&gt;
+&lt;p&gt;&lt;img alt="2019-03-28-17-57-44" src="http://xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/images/75ab08930b16aecd9752f7f7316b33ad.png"&gt;&lt;/p&gt;
+&lt;p&gt;这样就可以和其他数据源一样操作athena上的数据了.&lt;/p&gt;
+&lt;h1&gt;参考&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://blog.jetbrains.com/datagrip/2018/05/25/using-aws-athena-from-intellij-based-ide/"&gt;using-aws-athena-from-intellij-based-ide&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://poplindata.com/infrastructure/setting-up-aws-athena-datasource-in-jetbrains-datagrip/"&gt;Setting up AWS Athena datasource in JetBrains DataGrip&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://docs.aws.amazon.com/zh_cn/athena/latest/ug/connect-with-jdbc.html"&gt;将Athena与JDBC驱动程序结合使用&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://s3.amazonaws.com/athena-downloads/drivers/JDBC/SimbaAthenaJDBC_2.0.6/docs/Simba+Athena+JDBC+Driver+Install+and+Configuration+Guide.pdf"&gt;aws driver 安装与说明&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><category term="aws"></category><category term="athena"></category><category term="idea"></category></entry><entry><title>AWS Athena Query S3 Json Data</title><link href="xixuebin.github.io/aws-athena-date-2018-01-22-0658-ch.html" rel="alternate"></link><published>2018-01-22T22:06:58+08:00</published><updated>2018-01-22T22:06:58+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2018-01-22:xixuebin.github.io/aws-athena-date-2018-01-22-0658-ch.html</id><summary type="html"></summary><content type="html">&lt;hr&gt;
+&lt;p&gt;使用athena查询aws的s3上的数据.需要遵循以下流程:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;使用AWS S3创建一个存储桶&lt;/li&gt;
+&lt;li&gt;放置需要查询的文件到S3存储桶中&lt;/li&gt;
+&lt;li&gt;根据存储通里的数据结构,创建athena存储表&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;我们目前需要接一些报表数据到Superset中去展示,通过讨论决定采用以下流程:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;mongodb -&amp;gt; S3 -&amp;gt; athena -&amp;gt; superset
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;每日处理MongoDB中的业务数据成JSON文件&lt;/li&gt;
+&lt;li&gt;Put Json文件到 S3中&lt;/li&gt;
+&lt;li&gt;使用athena查询S3中的json文件&lt;/li&gt;
+&lt;li&gt;使用athena所谓superset的数据源,进行报表展示&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;数据输入格式为:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;
+  &lt;span class="nt"&gt;&amp;quot;name&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Albert&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="nt"&gt;&amp;quot;numPets&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+  &lt;span class="nt"&gt;&amp;quot;birthDate&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;1970-01-01 07:20:00&amp;quot;&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;因为 AWS athena 查询的数据需要一条记录是一行,所以需要在文件冲,把json处理成 一条记录一行的方式&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="nt"&gt;&amp;quot;name&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Albert&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nt"&gt;&amp;quot;numPets&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nt"&gt;&amp;quot;birthDate&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;  &lt;span class="s2"&gt;&amp;quot;1970-01-01 07:20:00&amp;quot;&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="err"&gt;,&lt;/span&gt;
+&lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="nt"&gt;&amp;quot;name&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;Albert&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nt"&gt;&amp;quot;numPets&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nt"&gt;&amp;quot;birthDate&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;  &lt;span class="s2"&gt;&amp;quot;1970-01-02 07:20:00&amp;quot;&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;把json文件没有层级结构的方式放置到我们的S3 Bucket中:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="截图" height="200px" src="https://s1.ax1x.com/2018/01/23/p52kKU.png" width="400px"&gt;&lt;/p&gt;
+&lt;p&gt;创建DataBase 和 Table&lt;/p&gt;
+&lt;p&gt;&lt;img alt="截图" height="400px" src="https://s1.ax1x.com/2018/01/23/p524MT.png" width="600px"&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;&lt;em&gt;创建的table的时候选择数据格式为json&lt;/em&gt;&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;em&gt;添加三列&lt;/em&gt;&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;&lt;em&gt;列名要与json文件中的属性名相同&lt;/em&gt;&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;创建表的时候选择&lt;code&gt;CREATE EXTERNAL TABLE&lt;/code&gt;&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;Column 1:
+    Name: name
+    Type: string&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;Column 2:
+    Name: numPets
+    Type: int&lt;/li&gt;
+&lt;li&gt;Column 3:
+    Name: birthDate
+    Type: timestamp&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;a href="https://imgchr.com/i/p5RVQf"&gt;&lt;img alt="p5RVQf.md.png" src="https://s1.ax1x.com/2018/01/23/p5RVQf.md.png"&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;h1&gt;Querying the Data&lt;/h1&gt;
+&lt;p&gt;现在表已经创建了,可以通过标准的SQL进行查询&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;SELECT&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="k"&gt;FROM&lt;/span&gt; &lt;span class="n"&gt;table1&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;a href="https://imgchr.com/i/p5Rjts"&gt;&lt;img alt="p5Rjts.md.png" src="https://s1.ax1x.com/2018/01/23/p5Rjts.md.png"&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;h2&gt;可能问题&lt;/h2&gt;
+&lt;p&gt;1.创建好之后,不能查询到数据:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;请检查表结构和json文件中的属性是否相同
+请检查字段的类型和实际类型是否匹配
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h1&gt;参考&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://blog.skeddly.com/2016/12/getting-started-with-amazon-athena-json-edition.html"&gt;https://blog.skeddly.com/2016/12/getting-started-with-amazon-athena-json-edition.html&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><category term="aws"></category><category term="athena"></category><category term="s3"></category></entry></feed>

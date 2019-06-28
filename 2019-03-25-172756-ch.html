@@ -63,10 +63,415 @@
             <hr>
 <!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets -->
 
-<h1>执行计划 ExecutionGraph 的生成</h1>
-<p>flink的运行时执行计划为ExecutionGraph.ExecutionGraph对应之前的JobGraph,一个 ExecutionGraph 包含多个 ExecutionJobVertex 节点，JobGraph 的 JobVertex，每个 ExecutionJobVertex 节点的并发子 task 对应一个 ExecutionVertex，每个 ExecutionVertex 的一次 attempt 执行被抽象为一次 Execution.</p>
+<h1>执行计划ExecutionGraph的生成</h1>
+<blockquote>
+<p>flink的运行时执行计划为ExecutionGraph,是JobManager运行时候的抽象.</p>
+</blockquote>
 <p>StreamGraph和JobGraph都是在client生成的,但是ExecutionGrap是在JobMaster端生成的.</p>
-<p>具体如下图所示:</p>
+<h2>客户端JobGraph的提交</h2>
+<p>客户端的<code>JobGraph</code>生成之后,通过<code>LeaderRetrivalService</code>获取<code>JobManager</code>的地址,然后将<code>JobGraph</code>提交给<code>JobManager</code>去执行.flink的核心进程通信是通过Akka来完成的.<code>JobManager</code>,<code>TaskManager</code>都是一个Akka system,所以在提交的时候需要先生成一个客户端actor与<code>JobManager</code>交互,然后执行rpc命令.</p>
+<p>下面方法发送一个<code>JobGraph</code>到<code>JobManager</code>.这个方法会一直block直到job返回或者<code>JobManager</code>不在处于alive状态.</p>
+<div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">static</span> <span class="n">JobExecutionResult</span> <span class="nf">submitJobAndWait</span><span class="o">(</span>
+    <span class="n">ActorSystem</span> <span class="n">actorSystem</span><span class="o">,</span>
+    <span class="n">Configuration</span> <span class="n">config</span><span class="o">,</span>
+    <span class="n">HighAvailabilityServices</span> <span class="n">highAvailabilityServices</span><span class="o">,</span>
+    <span class="n">JobGraph</span> <span class="n">jobGraph</span><span class="o">,</span>
+    <span class="n">FiniteDuration</span> <span class="n">timeout</span><span class="o">,</span>
+    <span class="kt">boolean</span> <span class="n">sysoutLogUpdates</span><span class="o">,</span>
+    <span class="n">ClassLoader</span> <span class="n">classLoader</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">JobExecutionException</span> <span class="o">{</span>
+    <span class="n">JobListeningContext</span> <span class="n">jobListeningContext</span> <span class="o">=</span> <span class="n">submitJob</span><span class="o">(</span>
+        <span class="n">actorSystem</span><span class="o">,</span>
+        <span class="n">config</span><span class="o">,</span>
+        <span class="n">highAvailabilityServices</span><span class="o">,</span>
+        <span class="n">jobGraph</span><span class="o">,</span>
+        <span class="n">timeout</span><span class="o">,</span>
+        <span class="n">sysoutLogUpdates</span><span class="o">,</span>
+        <span class="n">classLoader</span><span class="o">);</span>
+    <span class="k">return</span> <span class="n">awaitJobResult</span><span class="o">(</span><span class="n">jobListeningContext</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>真正提交Job并且返回JobListeningContext</p>
+<div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">static</span> <span class="n">JobListeningContext</span> <span class="nf">submitJob</span><span class="o">(</span>
+        <span class="n">ActorSystem</span> <span class="n">actorSystem</span><span class="o">,</span>
+        <span class="n">Configuration</span> <span class="n">config</span><span class="o">,</span>
+        <span class="n">HighAvailabilityServices</span> <span class="n">highAvailabilityServices</span><span class="o">,</span>
+        <span class="n">JobGraph</span> <span class="n">jobGraph</span><span class="o">,</span>
+        <span class="n">FiniteDuration</span> <span class="n">timeout</span><span class="o">,</span>
+        <span class="kt">boolean</span> <span class="n">sysoutLogUpdates</span><span class="o">,</span>
+        <span class="n">ClassLoader</span> <span class="n">classLoader</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="n">checkNotNull</span><span class="o">(</span><span class="n">actorSystem</span><span class="o">,</span> <span class="s">&quot;The actorSystem must not be null.&quot;</span><span class="o">);</span>
+    <span class="n">checkNotNull</span><span class="o">(</span><span class="n">highAvailabilityServices</span><span class="o">,</span> <span class="s">&quot;The high availability services must not be null.&quot;</span><span class="o">);</span>
+    <span class="n">checkNotNull</span><span class="o">(</span><span class="n">jobGraph</span><span class="o">,</span> <span class="s">&quot;The jobGraph must not be null.&quot;</span><span class="o">);</span>
+    <span class="n">checkNotNull</span><span class="o">(</span><span class="n">timeout</span><span class="o">,</span> <span class="s">&quot;The timeout must not be null.&quot;</span><span class="o">);</span>
+
+    <span class="c1">// for this job, we create a proxy JobClientActor that deals with all communication with</span>
+    <span class="c1">// the JobManager. It forwards the job submission, checks the success/failure responses, logs</span>
+    <span class="c1">// update messages, watches for disconnect between client and JobManager, ...</span>
+
+    <span class="n">Props</span> <span class="n">jobClientActorProps</span> <span class="o">=</span> <span class="n">JobSubmissionClientActor</span><span class="o">.</span><span class="na">createActorProps</span><span class="o">(</span>
+        <span class="n">highAvailabilityServices</span><span class="o">.</span><span class="na">getJobManagerLeaderRetriever</span><span class="o">(</span><span class="n">HighAvailabilityServices</span><span class="o">.</span><span class="na">DEFAULT_JOB_ID</span><span class="o">),</span>
+        <span class="n">timeout</span><span class="o">,</span>
+        <span class="n">sysoutLogUpdates</span><span class="o">,</span>
+        <span class="n">config</span><span class="o">);</span>
+
+    <span class="n">ActorRef</span> <span class="n">jobClientActor</span> <span class="o">=</span> <span class="n">actorSystem</span><span class="o">.</span><span class="na">actorOf</span><span class="o">(</span><span class="n">jobClientActorProps</span><span class="o">);</span>
+
+    <span class="n">Future</span><span class="o">&lt;</span><span class="n">Object</span><span class="o">&gt;</span> <span class="n">submissionFuture</span> <span class="o">=</span> <span class="n">Patterns</span><span class="o">.</span><span class="na">ask</span><span class="o">(</span>
+            <span class="n">jobClientActor</span><span class="o">,</span>
+            <span class="k">new</span> <span class="n">JobClientMessages</span><span class="o">.</span><span class="na">SubmitJobAndWait</span><span class="o">(</span><span class="n">jobGraph</span><span class="o">),</span>
+            <span class="k">new</span> <span class="n">Timeout</span><span class="o">(</span><span class="n">AkkaUtils</span><span class="o">.</span><span class="na">INF_TIMEOUT</span><span class="o">()));</span>
+
+    <span class="k">return</span> <span class="k">new</span> <span class="n">JobListeningContext</span><span class="o">(</span>
+        <span class="n">jobGraph</span><span class="o">.</span><span class="na">getJobID</span><span class="o">(),</span>
+        <span class="n">submissionFuture</span><span class="o">,</span>
+        <span class="n">jobClientActor</span><span class="o">,</span>
+        <span class="n">timeout</span><span class="o">,</span>
+        <span class="n">classLoader</span><span class="o">,</span>
+        <span class="n">highAvailabilityServices</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>提交Job的基本流程如下:</p>
+<p><img alt="2019-04-08-19-10-30" src="http://xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/images/c6b5327e6f2d279637026cdb277a41e1.png"></p>
+<ul>
+<li>启动<code>JobClientActor</code>用来和<code>JobManager</code>交互</li>
+<li>启动<code>LeaderRetrievalService</code>获取<code>JobManager</code>的地址</li>
+<li>上传用户Jar包</li>
+<li>提交SubmitJob命令</li>
+</ul>
+<h2>JobManager执行生成计划</h2>
+<p>客户端上传完jar包和JobGraph，flink 会进一步解析封装成运行时的执行计划<code>ExecutionGraph</code></p>
+<h3>执行计划ExecutionGraph的生成</h3>
+<p>flink的运行时执行计划为<code>ExecutionGraph</code>，<code>ExecutionGraph</code>对应之前的<code>JobGraph</code>，一个<code>ExecutionGraph</code>包含多个 <code>ExecutionJobVertex</code>节点<code>JobGraph</code>的<code>JobVertex</code>，每个<code>ExecutionJobVertex</code>节点的并发子<code>task</code>对应一个<code>ExecutionVertex</code>，每个<code>ExecutionVertex</code>的一次attempt执行被抽象为一次<code>Execution</code>.</p>
+<p>client生成JobGraph之后，就通过submitJob提交至JobMaster。在其构造函数中，会生成ExecutionGraph.下面代码是<code>ExecutionGraph</code>的构造函数.</p>
+<div class="highlight"><pre><span></span><span class="kd">public</span> <span class="nf">ExecutionGraph</span><span class="o">(</span>
+        <span class="n">JobInformation</span> <span class="n">jobInformation</span><span class="o">,</span>
+        <span class="n">ScheduledExecutorService</span> <span class="n">futureExecutor</span><span class="o">,</span>
+        <span class="n">Executor</span> <span class="n">ioExecutor</span><span class="o">,</span>
+        <span class="n">Time</span> <span class="n">rpcTimeout</span><span class="o">,</span>
+        <span class="n">RestartStrategy</span> <span class="n">restartStrategy</span><span class="o">,</span>
+        <span class="n">FailoverStrategy</span><span class="o">.</span><span class="na">Factory</span> <span class="n">failoverStrategyFactory</span><span class="o">,</span>
+        <span class="n">SlotProvider</span> <span class="n">slotProvider</span><span class="o">,</span>
+        <span class="n">ClassLoader</span> <span class="n">userClassLoader</span><span class="o">,</span>
+        <span class="n">BlobWriter</span> <span class="n">blobWriter</span><span class="o">,</span>
+        <span class="n">Time</span> <span class="n">allocationTimeout</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">IOException</span> <span class="o">{</span>
+
+    <span class="n">checkNotNull</span><span class="o">(</span><span class="n">futureExecutor</span><span class="o">);</span>
+
+    <span class="k">this</span><span class="o">.</span><span class="na">jobInformation</span> <span class="o">=</span> <span class="n">Preconditions</span><span class="o">.</span><span class="na">checkNotNull</span><span class="o">(</span><span class="n">jobInformation</span><span class="o">);</span>
+
+    <span class="k">this</span><span class="o">.</span><span class="na">blobWriter</span> <span class="o">=</span> <span class="n">Preconditions</span><span class="o">.</span><span class="na">checkNotNull</span><span class="o">(</span><span class="n">blobWriter</span><span class="o">);</span>
+
+    <span class="k">this</span><span class="o">.</span><span class="na">jobInformationOrBlobKey</span> <span class="o">=</span> <span class="n">BlobWriter</span><span class="o">.</span><span class="na">serializeAndTryOffload</span><span class="o">(</span><span class="n">jobInformation</span><span class="o">,</span> <span class="n">jobInformation</span><span class="o">.</span><span class="na">getJobId</span><span class="o">(),</span> <span class="n">blobWriter</span><span class="o">);</span>
+
+    <span class="k">this</span><span class="o">.</span><span class="na">futureExecutor</span> <span class="o">=</span> <span class="n">Preconditions</span><span class="o">.</span><span class="na">checkNotNull</span><span class="o">(</span><span class="n">futureExecutor</span><span class="o">);</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">ioExecutor</span> <span class="o">=</span> <span class="n">Preconditions</span><span class="o">.</span><span class="na">checkNotNull</span><span class="o">(</span><span class="n">ioExecutor</span><span class="o">);</span>
+
+    <span class="k">this</span><span class="o">.</span><span class="na">slotProvider</span> <span class="o">=</span> <span class="n">Preconditions</span><span class="o">.</span><span class="na">checkNotNull</span><span class="o">(</span><span class="n">slotProvider</span><span class="o">,</span> <span class="s">&quot;scheduler&quot;</span><span class="o">);</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">userClassLoader</span> <span class="o">=</span> <span class="n">Preconditions</span><span class="o">.</span><span class="na">checkNotNull</span><span class="o">(</span><span class="n">userClassLoader</span><span class="o">,</span> <span class="s">&quot;userClassLoader&quot;</span><span class="o">);</span>
+
+    <span class="k">this</span><span class="o">.</span><span class="na">tasks</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ConcurrentHashMap</span><span class="o">&lt;&gt;(</span><span class="mi">16</span><span class="o">);</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">intermediateResults</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ConcurrentHashMap</span><span class="o">&lt;&gt;(</span><span class="mi">16</span><span class="o">);</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">verticesInCreationOrder</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;(</span><span class="mi">16</span><span class="o">);</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">currentExecutions</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ConcurrentHashMap</span><span class="o">&lt;&gt;(</span><span class="mi">16</span><span class="o">);</span>
+
+    <span class="k">this</span><span class="o">.</span><span class="na">jobStatusListeners</span>  <span class="o">=</span> <span class="k">new</span> <span class="n">CopyOnWriteArrayList</span><span class="o">&lt;&gt;();</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">executionListeners</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CopyOnWriteArrayList</span><span class="o">&lt;&gt;();</span>
+
+    <span class="k">this</span><span class="o">.</span><span class="na">stateTimestamps</span> <span class="o">=</span> <span class="k">new</span> <span class="kt">long</span><span class="o">[</span><span class="n">JobStatus</span><span class="o">.</span><span class="na">values</span><span class="o">().</span><span class="na">length</span><span class="o">];</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">stateTimestamps</span><span class="o">[</span><span class="n">JobStatus</span><span class="o">.</span><span class="na">CREATED</span><span class="o">.</span><span class="na">ordinal</span><span class="o">()]</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">();</span>
+
+    <span class="k">this</span><span class="o">.</span><span class="na">rpcTimeout</span> <span class="o">=</span> <span class="n">checkNotNull</span><span class="o">(</span><span class="n">rpcTimeout</span><span class="o">);</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">allocationTimeout</span> <span class="o">=</span> <span class="n">checkNotNull</span><span class="o">(</span><span class="n">allocationTimeout</span><span class="o">);</span>
+
+    <span class="k">this</span><span class="o">.</span><span class="na">restartStrategy</span> <span class="o">=</span> <span class="n">restartStrategy</span><span class="o">;</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">kvStateLocationRegistry</span> <span class="o">=</span> <span class="k">new</span> <span class="n">KvStateLocationRegistry</span><span class="o">(</span><span class="n">jobInformation</span><span class="o">.</span><span class="na">getJobId</span><span class="o">(),</span> <span class="n">getAllVertices</span><span class="o">());</span>
+
+    <span class="k">this</span><span class="o">.</span><span class="na">verticesFinished</span> <span class="o">=</span> <span class="k">new</span> <span class="n">AtomicInteger</span><span class="o">();</span>
+
+    <span class="k">this</span><span class="o">.</span><span class="na">globalModVersion</span> <span class="o">=</span> <span class="mi">1L</span><span class="o">;</span>
+
+    <span class="c1">// the failover strategy must be instantiated last, so that the execution graph</span>
+    <span class="c1">// is ready by the time the failover strategy sees it</span>
+    <span class="k">this</span><span class="o">.</span><span class="na">failoverStrategy</span> <span class="o">=</span> <span class="n">checkNotNull</span><span class="o">(</span><span class="n">failoverStrategyFactory</span><span class="o">.</span><span class="na">create</span><span class="o">(</span><span class="k">this</span><span class="o">),</span> <span class="s">&quot;null failover strategy&quot;</span><span class="o">);</span>
+
+    <span class="k">this</span><span class="o">.</span><span class="na">schedulingFuture</span> <span class="o">=</span> <span class="kc">null</span><span class="o">;</span>
+    <span class="n">LOG</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&quot;Job recovers via failover strategy: {}&quot;</span><span class="o">,</span> <span class="n">failoverStrategy</span><span class="o">.</span><span class="na">getStrategyName</span><span class="o">());</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>从构造函数中可以看到<code>EexcutionGraph</code>为维护Job信息,运行的Task信息,状态切换信息等.</p>
+<p><code>ExecutionGraph</code>的构建是在JobManager的构造函数中.具体方法为<code>createAndRestoreExecutionGraph</code></p>
+<div class="highlight"><pre><span></span><span class="k">this</span><span class="o">.</span><span class="na">executionGraph</span> <span class="o">=</span> <span class="n">createAndRestoreExecutionGraph</span><span class="o">(</span><span class="n">jobManagerJobMetricGroup</span><span class="o">);</span>
+
+<span class="kd">private</span> <span class="n">ExecutionGraph</span> <span class="nf">createAndRestoreExecutionGraph</span><span class="o">(</span><span class="n">JobManagerJobMetricGroup</span> <span class="n">currentJobManagerJobMetricGroup</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>
+    <span class="n">ExecutionGraph</span> <span class="n">newExecutionGraph</span> <span class="o">=</span> <span class="n">createExecutionGraph</span><span class="o">(</span><span class="n">currentJobManagerJobMetricGroup</span><span class="o">);</span>
+
+    <span class="kd">final</span> <span class="n">CheckpointCoordinator</span> <span class="n">checkpointCoordinator</span> <span class="o">=</span> <span class="n">newExecutionGraph</span><span class="o">.</span><span class="na">getCheckpointCoordinator</span><span class="o">();</span>
+
+    <span class="k">if</span> <span class="o">(</span><span class="n">checkpointCoordinator</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+        <span class="c1">// check whether we find a valid checkpoint</span>
+        <span class="k">if</span> <span class="o">(!</span><span class="n">checkpointCoordinator</span><span class="o">.</span><span class="na">restoreLatestCheckpointedState</span><span class="o">(</span>
+            <span class="n">newExecutionGraph</span><span class="o">.</span><span class="na">getAllVertices</span><span class="o">(),</span>
+            <span class="kc">false</span><span class="o">,</span>
+            <span class="kc">false</span><span class="o">))</span> <span class="o">{</span>
+
+            <span class="c1">// check whether we can restore from a savepoint</span>
+            <span class="n">tryRestoreExecutionGraphFromSavepoint</span><span class="o">(</span><span class="n">newExecutionGraph</span><span class="o">,</span> <span class="n">jobGraph</span><span class="o">.</span><span class="na">getSavepointRestoreSettings</span><span class="o">());</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="k">return</span> <span class="n">newExecutionGraph</span><span class="o">;</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>通过层层调用,真正执行的方法是<code>public static ExecutionGraph buildGraph</code></p>
+<div class="highlight"><pre><span></span><span class="n">checkNotNull</span><span class="o">(</span><span class="n">jobGraph</span><span class="o">,</span> <span class="s">&quot;job graph cannot be null&quot;</span><span class="o">);</span>
+
+<span class="kd">final</span> <span class="n">String</span> <span class="n">jobName</span> <span class="o">=</span> <span class="n">jobGraph</span><span class="o">.</span><span class="na">getName</span><span class="o">();</span>
+<span class="kd">final</span> <span class="n">JobID</span> <span class="n">jobId</span> <span class="o">=</span> <span class="n">jobGraph</span><span class="o">.</span><span class="na">getJobID</span><span class="o">();</span>
+
+<span class="kd">final</span> <span class="n">FailoverStrategy</span><span class="o">.</span><span class="na">Factory</span> <span class="n">failoverStrategy</span> <span class="o">=</span>
+        <span class="n">FailoverStrategyLoader</span><span class="o">.</span><span class="na">loadFailoverStrategy</span><span class="o">(</span><span class="n">jobManagerConfig</span><span class="o">,</span> <span class="n">log</span><span class="o">);</span>
+
+<span class="kd">final</span> <span class="n">JobInformation</span> <span class="n">jobInformation</span> <span class="o">=</span> <span class="k">new</span> <span class="n">JobInformation</span><span class="o">(</span>
+    <span class="n">jobId</span><span class="o">,</span>
+    <span class="n">jobName</span><span class="o">,</span>
+    <span class="n">jobGraph</span><span class="o">.</span><span class="na">getSerializedExecutionConfig</span><span class="o">(),</span>
+    <span class="n">jobGraph</span><span class="o">.</span><span class="na">getJobConfiguration</span><span class="o">(),</span>
+    <span class="n">jobGraph</span><span class="o">.</span><span class="na">getUserJarBlobKeys</span><span class="o">(),</span>
+    <span class="n">jobGraph</span><span class="o">.</span><span class="na">getClasspaths</span><span class="o">());</span>
+
+<span class="c1">// create a new execution graph, if none exists so far</span>
+<span class="kd">final</span> <span class="n">ExecutionGraph</span> <span class="n">executionGraph</span><span class="o">;</span>
+<span class="k">try</span> <span class="o">{</span>
+    <span class="n">executionGraph</span> <span class="o">=</span> <span class="o">(</span><span class="n">prior</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">?</span> <span class="n">prior</span> <span class="o">:</span>
+        <span class="k">new</span> <span class="n">ExecutionGraph</span><span class="o">(</span>
+            <span class="n">jobInformation</span><span class="o">,</span>
+            <span class="n">futureExecutor</span><span class="o">,</span>
+            <span class="n">ioExecutor</span><span class="o">,</span>
+            <span class="n">rpcTimeout</span><span class="o">,</span>
+            <span class="n">restartStrategy</span><span class="o">,</span>
+            <span class="n">failoverStrategy</span><span class="o">,</span>
+            <span class="n">slotProvider</span><span class="o">,</span>
+            <span class="n">classLoader</span><span class="o">,</span>
+            <span class="n">blobWriter</span><span class="o">,</span>
+            <span class="n">allocationTimeout</span><span class="o">);</span>
+<span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">IOException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">throw</span> <span class="k">new</span> <span class="n">JobException</span><span class="o">(</span><span class="s">&quot;Could not create the ExecutionGraph.&quot;</span><span class="o">,</span> <span class="n">e</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="c1">// set the basic properties</span>
+
+<span class="c1">//setScheduleMode schedule mode固定是EAGER的</span>
+<span class="n">executionGraph</span><span class="o">.</span><span class="na">setScheduleMode</span><span class="o">(</span><span class="n">jobGraph</span><span class="o">.</span><span class="na">getScheduleMode</span><span class="o">());</span>
+<span class="n">executionGraph</span><span class="o">.</span><span class="na">setQueuedSchedulingAllowed</span><span class="o">(</span><span class="n">jobGraph</span><span class="o">.</span><span class="na">getAllowQueuedScheduling</span><span class="o">());</span>
+
+<span class="k">try</span> <span class="o">{</span>
+    <span class="n">executionGraph</span><span class="o">.</span><span class="na">setJsonPlan</span><span class="o">(</span><span class="n">JsonPlanGenerator</span><span class="o">.</span><span class="na">generatePlan</span><span class="o">(</span><span class="n">jobGraph</span><span class="o">));</span>
+<span class="o">}</span>
+<span class="k">catch</span> <span class="o">(</span><span class="n">Throwable</span> <span class="n">t</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">log</span><span class="o">.</span><span class="na">warn</span><span class="o">(</span><span class="s">&quot;Cannot create JSON plan for job&quot;</span><span class="o">,</span> <span class="n">t</span><span class="o">);</span>
+    <span class="c1">// give the graph an empty plan</span>
+    <span class="n">executionGraph</span><span class="o">.</span><span class="na">setJsonPlan</span><span class="o">(</span><span class="s">&quot;{}&quot;</span><span class="o">);</span>
+<span class="o">}</span>
+
+<span class="c1">// initialize the vertices that have a master initialization hook</span>
+<span class="c1">// file output formats create directories here, input formats create splits</span>
+
+<span class="kd">final</span> <span class="kt">long</span> <span class="n">initMasterStart</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="na">nanoTime</span><span class="o">();</span>
+<span class="n">log</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&quot;Running initialization on master for job {} ({}).&quot;</span><span class="o">,</span> <span class="n">jobName</span><span class="o">,</span> <span class="n">jobId</span><span class="o">);</span>
+
+<span class="c1">// 按拓扑顺序，获取所有的JobVertex列表</span>
+<span class="k">for</span> <span class="o">(</span><span class="n">JobVertex</span> <span class="n">vertex</span> <span class="o">:</span> <span class="n">jobGraph</span><span class="o">.</span><span class="na">getVertices</span><span class="o">())</span> <span class="o">{</span>
+    <span class="n">String</span> <span class="n">executableClass</span> <span class="o">=</span> <span class="n">vertex</span><span class="o">.</span><span class="na">getInvokableClassName</span><span class="o">();</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">executableClass</span> <span class="o">==</span> <span class="kc">null</span> <span class="o">||</span> <span class="n">executableClass</span><span class="o">.</span><span class="na">isEmpty</span><span class="o">())</span> <span class="o">{</span>
+        <span class="k">throw</span> <span class="k">new</span> <span class="n">JobSubmissionException</span><span class="o">(</span><span class="n">jobId</span><span class="o">,</span>
+                <span class="s">&quot;The vertex &quot;</span> <span class="o">+</span> <span class="n">vertex</span><span class="o">.</span><span class="na">getID</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot; (&quot;</span> <span class="o">+</span> <span class="n">vertex</span><span class="o">.</span><span class="na">getName</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot;) has no invokable class.&quot;</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="k">if</span> <span class="o">(</span><span class="n">vertex</span><span class="o">.</span><span class="na">getParallelism</span><span class="o">()</span> <span class="o">==</span> <span class="n">ExecutionConfig</span><span class="o">.</span><span class="na">PARALLELISM_AUTO_MAX</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">parallelismForAutoMax</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="n">JobSubmissionException</span><span class="o">(</span>
+                <span class="n">jobId</span><span class="o">,</span>
+                <span class="n">PARALLELISM_AUTO_MAX_ERROR_MESSAGE</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">else</span> <span class="o">{</span>
+            <span class="n">vertex</span><span class="o">.</span><span class="na">setParallelism</span><span class="o">(</span><span class="n">parallelismForAutoMax</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+
+    <span class="k">try</span> <span class="o">{</span>
+        <span class="n">vertex</span><span class="o">.</span><span class="na">initializeOnMaster</span><span class="o">(</span><span class="n">classLoader</span><span class="o">);</span>
+    <span class="o">}</span>
+    <span class="k">catch</span> <span class="o">(</span><span class="n">Throwable</span> <span class="n">t</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="n">JobExecutionException</span><span class="o">(</span><span class="n">jobId</span><span class="o">,</span>
+                    <span class="s">&quot;Cannot initialize task &#39;&quot;</span> <span class="o">+</span> <span class="n">vertex</span><span class="o">.</span><span class="na">getName</span><span class="o">()</span> <span class="o">+</span> <span class="s">&quot;&#39;: &quot;</span> <span class="o">+</span> <span class="n">t</span><span class="o">.</span><span class="na">getMessage</span><span class="o">(),</span> <span class="n">t</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+
+<span class="n">log</span><span class="o">.</span><span class="na">info</span><span class="o">(</span><span class="s">&quot;Successfully ran initialization on master in {} ms.&quot;</span><span class="o">,</span>
+        <span class="o">(</span><span class="n">System</span><span class="o">.</span><span class="na">nanoTime</span><span class="o">()</span> <span class="o">-</span> <span class="n">initMasterStart</span><span class="o">)</span> <span class="o">/</span> <span class="mi">1_000_000</span><span class="o">);</span>
+
+<span class="c1">// topologically sort the job vertices and attach the graph to the existing one</span>
+<span class="n">List</span><span class="o">&lt;</span><span class="n">JobVertex</span><span class="o">&gt;</span> <span class="n">sortedTopology</span> <span class="o">=</span> <span class="n">jobGraph</span><span class="o">.</span><span class="na">getVerticesSortedTopologicallyFromSources</span><span class="o">();</span>
+<span class="k">if</span> <span class="o">(</span><span class="n">log</span><span class="o">.</span><span class="na">isDebugEnabled</span><span class="o">())</span> <span class="o">{</span>
+    <span class="n">log</span><span class="o">.</span><span class="na">debug</span><span class="o">(</span><span class="s">&quot;Adding {} vertices from job graph {} ({}).&quot;</span><span class="o">,</span> <span class="n">sortedTopology</span><span class="o">.</span><span class="na">size</span><span class="o">(),</span> <span class="n">jobName</span><span class="o">,</span> <span class="n">jobId</span><span class="o">);</span>
+<span class="o">}</span>
+<span class="n">executionGraph</span><span class="o">.</span><span class="na">attachJobGraph</span><span class="o">(</span><span class="n">sortedTopology</span><span class="o">);</span>
+</pre></div>
+
+
+<p>最后一行，<code>ExecutionGraph.attachJobGraph</code>方法是比较关键的方法,该方法构建婉节点,生成执行计划DAG：</p>
+<div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kt">void</span> <span class="nf">attachJobGraph</span><span class="o">(</span><span class="n">List</span><span class="o">&lt;</span><span class="n">JobVertex</span><span class="o">&gt;</span> <span class="n">topologiallySorted</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">JobException</span> <span class="o">{</span>
+
+    <span class="n">LOG</span><span class="o">.</span><span class="na">debug</span><span class="o">(</span><span class="s">&quot;Attaching {} topologically sorted vertices to existing job graph with {} &quot;</span> <span class="o">+</span>
+            <span class="s">&quot;vertices and {} intermediate results.&quot;</span><span class="o">,</span>
+            <span class="n">topologiallySorted</span><span class="o">.</span><span class="na">size</span><span class="o">(),</span> <span class="n">tasks</span><span class="o">.</span><span class="na">size</span><span class="o">(),</span> <span class="n">intermediateResults</span><span class="o">.</span><span class="na">size</span><span class="o">());</span>
+
+    <span class="kd">final</span> <span class="n">ArrayList</span><span class="o">&lt;</span><span class="n">ExecutionJobVertex</span><span class="o">&gt;</span> <span class="n">newExecJobVertices</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ArrayList</span><span class="o">&lt;&gt;(</span><span class="n">topologiallySorted</span><span class="o">.</span><span class="na">size</span><span class="o">());</span>
+    <span class="kd">final</span> <span class="kt">long</span> <span class="n">createTimestamp</span> <span class="o">=</span> <span class="n">System</span><span class="o">.</span><span class="na">currentTimeMillis</span><span class="o">();</span>
+
+    <span class="c1">//遍历Job vertex</span>
+    <span class="k">for</span> <span class="o">(</span><span class="n">JobVertex</span> <span class="n">jobVertex</span> <span class="o">:</span> <span class="n">topologiallySorted</span><span class="o">)</span> <span class="o">{</span>
+
+        <span class="k">if</span> <span class="o">(</span><span class="n">jobVertex</span><span class="o">.</span><span class="na">isInputVertex</span><span class="o">()</span> <span class="o">&amp;&amp;</span> <span class="o">!</span><span class="n">jobVertex</span><span class="o">.</span><span class="na">isStoppable</span><span class="o">())</span> <span class="o">{</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">isStoppable</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+        <span class="o">}</span>
+        <span class="c1">// 根据Job vertex创建对应的ExecutionVertex</span>
+        <span class="c1">// create the execution job vertex and attach it to the graph</span>
+        <span class="n">ExecutionJobVertex</span> <span class="n">ejv</span> <span class="o">=</span> <span class="k">new</span> <span class="n">ExecutionJobVertex</span><span class="o">(</span>
+            <span class="k">this</span><span class="o">,</span>
+            <span class="n">jobVertex</span><span class="o">,</span>
+            <span class="mi">1</span><span class="o">,</span>
+            <span class="n">rpcTimeout</span><span class="o">,</span>
+            <span class="n">globalModVersion</span><span class="o">,</span>
+            <span class="n">createTimestamp</span><span class="o">);</span>
+        <span class="c1">// 将创建的ExecutionJobVertex与前置的IntermediateResult连接起来</span>
+        <span class="n">ejv</span><span class="o">.</span><span class="na">connectToPredecessors</span><span class="o">(</span><span class="k">this</span><span class="o">.</span><span class="na">intermediateResults</span><span class="o">);</span>
+
+        <span class="n">ExecutionJobVertex</span> <span class="n">previousTask</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">tasks</span><span class="o">.</span><span class="na">putIfAbsent</span><span class="o">(</span><span class="n">jobVertex</span><span class="o">.</span><span class="na">getID</span><span class="o">(),</span> <span class="n">ejv</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">previousTask</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="n">JobException</span><span class="o">(</span><span class="n">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">&quot;Encountered two job vertices with ID %s : previous=[%s] / new=[%s]&quot;</span><span class="o">,</span>
+                    <span class="n">jobVertex</span><span class="o">.</span><span class="na">getID</span><span class="o">(),</span> <span class="n">ejv</span><span class="o">,</span> <span class="n">previousTask</span><span class="o">));</span>
+        <span class="o">}</span>
+
+        <span class="k">for</span> <span class="o">(</span><span class="n">IntermediateResult</span> <span class="n">res</span> <span class="o">:</span> <span class="n">ejv</span><span class="o">.</span><span class="na">getProducedDataSets</span><span class="o">())</span> <span class="o">{</span>
+            <span class="n">IntermediateResult</span> <span class="n">previousDataSet</span> <span class="o">=</span> <span class="k">this</span><span class="o">.</span><span class="na">intermediateResults</span><span class="o">.</span><span class="na">putIfAbsent</span><span class="o">(</span><span class="n">res</span><span class="o">.</span><span class="na">getId</span><span class="o">(),</span> <span class="n">res</span><span class="o">);</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">previousDataSet</span> <span class="o">!=</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">throw</span> <span class="k">new</span> <span class="n">JobException</span><span class="o">(</span><span class="n">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">&quot;Encountered two intermediate data set with ID %s : previous=[%s] / new=[%s]&quot;</span><span class="o">,</span>
+                        <span class="n">res</span><span class="o">.</span><span class="na">getId</span><span class="o">(),</span> <span class="n">res</span><span class="o">,</span> <span class="n">previousDataSet</span><span class="o">));</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+
+        <span class="k">this</span><span class="o">.</span><span class="na">verticesInCreationOrder</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">ejv</span><span class="o">);</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">numVerticesTotal</span> <span class="o">+=</span> <span class="n">ejv</span><span class="o">.</span><span class="na">getParallelism</span><span class="o">();</span>
+        <span class="n">newExecJobVertices</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">ejv</span><span class="o">);</span>
+    <span class="o">}</span>
+
+    <span class="n">terminationFuture</span> <span class="o">=</span> <span class="k">new</span> <span class="n">CompletableFuture</span><span class="o">&lt;&gt;();</span>
+    <span class="n">failoverStrategy</span><span class="o">.</span><span class="na">notifyNewVertices</span><span class="o">(</span><span class="n">newExecJobVertices</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>这个方法中的<code>connectToPredecessors</code>是链接执行节点的关键方法:</p>
+<div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kt">void</span> <span class="nf">connectToPredecessors</span><span class="o">(</span><span class="n">Map</span><span class="o">&lt;</span><span class="n">IntermediateDataSetID</span><span class="o">,</span> <span class="n">IntermediateResult</span><span class="o">&gt;</span> <span class="n">intermediateDataSets</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">JobException</span> <span class="o">{</span>
+
+    <span class="c1">//获取输入的JobEdge列表</span>
+    <span class="n">List</span><span class="o">&lt;</span><span class="n">JobEdge</span><span class="o">&gt;</span> <span class="n">inputs</span> <span class="o">=</span> <span class="n">jobVertex</span><span class="o">.</span><span class="na">getInputs</span><span class="o">();</span>
+
+    <span class="k">if</span> <span class="o">(</span><span class="n">LOG</span><span class="o">.</span><span class="na">isDebugEnabled</span><span class="o">())</span> <span class="o">{</span>
+        <span class="n">LOG</span><span class="o">.</span><span class="na">debug</span><span class="o">(</span><span class="n">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">&quot;Connecting ExecutionJobVertex %s (%s) to %d predecessors.&quot;</span><span class="o">,</span> <span class="n">jobVertex</span><span class="o">.</span><span class="na">getID</span><span class="o">(),</span> <span class="n">jobVertex</span><span class="o">.</span><span class="na">getName</span><span class="o">(),</span> <span class="n">inputs</span><span class="o">.</span><span class="na">size</span><span class="o">()));</span>
+    <span class="o">}</span>
+
+    <span class="c1">// 遍历每条JobEdge</span>
+    <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">num</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">num</span> <span class="o">&lt;</span> <span class="n">inputs</span><span class="o">.</span><span class="na">size</span><span class="o">();</span> <span class="n">num</span><span class="o">++)</span> <span class="o">{</span>
+        <span class="n">JobEdge</span> <span class="n">edge</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">num</span><span class="o">);</span>
+
+        <span class="k">if</span> <span class="o">(</span><span class="n">LOG</span><span class="o">.</span><span class="na">isDebugEnabled</span><span class="o">())</span> <span class="o">{</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">edge</span><span class="o">.</span><span class="na">getSource</span><span class="o">()</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+                <span class="n">LOG</span><span class="o">.</span><span class="na">debug</span><span class="o">(</span><span class="n">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">&quot;Connecting input %d of vertex %s (%s) to intermediate result referenced via ID %s.&quot;</span><span class="o">,</span>
+                        <span class="n">num</span><span class="o">,</span> <span class="n">jobVertex</span><span class="o">.</span><span class="na">getID</span><span class="o">(),</span> <span class="n">jobVertex</span><span class="o">.</span><span class="na">getName</span><span class="o">(),</span> <span class="n">edge</span><span class="o">.</span><span class="na">getSourceId</span><span class="o">()));</span>
+            <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
+                <span class="n">LOG</span><span class="o">.</span><span class="na">debug</span><span class="o">(</span><span class="n">String</span><span class="o">.</span><span class="na">format</span><span class="o">(</span><span class="s">&quot;Connecting input %d of vertex %s (%s) to intermediate result referenced via predecessor %s (%s).&quot;</span><span class="o">,</span>
+                        <span class="n">num</span><span class="o">,</span> <span class="n">jobVertex</span><span class="o">.</span><span class="na">getID</span><span class="o">(),</span> <span class="n">jobVertex</span><span class="o">.</span><span class="na">getName</span><span class="o">(),</span> <span class="n">edge</span><span class="o">.</span><span class="na">getSource</span><span class="o">().</span><span class="na">getProducer</span><span class="o">().</span><span class="na">getID</span><span class="o">(),</span> <span class="n">edge</span><span class="o">.</span><span class="na">getSource</span><span class="o">().</span><span class="na">getProducer</span><span class="o">().</span><span class="na">getName</span><span class="o">()));</span>
+            <span class="o">}</span>
+        <span class="o">}</span>
+
+        <span class="c1">// fetch the intermediate result via ID. if it does not exist, then it either has not been created, or the order</span>
+        <span class="c1">// in which this method is called for the job vertices is not a topological order</span>
+        <span class="c1">// 获取当前JobEdge的输入所对应的IntermediateResult</span>
+        <span class="n">IntermediateResult</span> <span class="n">ires</span> <span class="o">=</span> <span class="n">intermediateDataSets</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="n">edge</span><span class="o">.</span><span class="na">getSourceId</span><span class="o">());</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">ires</span> <span class="o">==</span> <span class="kc">null</span><span class="o">)</span> <span class="o">{</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="n">JobException</span><span class="o">(</span><span class="s">&quot;Cannot connect this job graph to the previous graph. No previous intermediate result found for ID &quot;</span>
+                    <span class="o">+</span> <span class="n">edge</span><span class="o">.</span><span class="na">getSourceId</span><span class="o">());</span>
+        <span class="o">}</span>
+
+        <span class="c1">// 将IntermediateResult加入到当前ExecutionJobVertex的输入中。</span>
+        <span class="k">this</span><span class="o">.</span><span class="na">inputs</span><span class="o">.</span><span class="na">add</span><span class="o">(</span><span class="n">ires</span><span class="o">);</span>
+
+        <span class="c1">// 为IntermediateResult注册consumer consumerIndex跟IntermediateResult的出度相关</span>
+        <span class="kt">int</span> <span class="n">consumerIndex</span> <span class="o">=</span> <span class="n">ires</span><span class="o">.</span><span class="na">registerConsumer</span><span class="o">();</span>
+
+        <span class="k">for</span> <span class="o">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="o">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">parallelism</span><span class="o">;</span> <span class="n">i</span><span class="o">++)</span> <span class="o">{</span>
+            <span class="n">ExecutionVertex</span> <span class="n">ev</span> <span class="o">=</span> <span class="n">taskVertices</span><span class="o">[</span><span class="n">i</span><span class="o">];</span>
+            <span class="c1">// 将ExecutionVertex与IntermediateResult关联起来</span>
+            <span class="n">ev</span><span class="o">.</span><span class="na">connectSource</span><span class="o">(</span><span class="n">num</span><span class="o">,</span> <span class="n">ires</span><span class="o">,</span> <span class="n">edge</span><span class="o">,</span> <span class="n">consumerIndex</span><span class="o">);</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>改方法最后通过一个connectSource方法将ExecutionVertex链接起来.有两种链接策略<code>POINT_WISE</code>和<code>ALL_TO_ALL</code></p>
+<ul>
+<li>POINTWISE</li>
+<li>Each producing sub task is connected to one or more subtask(s) of the consuming task.</li>
+<li>ALL_TO_ALL</li>
+<li>Each producing sub task is connected to each sub task of the consuming task.</li>
+</ul>
+<p>具体来说,如果是非shuffle的操作就是<code>POINTWISE</code>,否则就是<code>ALL_TO_ALL</code></p>
+<div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kt">void</span> <span class="nf">connectSource</span><span class="o">(</span><span class="kt">int</span> <span class="n">inputNumber</span><span class="o">,</span> <span class="n">IntermediateResult</span> <span class="n">source</span><span class="o">,</span> <span class="n">JobEdge</span> <span class="n">edge</span><span class="o">,</span> <span class="kt">int</span> <span class="n">consumerNumber</span><span class="o">)</span> <span class="o">{</span>
+
+    <span class="kd">final</span> <span class="n">DistributionPattern</span> <span class="n">pattern</span> <span class="o">=</span> <span class="n">edge</span><span class="o">.</span><span class="na">getDistributionPattern</span><span class="o">();</span>
+    <span class="kd">final</span> <span class="n">IntermediateResultPartition</span><span class="o">[]</span> <span class="n">sourcePartitions</span> <span class="o">=</span> <span class="n">source</span><span class="o">.</span><span class="na">getPartitions</span><span class="o">();</span>
+
+    <span class="n">ExecutionEdge</span><span class="o">[]</span> <span class="n">edges</span><span class="o">;</span>
+
+    <span class="k">switch</span> <span class="o">(</span><span class="n">pattern</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">case</span> <span class="n">POINTWISE</span><span class="o">:</span>
+            <span class="n">edges</span> <span class="o">=</span> <span class="n">connectPointwise</span><span class="o">(</span><span class="n">sourcePartitions</span><span class="o">,</span> <span class="n">inputNumber</span><span class="o">);</span>
+            <span class="k">break</span><span class="o">;</span>
+
+        <span class="k">case</span> <span class="n">ALL_TO_ALL</span><span class="o">:</span>
+            <span class="n">edges</span> <span class="o">=</span> <span class="n">connectAllToAll</span><span class="o">(</span><span class="n">sourcePartitions</span><span class="o">,</span> <span class="n">inputNumber</span><span class="o">);</span>
+            <span class="k">break</span><span class="o">;</span>
+
+<span class="nl">        default:</span>
+            <span class="k">throw</span> <span class="k">new</span> <span class="n">RuntimeException</span><span class="o">(</span><span class="s">&quot;Unrecognized distribution pattern.&quot;</span><span class="o">);</span>
+
+    <span class="o">}</span>
+
+    <span class="k">this</span><span class="o">.</span><span class="na">inputEdges</span><span class="o">[</span><span class="n">inputNumber</span><span class="o">]</span> <span class="o">=</span> <span class="n">edges</span><span class="o">;</span>
+
+    <span class="c1">// add the consumers to the source</span>
+    <span class="c1">// for now (until the receiver initiated handshake is in place), we need to register the</span>
+    <span class="c1">// edges as the execution graph</span>
+    <span class="k">for</span> <span class="o">(</span><span class="n">ExecutionEdge</span> <span class="n">ee</span> <span class="o">:</span> <span class="n">edges</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">ee</span><span class="o">.</span><span class="na">getSource</span><span class="o">().</span><span class="na">addConsumer</span><span class="o">(</span><span class="n">ee</span><span class="o">,</span> <span class="n">consumerNumber</span><span class="o">);</span>
+    <span class="o">}</span>
+<span class="o">}</span>
+</pre></div>
+
+
+<p>运行到这里的时候,<code>ExecutionGraph</code>就已经生成了.</p>
             <aside>
             <hr/>
             <nav>
@@ -89,7 +494,7 @@
             <h4>Tags</h4>
             <ul class="list-of-tags tags-in-article"> 
                 <li><a href="/tags.html#bigdata-ref">bigdata
-                    <span>8</span>
+                    <span>11</span>
 </a></li>
                 <li><a href="/tags.html#flink-ref">flink
                     <span>3</span>

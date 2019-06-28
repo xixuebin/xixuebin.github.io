@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>寒玉 Blog - superset</title><link href="xixuebin.github.io/" rel="alternate"></link><link href="xixuebin.github.io/feeds/superset.atom.xml" rel="self"></link><id>xixuebin.github.io/</id><updated>2017-12-04T17:48:43+08:00</updated><entry><title>Superset</title><link href="xixuebin.github.io/superset-2017-12-04-1748-ch.html" rel="alternate"></link><published>2017-12-04T17:48:43+08:00</published><updated>2017-12-04T17:48:43+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2017-12-04:xixuebin.github.io/superset-2017-12-04-1748-ch.html</id><summary type="html"></summary><content type="html">&lt;hr&gt;
+&lt;h1&gt;Superset部署开发&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;Create source env &lt;code&gt;virtualenv superset&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;install yarn&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;sudo wget https://dl.yarnpkg.com/rpm/yarn.repo -O /etc/yum.repos.d/yarn.repo
+sudo yum install yarn
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;编译
+   每次前端页面修改的时候,都要重新编译前端&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;#assuming $SUPERSET_HOME as the root of the repo&lt;/span&gt;
+&lt;span class="nb"&gt;cd&lt;/span&gt; &lt;span class="nv"&gt;$SUPERSET_HOME&lt;/span&gt;/superset/assets
+yarn run sync-backend
+yarn run prod
+yarn run build
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;ul&gt;
+&lt;li&gt;打包&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;python setup.py bdist_egg
+easy_install superset-0.21.0.dev0-py2.egg
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;开发模式&lt;/h2&gt;
+&lt;p&gt;开发者模式运行的时候,代码的改变会直接应用部署,无需重启服务&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;➜  PycharmProjects &lt;span class="nb"&gt;source&lt;/span&gt; virtual_env/superset/bin/activate
+
+&lt;span class="o"&gt;(&lt;/span&gt;superset&lt;span class="o"&gt;)&lt;/span&gt;➜  superset git:&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.250-dev&lt;span class="o"&gt;)&lt;/span&gt; ✗ superset runserver -d  -p &lt;span class="m"&gt;8088&lt;/span&gt;
+-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;
+Starting Superset server in DEBUG mode
+-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;
+
+&lt;span class="m"&gt;2017&lt;/span&gt;-12-22 &lt;span class="m"&gt;11&lt;/span&gt;:57:21,159:INFO:werkzeug: * Running on http://0.0.0.0:8088/ &lt;span class="o"&gt;(&lt;/span&gt;Press CTRL+C to quit&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="m"&gt;2017&lt;/span&gt;-12-22 &lt;span class="m"&gt;11&lt;/span&gt;:57:21,161:INFO:werkzeug: * Restarting with stat
+-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;
+Starting Superset server in DEBUG mode
+-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;-&lt;span class="o"&gt;=&lt;/span&gt;
+
+&lt;span class="m"&gt;2017&lt;/span&gt;-12-22 &lt;span class="m"&gt;11&lt;/span&gt;:57:23,401:WARNING:werkzeug: * Debugger is active!
+&lt;span class="m"&gt;2017&lt;/span&gt;-12-22 &lt;span class="m"&gt;11&lt;/span&gt;:57:23,419:INFO:werkzeug: * Debugger PIN: &lt;span class="m"&gt;128&lt;/span&gt;-625-238
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h1&gt;使用superset完成slice参数化分享&lt;/h1&gt;
+&lt;p&gt;Superset本身支持分享功能,使用短连接或这个slice url可以将slice嵌入其他的页面,该种分享不支持参数传递,不支持安全校验.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;&lt;em&gt;Superset改造:&lt;/em&gt;&lt;/strong&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;支持slice的参数化分享&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;在我们的业务中,我们需要将slice分享到我们的业务系统中,根据不同业务系统员的权限不同,看到的数据应该需要不同,这样就需要分享出去的slice需要携带一些参数,用于动态的生成slice图表&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;支持安全校验&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;分享出去的slice Url需要添加token校验&lt;/p&gt;
+&lt;p&gt;目前这块的做法是新建一个share请求路径,改请求可以生成slice的share url,所有对于share路径的请求都会有token校验.校验之后生成进行slice渲染.目前该功能已经正常运行,满足线上需求.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;请求结果预处理&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;在使用superset的时候,我们需要对查询结果做一些预处理,以便以更好地方式显示到前端页面上.&lt;/p&gt;</content><category term="superset"></category></entry></feed>

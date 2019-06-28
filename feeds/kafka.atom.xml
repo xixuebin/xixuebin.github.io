@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>寒玉 Blog - kafka</title><link href="xixuebin.github.io/" rel="alternate"></link><link href="xixuebin.github.io/feeds/kafka.atom.xml" rel="self"></link><id>xixuebin.github.io/</id><updated>2017-12-04T15:50:01+08:00</updated><entry><title>Kafka背景及架构介绍</title><link href="xixuebin.github.io/kafka-01-2017-12-04-1550-ch.html" rel="alternate"></link><published>2017-12-04T15:50:01+08:00</published><updated>2017-12-04T15:50:01+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2017-12-04:xixuebin.github.io/kafka-01-2017-12-04-1550-ch.html</id><summary type="html">&lt;p&gt;Kafka介绍&lt;/p&gt;</summary><content type="html">&lt;hr&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="#%E6%91%98%E8%A6%81"&gt;摘要&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#kafka%E7%AE%80%E4%BB%8B"&gt;Kafka简介&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#%E4%B8%BA%E4%BD%95%E4%BD%BF%E7%94%A8%E6%B6%88%E6%81%AF%E7%B3%BB%E7%BB%9F"&gt;为何使用消息系统&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#kafka%E6%9E%B6%E6%9E%84"&gt;Kafka架构&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#%E8%BF%87%E6%9C%9F%E6%95%B0%E6%8D%AE%E6%B8%85%E7%90%86"&gt;过期数据清理&lt;/a&gt;&lt;ul&gt;
+&lt;li&gt;&lt;a href="#%E5%88%A0%E9%99%A4"&gt;删除&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#%E5%8E%8B%E7%BC%A9"&gt;压缩&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;a href="#%E7%9B%B8%E5%85%B3%E5%8F%82%E6%95%B0"&gt;相关参数&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"&gt;参考资料&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;hr&gt;
+&lt;h1&gt;摘要&lt;/h1&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Kafka是由LinkedIn开发并开源的分布式消息系统，因其分布式及高吞吐率而被广泛使用，现已与Cloudera Hadoop，Apache Storm，Apache Spark集成。本文介绍了Kafka的创建背景，设计目标，使用消息系统的优势以及目前流行的消息系统对比。并介绍了Kafka的架构，Producer消息路由，Consumer Group以及由其实现的不同消息分发方式，Topic &amp;amp; Partition，最后介绍了Kafka Consumer为何使用pull模式以及Kafka提供的三种delivery guarantee。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2&gt;Kafka简介&lt;/h2&gt;
+&lt;p&gt;kafka是一种分布式的,基于发布/订阅的消息系统.主要的设计目标如下:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;以时间复杂度为O(1)的方式提供消息持久化能力,即使对TB级以上数据也能保证常数时间复杂度的性能访问.&lt;/li&gt;
+&lt;li&gt;高吞吐率.即使在非常廉价的商用机器上也能做到单机支持每秒100K条以上的消息传输&lt;/li&gt;
+&lt;li&gt;支持Kafka Server 间的消息分区,及分布式消费,同时保证每个Partition内的消息顺序传输&lt;/li&gt;
+&lt;li&gt;支持离线数处理和实时数据处理&lt;/li&gt;
+&lt;li&gt;Scala out. 支持在线水平扩展&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;为何使用消息系统&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;解耦&lt;/li&gt;
+&lt;li&gt;冗余&lt;/li&gt;
+&lt;li&gt;扩展性&lt;/li&gt;
+&lt;li&gt;灵活性 &amp;amp; 峰值处理能力&lt;/li&gt;
+&lt;li&gt;可恢复性&lt;/li&gt;
+&lt;li&gt;顺序保证&lt;/li&gt;
+&lt;li&gt;缓冲&lt;/li&gt;
+&lt;li&gt;异步通信&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Kafka架构&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;Borker&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Kafka集群包含一个或多个服务器,这种服务器被称为Broker&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Topic&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;每条发布到Kafka集群的消息都有一个类别,这个类别被称为Topic(物理上不同的Topic的消息分开存储,逻辑上一个Topic的消息虽然保存于一个或多个broker上,但是用户只需要指定消息的Topic即可产生或消费数据而不必关心数据存储何处)&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Partition&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Partition是物理上的概念,每一个Topic包含一个或多个Partition&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Producer&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;负责发送消息到Kafka broker上&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Consumer&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;消息消费者,向Kafka broker读取消息的客户端&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Consumer Group&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;每一个Consumer属于一个特定的Consumer Group(可以为每一个Consumer指定Group name,若不指定 group name 则属于默认的group)&lt;/p&gt;
+&lt;p&gt;一个典型的Kafka集群包含若干个Producer(可以是Web端产生的Page View 或者是服务器日志,系统CPU,Memory等)若干个broker(Kafka支持水平扩展,一般broker数量越多,集群吞吐率越高).若干个Consumer Group 以及一个Zookeeper集群.Kafka 通过Zookeeper管理集群配置,选举Leader,以及在Consumer Group发生变化的时候进行rebalance. Producer 使用push模式将消息发布到broker,Consumer 使用pull模式从Broker订阅并消费消息.&lt;/p&gt;
+&lt;h2&gt;过期数据清理&lt;/h2&gt;
+&lt;p&gt;Kafka将数据持久化到了硬盘上,允许配置一定的策略对数据进行清理.清理策略有两个&lt;strong&gt;删除&lt;/strong&gt;和&lt;strong&gt;压缩&lt;/strong&gt;&lt;/p&gt;
+&lt;h3&gt;删除&lt;/h3&gt;
+&lt;p&gt;&lt;code&gt;log.cleanup.policy=delete&lt;/code&gt;启用删除策略,直接删除，删除后的消息不可恢复。可配置以下两个策略：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;清理超过指定时间的时间清理&lt;code&gt;log.retention.hour=16&lt;/code&gt;&lt;/li&gt;
+&lt;li&gt;超过指定大小后,删除就消息&lt;code&gt;log.retention.bytes=1073741824&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;为了避免在删除时候阻塞读写操作,采用&lt;strong&gt;copy-on-write&lt;/strong&gt;的形式实现.&lt;/p&gt;
+&lt;h3&gt;压缩&lt;/h3&gt;
+&lt;p&gt;将数据压缩，只保留每个key最后一个版本的数据。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;在broker中配置&lt;code&gt;log.cleaner.enable=true&lt;/code&gt;启用cleaner,默认是关闭的&lt;/li&gt;
+&lt;li&gt;在topic中设置&lt;code&gt;log.cleanup.policy=compact&lt;/code&gt;启用压缩&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;压缩策略支持删除,当某个Key的最新版本没有消息内容时,这个Key将被删除&lt;/p&gt;
+&lt;h2&gt;相关参数&lt;/h2&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;############################ System #############################&lt;/span&gt;
+
+&lt;span class="c1"&gt;#唯一标识在集群中的ID，要求是正数。&lt;/span&gt;
+broker.id&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;
+&lt;span class="c1"&gt;#服务端口，默认9092&lt;/span&gt;
+&lt;span class="nv"&gt;port&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;9092&lt;/span&gt;
+&lt;span class="c1"&gt;#监听地址，不设为所有地址&lt;/span&gt;
+host.name&lt;span class="o"&gt;=&lt;/span&gt;debugo01
+
+&lt;span class="c1"&gt;# 处理网络请求的最大线程数&lt;/span&gt;
+num.network.threads&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;2&lt;/span&gt;
+&lt;span class="c1"&gt;# 处理磁盘I/O的线程数&lt;/span&gt;
+num.io.threads&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;8&lt;/span&gt;
+&lt;span class="c1"&gt;# 一些后台线程数&lt;/span&gt;
+background.threads &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;4&lt;/span&gt;
+&lt;span class="c1"&gt;# 等待IO线程处理的请求队列最大数&lt;/span&gt;
+queued.max.requests &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;500&lt;/span&gt;
+
+&lt;span class="c1"&gt;#  socket的发送缓冲区（SO_SNDBUF）&lt;/span&gt;
+socket.send.buffer.bytes&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1048576&lt;/span&gt;
+&lt;span class="c1"&gt;# socket的接收缓冲区 (SO_RCVBUF)&lt;/span&gt;
+socket.receive.buffer.bytes&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1048576&lt;/span&gt;
+&lt;span class="c1"&gt;# socket请求的最大字节数。为了防止内存溢出，message.max.bytes必然要小于&lt;/span&gt;
+socket.request.max.bytes &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;104857600&lt;/span&gt;
+
+&lt;span class="c1"&gt;############################# Topic #############################&lt;/span&gt;
+&lt;span class="c1"&gt;# 每个topic的分区个数，更多的partition会产生更多的segment file&lt;/span&gt;
+num.partitions&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;2&lt;/span&gt;
+&lt;span class="c1"&gt;# 是否允许自动创建topic ，若是false，就需要通过命令创建topic&lt;/span&gt;
+auto.create.topics.enable &lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;true&lt;/span&gt;
+&lt;span class="c1"&gt;# 一个topic ，默认分区的replication个数 ，不能大于集群中broker的个数。&lt;/span&gt;
+default.replication.factor &lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;
+&lt;span class="c1"&gt;# 消息体的最大大小，单位是字节&lt;/span&gt;
+message.max.bytes &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;1000000&lt;/span&gt;
+
+&lt;span class="c1"&gt;############################# ZooKeeper #############################&lt;/span&gt;
+&lt;span class="c1"&gt;# Zookeeper quorum设置。如果有多个使用逗号分割&lt;/span&gt;
+zookeeper.connect&lt;span class="o"&gt;=&lt;/span&gt;debugo01:2181,debugo02,debugo03
+&lt;span class="c1"&gt;# 连接zk的超时时间&lt;/span&gt;
+zookeeper.connection.timeout.ms&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1000000&lt;/span&gt;
+&lt;span class="c1"&gt;# ZooKeeper集群中leader和follower之间的同步实际&lt;/span&gt;
+zookeeper.sync.time.ms &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;2000&lt;/span&gt;
+
+&lt;span class="c1"&gt;############################# Log #############################&lt;/span&gt;
+&lt;span class="c1"&gt;#日志存放目录，多个目录使用逗号分割&lt;/span&gt;
+log.dirs&lt;span class="o"&gt;=&lt;/span&gt;/var/log/kafka
+
+&lt;span class="c1"&gt;# 当达到下面的消息数量时，会将数据flush到日志文件中。默认10000&lt;/span&gt;
+&lt;span class="c1"&gt;#log.flush.interval.messages=10000&lt;/span&gt;
+&lt;span class="c1"&gt;# 当达到下面的时间(ms)时，执行一次强制的flush操作。interval.ms和interval.messages无论哪个达到，都会flush。默认3000ms&lt;/span&gt;
+&lt;span class="c1"&gt;#log.flush.interval.ms=1000&lt;/span&gt;
+&lt;span class="c1"&gt;# 检查是否需要将日志flush的时间间隔&lt;/span&gt;
+log.flush.scheduler.interval.ms &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;3000&lt;/span&gt;
+
+&lt;span class="c1"&gt;# 日志清理策略（delete|compact）&lt;/span&gt;
+log.cleanup.policy &lt;span class="o"&gt;=&lt;/span&gt; delete
+&lt;span class="c1"&gt;# 日志保存时间 (hours|minutes)，默认为7天（168小时）。超过这个时间会根据policy处理数据。bytes和minutes无论哪个先达到都会触发。&lt;/span&gt;
+log.retention.hours&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;168&lt;/span&gt;
+&lt;span class="c1"&gt;# 日志数据存储的最大字节数。超过这个时间会根据policy处理数据。&lt;/span&gt;
+&lt;span class="c1"&gt;#log.retention.bytes=1073741824&lt;/span&gt;
+
+&lt;span class="c1"&gt;# 控制日志segment文件的大小，超出该大小则追加到一个新的日志segment文件中（-1表示没有限制）&lt;/span&gt;
+log.segment.bytes&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;536870912&lt;/span&gt;
+&lt;span class="c1"&gt;# 当达到下面时间，会强制新建一个segment&lt;/span&gt;
+log.roll.hours &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;24&lt;/span&gt;*7
+&lt;span class="c1"&gt;# 日志片段文件的检查周期，查看它们是否达到了删除策略的设置（log.retention.hours或log.retention.bytes）&lt;/span&gt;
+log.retention.check.interval.ms&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;60000&lt;/span&gt;
+
+&lt;span class="c1"&gt;# 是否开启压缩&lt;/span&gt;
+log.cleaner.enable&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;false&lt;/span&gt;
+&lt;span class="c1"&gt;# 对于压缩的日志保留的最长时间&lt;/span&gt;
+log.cleaner.delete.retention.ms &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;1&lt;/span&gt; day
+
+&lt;span class="c1"&gt;# 对于segment日志的索引文件大小限制&lt;/span&gt;
+log.index.size.max.bytes &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;10&lt;/span&gt; * &lt;span class="m"&gt;1024&lt;/span&gt; * &lt;span class="m"&gt;1024&lt;/span&gt;
+&lt;span class="c1"&gt;#y索引计算的一个缓冲区，一般不需要设置。&lt;/span&gt;
+log.index.interval.bytes &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;4096&lt;/span&gt;
+
+&lt;span class="c1"&gt;############################# replica #############################&lt;/span&gt;
+&lt;span class="c1"&gt;# partition management controller 与replicas之间通讯的超时时间&lt;/span&gt;
+controller.socket.timeout.ms &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;30000&lt;/span&gt;
+&lt;span class="c1"&gt;# controller-to-broker-channels消息队列的尺寸大小&lt;/span&gt;
+controller.message.queue.size&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;10&lt;/span&gt;
+&lt;span class="c1"&gt;# replicas响应leader的最长等待时间，若是超过这个时间，就将replicas排除在管理之外&lt;/span&gt;
+replica.lag.time.max.ms &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;10000&lt;/span&gt;
+&lt;span class="c1"&gt;# 是否允许控制器关闭broker ,若是设置为true,会关闭所有在这个broker上的leader，并转移到其他broker&lt;/span&gt;
+controlled.shutdown.enable &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;false&lt;/span&gt;
+&lt;span class="c1"&gt;# 控制器关闭的尝试次数&lt;/span&gt;
+controlled.shutdown.max.retries &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;3&lt;/span&gt;
+&lt;span class="c1"&gt;# 每次关闭尝试的时间间隔&lt;/span&gt;
+controlled.shutdown.retry.backoff.ms &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;5000&lt;/span&gt;
+
+&lt;span class="c1"&gt;# 如果relicas落后太多,将会认为此partition relicas已经失效。而一般情况下,因为网络延迟等原因,总会导致replicas中消息同步滞后。如果消息严重滞后,leader将认为此relicas网络延迟较大或者消息吞吐能力有限。在broker数量较少,或者网络不足的环境中,建议提高此值.&lt;/span&gt;
+replica.lag.max.messages &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;4000&lt;/span&gt;
+&lt;span class="c1"&gt;#leader与relicas的socket超时时间&lt;/span&gt;
+replica.socket.timeout.ms&lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;30&lt;/span&gt; * &lt;span class="m"&gt;1000&lt;/span&gt;
+&lt;span class="c1"&gt;# leader复制的socket缓存大小&lt;/span&gt;
+replica.socket.receive.buffer.bytes&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;64&lt;/span&gt; * &lt;span class="m"&gt;1024&lt;/span&gt;
+&lt;span class="c1"&gt;# replicas每次获取数据的最大字节数&lt;/span&gt;
+replica.fetch.max.bytes &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;1024&lt;/span&gt; * &lt;span class="m"&gt;1024&lt;/span&gt;
+&lt;span class="c1"&gt;# replicas同leader之间通信的最大等待时间，失败了会重试&lt;/span&gt;
+replica.fetch.wait.max.ms &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;500&lt;/span&gt;
+&lt;span class="c1"&gt;# 每一个fetch操作的最小数据尺寸,如果leader中尚未同步的数据不足此值,将会等待直到数据达到这个大小&lt;/span&gt;
+replica.fetch.min.bytes &lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;
+&lt;span class="c1"&gt;# leader中进行复制的线程数，增大这个数值会增加relipca的IO&lt;/span&gt;
+num.replica.fetchers &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;1&lt;/span&gt;
+&lt;span class="c1"&gt;# 每个replica将最高水位进行flush的时间间隔&lt;/span&gt;
+replica.high.watermark.checkpoint.interval.ms &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;5000&lt;/span&gt;
+
+&lt;span class="c1"&gt;# 是否自动平衡broker之间的分配策略&lt;/span&gt;
+auto.leader.rebalance.enable &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;false&lt;/span&gt;
+&lt;span class="c1"&gt;# leader的不平衡比例，若是超过这个数值，会对分区进行重新的平衡&lt;/span&gt;
+leader.imbalance.per.broker.percentage &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;10&lt;/span&gt;
+&lt;span class="c1"&gt;# 检查leader是否不平衡的时间间隔&lt;/span&gt;
+leader.imbalance.check.interval.seconds &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;300&lt;/span&gt;
+&lt;span class="c1"&gt;# 客户端保留offset信息的最大空间大小&lt;/span&gt;
+offset.metadata.max.bytes &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;1024&lt;/span&gt;
+
+&lt;span class="c1"&gt;#############################Consumer #############################&lt;/span&gt;
+&lt;span class="c1"&gt;# Consumer端核心的配置是group.id、zookeeper.connect&lt;/span&gt;
+&lt;span class="c1"&gt;# 决定该Consumer归属的唯一组ID，By setting the same group id multiple processes indicate that they are all part of the same consumer group.&lt;/span&gt;
+group.id
+&lt;span class="c1"&gt;# 消费者的ID，若是没有设置的话，会自增&lt;/span&gt;
+consumer.id
+&lt;span class="c1"&gt;# 一个用于跟踪调查的ID ，最好同group.id相同&lt;/span&gt;
+client.id &lt;span class="o"&gt;=&lt;/span&gt; &amp;lt;group_id&amp;gt;
+
+&lt;span class="c1"&gt;# 对于zookeeper集群的指定，必须和broker使用同样的zk配置&lt;/span&gt;
+zookeeper.connect&lt;span class="o"&gt;=&lt;/span&gt;debugo01:2182,debugo02:2182,debugo03:2182
+&lt;span class="c1"&gt;# zookeeper的心跳超时时间，超过这个时间就认为是无效的消费者&lt;/span&gt;
+zookeeper.session.timeout.ms &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;6000&lt;/span&gt;
+&lt;span class="c1"&gt;# zookeeper的等待连接时间&lt;/span&gt;
+zookeeper.connection.timeout.ms &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;6000&lt;/span&gt;
+&lt;span class="c1"&gt;# zookeeper的follower同leader的同步时间&lt;/span&gt;
+zookeeper.sync.time.ms &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;2000&lt;/span&gt;
+&lt;span class="c1"&gt;# 当zookeeper中没有初始的offset时，或者超出offset上限时的处理方式 。&lt;/span&gt;
+&lt;span class="c1"&gt;# smallest ：重置为最小值&lt;/span&gt;
+&lt;span class="c1"&gt;# largest:重置为最大值&lt;/span&gt;
+&lt;span class="c1"&gt;# anything else：抛出异常给consumer&lt;/span&gt;
+auto.offset.reset &lt;span class="o"&gt;=&lt;/span&gt; largest
+/*
+kafka + zookeeper,当消息被消费时,会向zk提交当前groupId的consumer消费的offset信息,当consumer再次启动将会从此offset开始继续消费.
+
+在consumter端配置文件中&lt;span class="o"&gt;(&lt;/span&gt;或者是ConsumerConfig类参数&lt;span class="o"&gt;)&lt;/span&gt;有个&lt;span class="s2"&gt;&amp;quot;autooffset.reset&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;在kafka &lt;span class="m"&gt;0&lt;/span&gt;.8版本中为auto.offset.reset&lt;span class="o"&gt;)&lt;/span&gt;,有2个合法的值&lt;span class="s2"&gt;&amp;quot;largest&amp;quot;&lt;/span&gt;/&lt;span class="s2"&gt;&amp;quot;smallest&amp;quot;&lt;/span&gt;,默认为&lt;span class="s2"&gt;&amp;quot;largest&amp;quot;&lt;/span&gt;,此配置参数表示当此groupId下的消费者,在ZK中没有offset值时&lt;span class="o"&gt;(&lt;/span&gt;比如新的groupId,或者是zk数据被清空&lt;span class="o"&gt;)&lt;/span&gt;,consumer应该从哪个offset开始消费.
+&lt;span class="m"&gt;1&lt;/span&gt;、largest表示接受接收最大的offset&lt;span class="o"&gt;(&lt;/span&gt;即最新消息&lt;span class="o"&gt;)&lt;/span&gt;,
+&lt;span class="m"&gt;2&lt;/span&gt;、smallest表示最小offset,即从topic的开始位置消费所有消息.
+*/
+
+&lt;span class="c1"&gt;# socket的超时时间，实际的超时时间为max.fetch.wait + socket.timeout.ms.&lt;/span&gt;
+socket.timeout.ms&lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;30&lt;/span&gt; * &lt;span class="m"&gt;1000&lt;/span&gt;
+&lt;span class="c1"&gt;# socket的接收缓存空间大小&lt;/span&gt;
+socket.receive.buffer.bytes&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;64&lt;/span&gt; * &lt;span class="m"&gt;1024&lt;/span&gt;
+&lt;span class="c1"&gt;#从每个分区fetch的消息大小限制&lt;/span&gt;
+fetch.message.max.bytes &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;1024&lt;/span&gt; * &lt;span class="m"&gt;1024&lt;/span&gt;
+
+&lt;span class="c1"&gt;# true时，Consumer会在消费消息后将offset同步到zookeeper，这样当Consumer失败后，新的consumer就能从zookeeper获取最新的offset&lt;/span&gt;
+auto.commit.enable &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;true&lt;/span&gt;   ，项目里用false 不知道是什么原因
+&lt;span class="c1"&gt;# 自动提交的时间间隔&lt;/span&gt;
+auto.commit.interval.ms &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;60&lt;/span&gt; * &lt;span class="m"&gt;1000&lt;/span&gt;
+
+&lt;span class="c1"&gt;# 用于消费的最大数量的消息块缓冲大小，每个块可以等同于fetch.message.max.bytes中数值&lt;/span&gt;
+queued.max.message.chunks &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;10&lt;/span&gt;
+
+&lt;span class="c1"&gt;# 当有新的consumer加入到group时,将尝试reblance,将partitions的消费端迁移到新的consumer中, 该设置是尝试的次数&lt;/span&gt;
+rebalance.max.retries &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;4&lt;/span&gt;
+&lt;span class="c1"&gt;# 每次reblance的时间间隔&lt;/span&gt;
+rebalance.backoff.ms &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;2000&lt;/span&gt;
+&lt;span class="c1"&gt;# 每次重新选举leader的时间&lt;/span&gt;
+refresh.leader.backoff.ms
+
+&lt;span class="c1"&gt;# server发送到消费端的最小数据，若是不满足这个数值则会等待直到满足指定大小。默认为1表示立即接收。&lt;/span&gt;
+fetch.min.bytes &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;1&lt;/span&gt;
+&lt;span class="c1"&gt;# 若是不满足fetch.min.bytes时，等待消费端请求的最长等待时间&lt;/span&gt;
+fetch.wait.max.ms &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;100&lt;/span&gt;
+&lt;span class="c1"&gt;# 如果指定时间内没有新消息可用于消费，就抛出异常，默认-1表示不受限&lt;/span&gt;
+consumer.timeout.ms &lt;span class="o"&gt;=&lt;/span&gt; -1
+
+&lt;span class="c1"&gt;#############################Producer#############################&lt;/span&gt;
+&lt;span class="c1"&gt;# 核心的配置包括：&lt;/span&gt;
+&lt;span class="c1"&gt;# metadata.broker.list&lt;/span&gt;
+&lt;span class="c1"&gt;# request.required.acks&lt;/span&gt;
+&lt;span class="c1"&gt;# producer.type&lt;/span&gt;
+&lt;span class="c1"&gt;# serializer.class&lt;/span&gt;
+
+&lt;span class="c1"&gt;# 消费者获取消息元信息(topics, partitions and replicas)的地址,配置格式是：host1:port1,host2:port2，也可以在外面设置一个vip&lt;/span&gt;
+metadata.broker.list
+
+&lt;span class="c1"&gt;#消息的确认模式&lt;/span&gt;
+&lt;span class="c1"&gt;# 0：不保证消息的到达确认，只管发送，低延迟但是会出现消息的丢失，在某个server失败的情况下，有点像TCP&lt;/span&gt;
+&lt;span class="c1"&gt;# 1：发送消息，并会等待leader 收到确认后，一定的可靠性&lt;/span&gt;
+&lt;span class="c1"&gt;# -1：发送消息，等待leader收到确认，并进行复制操作后，才返回，最高的可靠性&lt;/span&gt;
+request.required.acks &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;0&lt;/span&gt;
+
+&lt;span class="c1"&gt;# 消息发送的最长等待时间&lt;/span&gt;
+request.timeout.ms &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;10000&lt;/span&gt;
+&lt;span class="c1"&gt;# socket的缓存大小&lt;/span&gt;
+send.buffer.bytes&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;100&lt;/span&gt;*1024
+&lt;span class="c1"&gt;# key的序列化方式，若是没有设置，同serializer.class&lt;/span&gt;
+key.serializer.class
+&lt;span class="c1"&gt;# 分区的策略，默认是取模&lt;/span&gt;
+partitioner.class&lt;span class="o"&gt;=&lt;/span&gt;kafka.producer.DefaultPartitioner
+&lt;span class="c1"&gt;# 消息的压缩模式，默认是none，可以有gzip和snappy&lt;/span&gt;
+compression.codec &lt;span class="o"&gt;=&lt;/span&gt; none
+&lt;span class="c1"&gt;# 可以针对默写特定的topic进行压缩&lt;/span&gt;
+compressed.topics&lt;span class="o"&gt;=&lt;/span&gt;null
+&lt;span class="c1"&gt;# 消息发送失败后的重试次数&lt;/span&gt;
+message.send.max.retries &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;3&lt;/span&gt;
+&lt;span class="c1"&gt;# 每次失败后的间隔时间&lt;/span&gt;
+retry.backoff.ms &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;100&lt;/span&gt;
+&lt;span class="c1"&gt;# 生产者定时更新topic元信息的时间间隔 ，若是设置为0，那么会在每个消息发送后都去更新数据&lt;/span&gt;
+topic.metadata.refresh.interval.ms &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;600&lt;/span&gt; * &lt;span class="m"&gt;1000&lt;/span&gt;
+&lt;span class="c1"&gt;# 用户随意指定，但是不能重复，主要用于跟踪记录消息&lt;/span&gt;
+client.id&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&amp;quot;&lt;/span&gt;
+
+&lt;span class="c1"&gt;# 异步模式下缓冲数据的最大时间。例如设置为100则会集合100ms内的消息后发送，这样会提高吞吐量，但是会增加消息发送的延时&lt;/span&gt;
+queue.buffering.max.ms &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;5000&lt;/span&gt;
+&lt;span class="c1"&gt;# 异步模式下缓冲的最大消息数，同上&lt;/span&gt;
+queue.buffering.max.messages &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;10000&lt;/span&gt;
+&lt;span class="c1"&gt;# 异步模式下，消息进入队列的等待时间。若是设置为0，则消息不等待，如果进入不了队列，则直接被抛弃&lt;/span&gt;
+queue.enqueue.timeout.ms &lt;span class="o"&gt;=&lt;/span&gt; -1
+&lt;span class="c1"&gt;# 异步模式下，每次发送的消息数，当queue.buffering.max.messages或queue.buffering.max.ms满足条件之一时producer会触发发送。&lt;/span&gt;
+batch.num.messages&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;200&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;参考资料&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://www.jasongj.com/2015/03/10/KafkaColumn1/"&gt;http://www.jasongj.com/2015/03/10/KafkaColumn1/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><category term="kafka"></category></entry></feed>

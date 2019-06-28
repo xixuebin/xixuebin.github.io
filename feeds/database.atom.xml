@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>寒玉 Blog - database</title><link href="xixuebin.github.io/" rel="alternate"></link><link href="xixuebin.github.io/feeds/database.atom.xml" rel="self"></link><id>xixuebin.github.io/</id><updated>2019-06-19T19:37:32+08:00</updated><entry><title>MysqlBinlog 详解</title><link href="xixuebin.github.io/2019-06-19-193732-ch.html" rel="alternate"></link><published>2019-06-19T19:37:32+08:00</published><updated>2019-06-19T19:37:32+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-06-19:xixuebin.github.io/2019-06-19-193732-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
+
+&lt;blockquote&gt;
+&lt;p&gt;Mariadb/mysql提供了4中不同的日志，分别是错误日志（error.log）、普通日志（general log）、慢日志（slow log）以及二进制日志（binlog）。错误日志记录了系统启动、运行以及停止过程中遇到的一些问题；普通日志记录了Mariadb执行的所有语句以及语句开始执行的时间等信息，用户可以选择性的打开它；慢日志记录了Mariadb所有慢查询的相关信息；而二进制日志则以事件的形式记录了mariadb的库表结构以及表数据的所有变更信息。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h1&gt;Mysql Binlog&lt;/h1&gt;
+&lt;h2&gt;binlog的作用&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;复制&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;在Mariadb/mysql的主从结构中，主库的binlog记录了主库的所有更改操作，从库通过读取主库的binlog，在本地重放获取的binlog，这样从库就拥有和主库相同的数据，达到复制目的。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;备份恢复&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;binlog记录了数据库的所有更改信息，所以当Mariadb/mysql发生崩溃的时候，能够以最近备份点作为起点，然后执行在备份点之后产生的binlog中所有事件，实现数据库最大可能的恢复。&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;index文件按照书序记录了Mariadb/Mysql使用的所有binlog文件，管理binlog文件。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;参考&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://mariadb.com/kb/en/library/binary-log/"&gt;https://mariadb.com/kb/en/library/binary-log/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.cnblogs.com/skymyyang/p/7798670.html"&gt;https://www.cnblogs.com/skymyyang/p/7798670.html&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><category term="database"></category><category term="binlog"></category><category term="mysql"></category></entry></feed>

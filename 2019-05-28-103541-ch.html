@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8"> 
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="kevin.xi" />
+        <meta name="copyright" content="kevin.xi" />
+
+<meta name="keywords" content="Redash, bigdata, " />
+        <title>Redash环境搭建及二次开发  · 寒玉 Blog
+</title>
+        <!-- <link href="http://cdn-images.mailchimp.com/embedcode/slim-081711.css" rel="stylesheet" type="text/css"> -->
+        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="/theme/css/style.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="/theme/css/solarizedlight.css" media="screen">
+        <link rel="shortcut icon" href="/theme/images/favicon.ico" type="image/x-icon" />
+        <link rel="apple-touch-icon" href="/theme/images/apple-touch-icon.png" />
+        <link rel="apple-touch-icon" sizes="57x57" href="/theme/images/apple-touch-icon-57x57.png" />
+        <link rel="apple-touch-icon" sizes="72x72" href="/theme/images/apple-touch-icon-72x72.png" />
+        <link rel="apple-touch-icon" sizes="114x114" href="/theme/images/apple-touch-icon-114x114.png" />
+        <link rel="apple-touch-icon" sizes="144x144" href="/theme/images/apple-touch-icon-144x144.png" />
+        <link rel="icon" href="/theme/images/apple-touch-icon-144x144.png" />
+    </head>
+    <body>
+        <div id="content-sans-footer">
+        <div class="navbar navbar-static-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="/"><span class=site-name>寒玉 Blog</span></a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav pull-right top-menu">
+                            <li ><a href="">Home</a></li>
+                            <li ><a href="/pages/books-date-2017-12-05-1130-ch.html">Books</a></li>
+                            <li ><a href="/pages/about-date-2015-05-10-1010-ch.html">About Me</a></li>
+                            <li ><a href="/categories.html">Categories</a></li>
+                            <li ><a href="/tags.html">Tags</a></li>
+                            <li ><a href="/archives.html">Archives</a></li>
+                            <li><form class="navbar-search" action="/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span1"></div>
+                <div class="span10">
+<article>
+<div class="row-fluid">
+    <header class="page_header span10 offset2">
+    <h1><a href="/2019-05-28-103541-ch.html"> Redash环境搭建及二次开发  </a></h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset2 article-content">
+
+            <!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets -->
+
+<blockquote>
+<p>Redash 是一款开源的 BI 工具，提供了基于 web 的数据库查询和数据可视化功能。</p>
+</blockquote>
+<h1>Mac安装redash依赖</h1>
+<p>Redash依赖redis和postgres作为缓存和元数据存储,所以在部署之前先要安装Redis和PostgreSQL</p>
+<h2>mac安装redis</h2>
+<div class="highlight"><pre><span></span>brew install redis
+brew services start redis //启动redis
+brew services stop redis
+</pre></div>
+
+
+<h2>mac安装postgreSQL</h2>
+<div class="highlight"><pre><span></span>brew install postgresql
+brew services start postgresq
+initdb /usr/local/var/postgre //初始化数据库
+brew services restart postgresql //重启数据库
+</pre></div>
+
+
+<h1>安装</h1>
+<h2>安装python依赖包</h2>
+<div class="highlight"><pre><span></span>pip install -r requirements.txt -r requirements_dev.txt
+</pre></div>
+
+
+<h2>安装nodejs的包</h2>
+<div class="highlight"><pre><span></span>npm install  //安装node的包
+npm run build //进行一次完整build
+</pre></div>
+
+
+<h2>配置</h2>
+<p>在开发环境中,使用默认的配置能满足绝大多数的需求,如果要覆盖默认配置.需要在redash的根目录下设置一个.env文件,在该文件中设置环境变量,覆盖默认的.</p>
+<p>查看所有变量</p>
+<div class="highlight"><pre><span></span>bin/run ./manage.py check_settings
+<span class="nv">JSON_AS_ASCII</span> <span class="o">=</span> True
+<span class="nv">AUTH_TYPE</span> <span class="o">=</span> api_key
+<span class="nv">MAIL_DEFAULT_SENDER</span> <span class="o">=</span> None
+<span class="nv">RATELIMIT_STRATEGY</span> <span class="o">=</span> fixed-window
+<span class="nv">FEATURE_AUTO_PUBLISH_NAMED_QUERIES</span> <span class="o">=</span> True
+<span class="nv">HSTS_MAX_AGE</span> <span class="o">=</span> <span class="m">31556926</span>
+<span class="nv">ENFORCE_HTTPS_PERMANENT</span> <span class="o">=</span> False
+<span class="nv">SESSION_REFRESH_EACH_REQUEST</span> <span class="o">=</span> True
+<span class="nv">CELERY_BROKER</span> <span class="o">=</span> redis://localhost:6379/0
+<span class="nv">REDIS_URL</span> <span class="o">=</span> redis://localhost:6379/0
+<span class="nv">TIME_FORMAT</span> <span class="o">=</span> HH:mm
+<span class="nv">SQLALCHEMY_COMMIT_ON_TEARDOWN</span> <span class="o">=</span> False
+<span class="nv">ALLOW_PARAMETERS_IN_EMBEDS</span> <span class="o">=</span> False
+<span class="nv">JOB_EXPIRY_TIME</span> <span class="o">=</span> <span class="m">43200</span>
+<span class="nv">SQLALCHEMY_TRACK_MODIFICATIONS</span> <span class="o">=</span> False
+<span class="nv">KYLIN_OFFSET</span> <span class="o">=</span> <span class="m">0</span>
+<span class="nv">LDAP_SEARCH_TEMPLATE</span> <span class="o">=</span> <span class="o">(</span><span class="nv">cn</span><span class="o">=</span>%<span class="o">(</span>username<span class="o">)</span>s<span class="o">)</span>
+<span class="nv">QLOUD_AUTHORIZE_URL</span> <span class="o">=</span> https://yourauthn.com/oauth2.0/authorize
+<span class="nv">COOKIES_SECURE</span> <span class="o">=</span> False
+<span class="nv">MAIL_MAX_EMAILS</span> <span class="o">=</span> None
+<span class="nv">REMEMBER_COOKIE_SECURE</span> <span class="o">=</span> False
+<span class="nv">SENTRY_DSN</span> <span class="o">=</span>
+<span class="nv">VERSION_CHECK</span> <span class="o">=</span> True
+<span class="nv">STATSD_HOST</span> <span class="o">=</span> <span class="m">127</span>.0.0.1
+<span class="nv">QUERY_RESULTS_CLEANUP_ENABLED</span> <span class="o">=</span> True
+<span class="nv">REMEMBER_COOKIE_HTTPONLY</span> <span class="o">=</span> True
+<span class="nv">MULTI_ORG</span> <span class="o">=</span> False
+<span class="nv">LOG_FORMAT</span> <span class="o">=</span> <span class="o">[</span>%<span class="o">(</span>asctime<span class="o">)</span>s<span class="o">][</span>PID:%<span class="o">(</span>process<span class="o">)</span>d<span class="o">][</span>%<span class="o">(</span>levelname<span class="o">)</span>s<span class="o">][</span>%<span class="o">(</span>name<span class="o">)</span>s<span class="o">]</span> %<span class="o">(</span>message<span class="o">)</span>s
+<span class="nv">RATELIMIT_SWALLOW_ERRORS</span> <span class="o">=</span> False
+<span class="nv">QLOUD_ACCESS_TOKEN_URL</span> <span class="o">=</span> https://yourauthn.com/oauth2.0/accessToken
+<span class="nv">FRAME_OPTIONS_ALLOW_FROM</span> <span class="o">=</span>
+<span class="nv">RATELIMIT_HEADER_LIMIT</span> <span class="o">=</span> X-RateLimit-Limit
+<span class="nv">JSONIFY_MIMETYPE</span> <span class="o">=</span> application/json
+<span class="nv">PROXIES_COUNT</span> <span class="o">=</span> <span class="m">1</span>
+<span class="nv">QLOUD_OAUTH_ENABLED</span> <span class="o">=</span> True
+<span class="nv">ACCESS_CONTROL_REQUEST_METHOD</span> <span class="o">=</span> GET, POST, PUT
+<span class="nv">ACCESS_CONTROL_ALLOW_ORIGIN</span> <span class="o">=</span> set<span class="o">([])</span>
+<span class="nv">EVENT_REPORTING_WEBHOOKS</span> <span class="o">=</span> <span class="o">[]</span>
+<span class="nv">RATELIMIT_HEADERS_ENABLED</span> <span class="o">=</span> False
+<span class="nv">RATELIMIT_HEADER_RESET</span> <span class="o">=</span> X-RateLimit-Reset
+<span class="nv">ENFORCE_FILE_SAVE</span> <span class="o">=</span> True
+<span class="nv">LDAP_LOGIN_ENABLED</span> <span class="o">=</span> False
+<span class="nv">HSTS_ENABLED</span> <span class="o">=</span> False
+<span class="nv">LIMITER_STORAGE</span> <span class="o">=</span> redis://localhost:6379/0
+<span class="nv">STATSD_USE_TAGS</span> <span class="o">=</span> False
+<span class="nv">DATE_FORMAT</span> <span class="o">=</span> DD/MM/YY
+<span class="nv">DASHBOARD_REFRESH_INTERVALS</span> <span class="o">=</span> <span class="o">[</span><span class="m">60</span>, <span class="m">300</span>, <span class="m">600</span>, <span class="m">1800</span>, <span class="m">3600</span>, <span class="m">43200</span>, <span class="m">86400</span><span class="o">]</span>
+<span class="nv">FEATURE_POLICY</span> <span class="o">=</span>
+<span class="nv">CELERY_RESULT_EXPIRES</span> <span class="o">=</span> <span class="m">14400</span>
+<span class="nv">DATASOURCE_SECRET_KEY</span> <span class="o">=</span> c292a0a3aa32397cdb050e233733900f
+<span class="nv">FEATURE_SHOW_QUERY_RESULTS_COUNT</span> <span class="o">=</span> True
+<span class="nv">SESSION_COOKIE_DOMAIN</span> <span class="o">=</span> None
+<span class="nv">SESSION_COOKIE_NAME</span> <span class="o">=</span> session
+<span class="nv">REMOTE_USER_LOGIN_ENABLED</span> <span class="o">=</span> False
+<span class="nv">CONTENT_SECURITY_POLICY_REPORT_ONLY</span> <span class="o">=</span> False
+<span class="nv">HOST</span> <span class="o">=</span>
+<span class="nv">LOGGER_HANDLER_POLICY</span> <span class="o">=</span> always
+<span class="nv">SQLALCHEMY_RECORD_QUERIES</span> <span class="o">=</span> None
+<span class="nv">QLOUD_CLIENT_ID</span> <span class="o">=</span> qloud10070901oauth21
+<span class="nv">ALERTS_DEFAULT_MAIL_SUBJECT_TEMPLATE</span> <span class="o">=</span> <span class="o">({</span>state<span class="o">})</span> <span class="o">{</span>alert_name<span class="o">}</span>
+<span class="nv">MAIL_USE_SSL</span> <span class="o">=</span> False
+<span class="nv">QLOUD_AUTH_STOMP_PORT</span> <span class="o">=</span> <span class="m">61613</span>
+<span class="nv">GOOGLE_CLIENT_ID</span> <span class="o">=</span>
+<span class="nv">SQLALCHEMY_NATIVE_UNICODE</span> <span class="o">=</span> None
+<span class="nv">MAX_CONTENT_LENGTH</span> <span class="o">=</span> None
+<span class="nv">LDAP_HOST_URL</span> <span class="o">=</span> None
+<span class="nv">LDAP_SEARCH_DN</span> <span class="o">=</span> None
+<span class="nv">QUERY_RESULTS_CLEANUP_MAX_AGE</span> <span class="o">=</span> <span class="m">7</span>
+<span class="nv">PERMANENT_SESSION_LIFETIME</span> <span class="o">=</span> <span class="m">31</span> days, <span class="m">0</span>:00:00
+<span class="nv">PAGE_SIZE</span> <span class="o">=</span> <span class="m">20</span>
+<span class="nv">QLOUD_CLIENT_SECRET</span> <span class="o">=</span> OUO10070901JN32rewffFE3
+<span class="nv">SQLALCHEMY_MAX_OVERFLOW</span> <span class="o">=</span> None
+<span class="nv">QLOUD_BASE_URL</span> <span class="o">=</span> https://yourauthn.com
+<span class="nv">LDAP_SSL</span> <span class="o">=</span> False
+<span class="nv">TRAP_HTTP_EXCEPTIONS</span> <span class="o">=</span> False
+<span class="nv">FEATURE_ALLOW_CUSTOM_JS_VISUALIZATIONS</span> <span class="o">=</span> False
+<span class="nv">REMOTE_USER_HEADER</span> <span class="o">=</span> X-Forwarded-Remote-User
+<span class="nv">LDAP_BIND_DN_PASSWORD</span> <span class="o">=</span>
+<span class="nv">PRESERVE_CONTEXT_ON_EXCEPTION</span> <span class="o">=</span> None
+<span class="nv">BIGQUERY_HTTP_TIMEOUT</span> <span class="o">=</span> <span class="m">600</span>
+<span class="nv">ENFORCE_HTTPS</span> <span class="o">=</span> False
+<span class="nv">SQLALCHEMY_ECHO</span> <span class="o">=</span> False
+<span class="nv">STATIC_ASSETS_PATH</span> <span class="o">=</span> /Users/xixuebin/PycharmProjects/huaruan/qloud-redash/redash/settings/../../client/dist/
+<span class="nv">CONTENT_SECURITY_POLICY_REPORT_URI</span> <span class="o">=</span>
+<span class="nv">SESSION_COOKIE_PATH</span> <span class="o">=</span> None
+<span class="nv">QLOUD_AUTH_STOMP_ADDRESS</span> <span class="o">=</span> qloudstomp.service.sd
+<span class="nv">ACCESS_CONTROL_ALLOW_CREDENTIALS</span> <span class="o">=</span> False
+<span class="nv">SQLPARSE_FORMAT_OPTIONS</span> <span class="o">=</span> <span class="o">{</span><span class="s1">&#39;keyword_case&#39;</span>: <span class="s1">&#39;upper&#39;</span>, <span class="s1">&#39;reindent&#39;</span>: True<span class="o">}</span>
+<span class="nv">GOOGLE_CLIENT_SECRET</span> <span class="o">=</span>
+<span class="nv">ACCESS_CONTROL_ALLOW_HEADERS</span> <span class="o">=</span> Content-Type
+<span class="nv">LDAP_AUTH_METHOD</span> <span class="o">=</span> SIMPLE
+<span class="nv">LDAP_DISPLAY_NAME_KEY</span> <span class="o">=</span> displayName
+<span class="nv">HSTS_PRELOAD</span> <span class="o">=</span> False
+<span class="nv">LOGGER_NAME</span> <span class="o">=</span> redash.app
+<span class="nv">KYLIN_LIMIT</span> <span class="o">=</span> <span class="m">50000</span>
+<span class="nv">LDAP_BIND_DN</span> <span class="o">=</span> None
+<span class="nv">QUERY_RESULTS_CLEANUP_COUNT</span> <span class="o">=</span> <span class="m">100</span>
+<span class="nv">SECRET_KEY</span> <span class="o">=</span> c292a0a3aa32397cdb050e233733900f
+<span class="nv">CONTENT_SECURITY_POLICY</span> <span class="o">=</span> default-src <span class="s1">&#39;self&#39;</span><span class="p">;</span> style-src <span class="s1">&#39;self&#39;</span> <span class="s1">&#39;unsafe-inline&#39;</span><span class="p">;</span> script-src <span class="s1">&#39;self&#39;</span> <span class="s1">&#39;unsafe-eval&#39;</span><span class="p">;</span> font-src <span class="s1">&#39;self&#39;</span> data:<span class="p">;</span> img-src <span class="s1">&#39;self&#39;</span> http: https: data:<span class="p">;</span> object-src <span class="s1">&#39;none&#39;</span><span class="p">;</span> frame-ancestors <span class="s1">&#39;none&#39;</span><span class="p">;</span> frame-src redash.io<span class="p">;</span>
+<span class="nv">QLOUD_AUTH_DOMAIN_CHECK</span> <span class="o">=</span> True
+<span class="nv">STATSD_PREFIX</span> <span class="o">=</span> redash
+<span class="nv">LOG_LEVEL</span> <span class="o">=</span> INFO
+<span class="nv">APPLICATION_ROOT</span> <span class="o">=</span> None
+<span class="nv">SERVER_NAME</span> <span class="o">=</span> None
+<span class="nv">LDAP_CUSTOM_USERNAME_PROMPT</span> <span class="o">=</span> LDAP/AD/SSO username:
+<span class="nv">PREFERRED_URL_SCHEME</span> <span class="o">=</span> http
+<span class="nv">TESTING</span> <span class="o">=</span> False
+<span class="nv">TEMPLATES_AUTO_RELOAD</span> <span class="o">=</span> None
+<span class="nv">MAIL_USERNAME</span> <span class="o">=</span> None
+<span class="nv">SCHEMAS_REFRESH_SCHEDULE</span> <span class="o">=</span> <span class="m">30</span>
+<span class="nv">CELERYD_WORKER_LOG_FORMAT</span> <span class="o">=</span> <span class="o">[</span>%<span class="o">(</span>asctime<span class="o">)</span>s<span class="o">][</span>PID:%<span class="o">(</span>process<span class="o">)</span>d<span class="o">][</span>%<span class="o">(</span>levelname<span class="o">)</span>s<span class="o">][</span>%<span class="o">(</span>processName<span class="o">)</span>s<span class="o">]</span> %<span class="o">(</span>message<span class="o">)</span>s
+<span class="nv">ALLOW_SCRIPTS_IN_USER_INPUT</span> <span class="o">=</span> False
+<span class="nv">FRAME_OPTIONS</span> <span class="o">=</span> deny
+<span class="nv">SQLALCHEMY_POOL_TIMEOUT</span> <span class="o">=</span> None
+<span class="nv">MAIL_ASCII_ATTACHMENTS</span> <span class="o">=</span> False
+<span class="nv">MAIL_SERVER</span> <span class="o">=</span> localhost
+<span class="nv">QLOUD_AUTH_DOMAIN</span> <span class="o">=</span> <span class="o">[</span><span class="s1">&#39;redash.com&#39;</span><span class="o">]</span>
+<span class="nv">QLOUD_PROFILE_URL</span> <span class="o">=</span> https://yourauthn.com/oauth2.0/profile?access_token<span class="o">=</span>
+<span class="nv">RATELIMIT_HEADER_REMAINING</span> <span class="o">=</span> X-RateLimit-Remaining
+<span class="nv">RATELIMIT_HEADER_RETRY_AFTER</span> <span class="o">=</span> Retry-After
+<span class="nv">LDAP_EMAIL_KEY</span> <span class="o">=</span> mail
+<span class="nv">USE_X_SENDFILE</span> <span class="o">=</span> False
+<span class="nv">GOOGLE_OAUTH_ENABLED</span> <span class="o">=</span> False
+<span class="nv">SQLALCHEMY_DATABASE_URI</span> <span class="o">=</span> postgresql:///postgres
+<span class="nv">SQLALCHEMY_DISABLE_POOL</span> <span class="o">=</span> False
+<span class="nv">MAIL_USE_TLS</span> <span class="o">=</span> False
+<span class="nv">SESSION_COOKIE_SECURE</span> <span class="o">=</span> False
+<span class="nv">SCHEMA_RUN_TABLE_SIZE_CALCULATIONS</span> <span class="o">=</span> False
+<span class="nv">SQLALCHEMY_BINDS</span> <span class="o">=</span> None
+<span class="nv">PAGE_SIZE_OPTIONS</span> <span class="o">=</span> <span class="o">[</span><span class="m">5</span>, <span class="m">10</span>, <span class="m">20</span>, <span class="m">50</span>, <span class="m">100</span><span class="o">]</span>
+<span class="nv">LOG_STDOUT</span> <span class="o">=</span> False
+<span class="nv">TABLE_CELL_MAX_JSON_SIZE</span> <span class="o">=</span> <span class="m">50000</span>
+<span class="nv">QLOUD_USERS_URL</span> <span class="o">=</span> http://qmsauthz.pditdop.service.sd/users
+<span class="nv">KYLIN_ACCEPT_PARTIAL</span> <span class="o">=</span> False
+<span class="nv">DEBUG</span> <span class="o">=</span> False
+<span class="nv">FEATURE_DISABLE_REFRESH_QUERIES</span> <span class="o">=</span> False
+<span class="nv">QUERY_REFRESH_INTERVALS</span> <span class="o">=</span> <span class="o">[</span><span class="m">60</span>, <span class="m">300</span>, <span class="m">600</span>, <span class="m">900</span>, <span class="m">1800</span>, <span class="m">3600</span>, <span class="m">7200</span>, <span class="m">10800</span>, <span class="m">14400</span>, <span class="m">18000</span>, <span class="m">21600</span>, <span class="m">25200</span>, <span class="m">28800</span>, <span class="m">32400</span>, <span class="m">36000</span>, <span class="m">39600</span>, <span class="m">43200</span>, <span class="m">86400</span>, <span class="m">604800</span>, <span class="m">1209600</span>, <span class="m">2592000</span><span class="o">]</span>
+<span class="nv">EXPLAIN_TEMPLATE_LOADING</span> <span class="o">=</span> False
+<span class="nv">THROTTLE_LOGIN_PATTERN</span> <span class="o">=</span> <span class="m">50</span>/hour
+<span class="nv">CELERY_RESULT_BACKEND</span> <span class="o">=</span> redis://localhost:6379/0
+<span class="nv">DESTINATIONS</span> <span class="o">=</span> <span class="o">[</span><span class="s1">&#39;redash.destinations.email&#39;</span>, <span class="s1">&#39;redash.destinations.slack&#39;</span>, <span class="s1">&#39;redash.destinations.webhook&#39;</span>, <span class="s1">&#39;redash.destinations.hipchat&#39;</span>, <span class="s1">&#39;redash.destinations.mattermost&#39;</span>, <span class="s1">&#39;redash.destinations.chatwork&#39;</span>, <span class="s1">&#39;redash.destinations.pagerduty&#39;</span>, <span class="s1">&#39;redash.destinations.hangoutschat&#39;</span><span class="o">]</span>
+<span class="nv">SCHEMAS_REFRESH_QUEUE</span> <span class="o">=</span> celery
+<span class="nv">SQLALCHEMY_POOL_RECYCLE</span> <span class="o">=</span> None
+<span class="nv">CELERYD_WORKER_TASK_LOG_FORMAT</span> <span class="o">=</span> <span class="o">[</span>%<span class="o">(</span>asctime<span class="o">)</span>s<span class="o">][</span>PID:%<span class="o">(</span>process<span class="o">)</span>d<span class="o">][</span>%<span class="o">(</span>levelname<span class="o">)</span>s<span class="o">][</span>%<span class="o">(</span>processName<span class="o">)</span>s<span class="o">]</span> <span class="nv">task_name</span><span class="o">=</span>%<span class="o">(</span>task_name<span class="o">)</span>s <span class="nv">task_id</span><span class="o">=</span>%<span class="o">(</span>task_id<span class="o">)</span>s %<span class="o">(</span>message<span class="o">)</span>s
+<span class="nv">LOG_PREFIX</span> <span class="o">=</span>
+<span class="nv">RATELIMIT_ENABLED</span> <span class="o">=</span> True
+<span class="nv">MAIL_PASSWORD</span> <span class="o">=</span> None
+<span class="nv">QLOUD_LOGOUT_URL</span> <span class="o">=</span> https://yourauthn.com/logout?service<span class="o">=</span>
+<span class="nv">JSONIFY_PRETTYPRINT_REGULAR</span> <span class="o">=</span> True
+<span class="nv">SQLALCHEMY_POOL_SIZE</span> <span class="o">=</span> None
+<span class="nv">PROPAGATE_EXCEPTIONS</span> <span class="o">=</span> None
+<span class="nv">TRAP_BAD_REQUEST_ERRORS</span> <span class="o">=</span> False
+<span class="nv">STATSD_PORT</span> <span class="o">=</span> <span class="m">8125</span>
+<span class="nv">JSON_SORT_KEYS</span> <span class="o">=</span> True
+<span class="nv">SESSION_COOKIE_HTTPONLY</span> <span class="o">=</span> True
+<span class="nv">SEND_FILE_MAX_AGE_DEFAULT</span> <span class="o">=</span> <span class="m">12</span>:00:00
+<span class="nv">MAIL_PORT</span> <span class="o">=</span> <span class="m">25</span>
+<span class="nv">QUERY_RUNNERS</span> <span class="o">=</span> <span class="o">[</span><span class="s1">&#39;redash.query_runner.athena&#39;</span>, <span class="s1">&#39;redash.query_runner.big_query&#39;</span>, <span class="s1">&#39;redash.query_runner.google_spreadsheets&#39;</span>, <span class="s1">&#39;redash.query_runner.graphite&#39;</span>, <span class="s1">&#39;redash.query_runner.mongodb&#39;</span>, <span class="s1">&#39;redash.query_runner.couchbase&#39;</span>, <span class="s1">&#39;redash.query_runner.mysql&#39;</span>, <span class="s1">&#39;redash.query_runner.pg&#39;</span>, <span class="s1">&#39;redash.query_runner.url&#39;</span>, <span class="s1">&#39;redash.query_runner.influx_db&#39;</span>, <span class="s1">&#39;redash.query_runner.elasticsearch&#39;</span>, <span class="s1">&#39;redash.query_runner.amazon_elasticsearch&#39;</span>, <span class="s1">&#39;redash.query_runner.presto&#39;</span>, <span class="s1">&#39;redash.query_runner.databricks&#39;</span>, <span class="s1">&#39;redash.query_runner.hive_ds&#39;</span>, <span class="s1">&#39;redash.query_runner.impala_ds&#39;</span>, <span class="s1">&#39;redash.query_runner.vertica&#39;</span>, <span class="s1">&#39;redash.query_runner.clickhouse&#39;</span>, <span class="s1">&#39;redash.query_runner.yandex_metrica&#39;</span>, <span class="s1">&#39;redash.query_runner.rockset&#39;</span>, <span class="s1">&#39;redash.query_runner.treasuredata&#39;</span>, <span class="s1">&#39;redash.query_runner.sqlite&#39;</span>, <span class="s1">&#39;redash.query_runner.dynamodb_sql&#39;</span>, <span class="s1">&#39;redash.query_runner.mssql&#39;</span>, <span class="s1">&#39;redash.query_runner.memsql_ds&#39;</span>, <span class="s1">&#39;redash.query_runner.mapd&#39;</span>, <span class="s1">&#39;redash.query_runner.jql&#39;</span>, <span class="s1">&#39;redash.query_runner.google_analytics&#39;</span>, <span class="s1">&#39;redash.query_runner.axibase_tsd&#39;</span>, <span class="s1">&#39;redash.query_runner.salesforce&#39;</span>, <span class="s1">&#39;redash.query_runner.query_results&#39;</span>, <span class="s1">&#39;redash.query_runner.prometheus&#39;</span>, <span class="s1">&#39;redash.query_runner.qubole&#39;</span>, <span class="s1">&#39;redash.query_runner.db2&#39;</span>, <span class="s1">&#39;redash.query_runner.druid&#39;</span>, <span class="s1">&#39;redash.query_runner.kylin&#39;</span>, <span class="s1">&#39;redash.query_runner.drill&#39;</span>, <span class="s1">&#39;redash.query_runner.uptycs&#39;</span>, <span class="s1">&#39;redash.query_runner.snowflake&#39;</span>, <span class="s1">&#39;redash.query_runner.phoenix&#39;</span><span class="o">]</span>
+<span class="nv">REFERRER_POLICY</span> <span class="o">=</span> strict-origin-when-cross-origin
+<span class="nv">INVITATION_TOKEN_MAX_AGE</span> <span class="o">=</span> <span class="m">604800</span>
+<span class="nv">CONTENT_SECURITY_POLICY_NONCE_IN</span> <span class="o">=</span> <span class="o">[]</span>
+<span class="nv">HSTS_INCLUDE_SUBDOMAINS</span> <span class="o">=</span> False
+</pre></div>
+
+
+<h3>创建数据库</h3>
+<div class="highlight"><pre><span></span>bin/run ./manage.py database create_tables
+</pre></div>
+
+
+<p>在创建数据库的时候,如果有异常,请检查数据库的配置.配置类似:<code>export SQLALCHEMY_DATABASE_URI=postgresql://postgres@XX.XX.XX.XX:15432/postgre</code></p>
+<h3>服务启动</h3>
+<p>Redash主要的进程有2个</p>
+<ul>
+<li>web server</li>
+<li>Celery worker(s) &amp; Scheduler</li>
+</ul>
+<p>在开发环境中,我们也可以运行Webpack's dev server or watch utiliy, 命令如下:</p>
+<ul>
+<li>Web server: <code>bin/run ./manage.py runserver --debugger --reload</code></li>
+<li>Celery: <code>./bin/run celery worker --app=redash.worker --beat --Qscheduled_queries,queries,celery -c2</code></li>
+<li>Webpack dev server: <code>npm run start</code>
+如果一切服务运行正常,可访问页面<a href="http://127.0.0.1:5000">http://127.0.0.1:5000</a></li>
+</ul>
+<h1>与Auth集成</h1>
+<p>Redash本身支持smal协议,也可以使用GOOGLE账号进行登录,使用google账号登录的时候,后跳使用的就是Oauth协议.我们这里介绍使用OAuth2与自己的认证集成的过程.</p>
+<h2>创建.env文件</h2>
+<p>创建.env文件,填写需要使用的参数,例如:</p>
+<div class="highlight"><pre><span></span><span class="nb">export</span> <span class="nv">REDASH_YOUR_CLIENT_ID</span><span class="o">=</span>qloud10070901oauth21
+<span class="nb">export</span> <span class="nv">REDASH_YOUR_CLIENT_SECRET</span><span class="o">=</span>OUO10070901JN32rewffFE3
+<span class="nb">export</span> <span class="nv">REDASH_YOUR_ACCESS_TOKEN_URL</span><span class="o">=</span>https://yourauthn.com/oauth2.0/accessToken
+<span class="nb">export</span> <span class="nv">REDASH_YOUR_AUTHORIZE_URL</span><span class="o">=</span>https://yourauthn.com/oauth2.0/authorize
+<span class="nb">export</span> <span class="nv">REDASH_YOUR_BASE_URL</span><span class="o">=</span>https://yourauthn.com
+<span class="nb">export</span> <span class="nv">REDASH_YOUR_PROFILE_URL</span><span class="o">=</span>https://yourauthn.com/oauth2.0/profile?access_token<span class="o">=</span>
+<span class="nb">export</span> <span class="nv">REDASH_YOUR_LOGOUT_URL</span><span class="o">=</span>https://yourauthn.com/logout?service<span class="o">=</span>
+
+<span class="nb">export</span> <span class="nv">REDASH_YOUR_USERS_URL</span><span class="o">=</span>http://qmsauthz.pditdop.service.sd/users
+<span class="nb">export</span> <span class="nv">REDASH_YOUR_AUTH_DOMAIN</span><span class="o">=</span>redash.com
+<span class="nb">export</span> <span class="nv">REDASH_YOUR_AUTH_DOMAIN_CHECK</span><span class="o">=</span>True
+<span class="nb">export</span> <span class="nv">REDASH_YOUR_AUTH_STOMP_ADDRESS</span><span class="o">=</span>qloudstomp.service.sd
+<span class="nb">export</span> <span class="nv">REDASH_YOUR_AUTH_STOMP_PORT</span><span class="o">=</span><span class="m">61613</span>
+</pre></div>
+
+
+<h2>获取设置的环境变量值</h2>
+<div class="highlight"><pre><span></span><span class="n">QLOUD_CLIENT_ID</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;REDASH_YOUR_CLIENT_ID&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="n">QLOUD_CLIENT_SECRET</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;REDASH_YOUR_CLIENT_SECRET&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="n">QLOUD_ACCESS_TOKEN_URL</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;REDASH_YOUR_ACCESS_TOKEN_URL&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="n">QLOUD_AUTHORIZE_URL</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;REDASH_YOUR_AUTHORIZE_URL&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="n">QLOUD_BASE_URL</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;REDASH_YOUR_BASE_URL&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="n">QLOUD_PROFILE_URL</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;REDASH_YOUR_PROFILE_URL&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="n">QLOUD_LOGOUT_URL</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;REDASH_YOUR_LOGOUT_URL&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="n">QLOUD_USERS_URL</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;REDASH_YOUR_USERS_URL&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="n">QLOUD_AUTH_DOMAIN</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;REDASH_YOUR_AUTH_DOMAIN&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+<span class="n">QLOUD_AUTH_DOMAIN_CHECK</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;TRUE&quot;</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;REDASH_YOUR_AUTH_DOMAIN_CHECK&quot;</span><span class="p">)))</span>
+<span class="n">QLOUD_AUTH_STOMP_ADDRESS</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;REDASH_YOUR_AUTH_STOMP_ADDRESS&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+<span class="n">QLOUD_AUTH_STOMP_PORT</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;REDASH_YOUR_AUTH_STOMP_PORT&quot;</span><span class="p">,</span> <span class="mi">61613</span><span class="p">))</span>
+
+<span class="n">QLOUD_OAUTH_ENABLED</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">QLOUD_CLIENT_ID</span> <span class="ow">and</span> <span class="n">QLOUD_CLIENT_SECRET</span><span class="p">)</span>
+</pre></div>
+
+
+<h2>添加认证代码</h2>
+<p>redash的认证相关的代码都是在redash.authentication目录下,我们创建一个自己的认证文件your_oauth.py</p>
+<div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">ssl</span>
+
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">redirect</span><span class="p">,</span> <span class="n">url_for</span><span class="p">,</span> <span class="n">Blueprint</span><span class="p">,</span> <span class="n">flash</span><span class="p">,</span> <span class="n">request</span><span class="p">,</span> <span class="n">session</span>
+<span class="kn">from</span> <span class="nn">flask_oauthlib.client</span> <span class="kn">import</span> <span class="n">OAuth</span>
+
+<span class="kn">from</span> <span class="nn">redash</span> <span class="kn">import</span> <span class="n">models</span><span class="p">,</span> <span class="n">settings</span>
+<span class="kn">from</span> <span class="nn">redash.authentication</span> <span class="kn">import</span> <span class="n">create_and_login_user</span><span class="p">,</span> <span class="n">logout_and_redirect_to_index</span><span class="p">,</span> <span class="n">get_next_path</span>
+<span class="kn">from</span> <span class="nn">redash.authentication.org_resolving</span> <span class="kn">import</span> <span class="n">current_org</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;qloud_oauth&#39;</span><span class="p">)</span>
+
+<span class="n">oauth</span> <span class="o">=</span> <span class="n">OAuth</span><span class="p">()</span>
+<span class="n">blueprint</span> <span class="o">=</span> <span class="n">Blueprint</span><span class="p">(</span><span class="s1">&#39;qloud_oauth&#39;</span><span class="p">,</span> <span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">ssl</span><span class="o">.</span><span class="n">_create_default_https_context</span> <span class="o">=</span> <span class="n">ssl</span><span class="o">.</span><span class="n">_create_unverified_context</span>
+
+
+<span class="k">def</span> <span class="nf">qloud_remote_app</span><span class="p">():</span>
+    <span class="k">if</span> <span class="s1">&#39;qloud&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">oauth</span><span class="o">.</span><span class="n">remote_apps</span><span class="p">:</span>
+        <span class="n">oauth</span><span class="o">.</span><span class="n">remote_app</span><span class="p">(</span><span class="s1">&#39;qloud&#39;</span><span class="p">,</span>
+                         <span class="n">base_url</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">QLOUD_BASE_URL</span><span class="p">,</span>
+                         <span class="n">authorize_url</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">QLOUD_AUTHORIZE_URL</span><span class="p">,</span>
+                         <span class="n">request_token_url</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span>
+                         <span class="n">request_token_params</span><span class="o">=</span><span class="p">{</span>
+                             <span class="s1">&#39;scope&#39;</span><span class="p">:</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1"> </span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span>
+                                      <span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">QLOUD_AUTHORIZE_URL</span><span class="p">,</span> <span class="n">settings</span><span class="o">.</span><span class="n">QLOUD_ACCESS_TOKEN_URL</span><span class="p">,</span>
+                                       <span class="n">settings</span><span class="o">.</span><span class="n">QLOUD_PROFILE_URL</span><span class="p">),</span>
+                         <span class="p">},</span>
+                         <span class="n">access_token_url</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">QLOUD_ACCESS_TOKEN_URL</span><span class="p">,</span>
+                         <span class="n">access_token_params</span><span class="o">=</span><span class="p">{</span>
+                             <span class="s1">&#39;client_id&#39;</span><span class="p">:</span> <span class="n">settings</span><span class="o">.</span><span class="n">QLOUD_CLIENT_ID</span>
+                         <span class="p">},</span>
+                         <span class="n">access_token_method</span><span class="o">=</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span>
+                         <span class="n">consumer_key</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">QLOUD_CLIENT_ID</span><span class="p">,</span>
+                         <span class="n">consumer_secret</span><span class="o">=</span><span class="n">settings</span><span class="o">.</span><span class="n">QLOUD_CLIENT_SECRET</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">oauth</span><span class="o">.</span><span class="n">qloud</span>
+
+
+<span class="k">def</span> <span class="nf">get_user_profile</span><span class="p">(</span><span class="n">access_token</span><span class="p">):</span>
+    <span class="c1"># headers = {&#39;Authorization&#39;: &#39;OAuth {}&#39;.format(access_token)}</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;access token is </span><span class="si">%s</span><span class="s1">&#39;</span><span class="p">,</span> <span class="n">access_token</span><span class="p">)</span>
+    <span class="c1"># logger.info(&#39;header is %s&#39;, headers)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;requst url is </span><span class="si">%s</span><span class="s2"> &quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">QLOUD_PROFILE_URL</span> <span class="o">+</span> <span class="n">access_token</span><span class="p">))</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">QLOUD_PROFILE_URL</span> <span class="o">+</span> <span class="n">access_token</span><span class="p">,</span> <span class="n">headers</span><span class="o">=</span><span class="p">{},</span> <span class="n">verify</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">401</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Failed getting user profile (response code 401).&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">None</span>
+
+    <span class="k">return</span> <span class="n">response</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s1">&#39;attributes&#39;</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">verify_profile</span><span class="p">(</span><span class="n">org</span><span class="p">,</span> <span class="n">profile</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">org</span><span class="o">.</span><span class="n">is_public</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">settings</span><span class="o">.</span><span class="n">QLOUD_AUTH_DOMAIN_CHECK</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;all user will sync&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">True</span>
+
+    <span class="n">email</span> <span class="o">=</span> <span class="n">profile</span><span class="p">[</span><span class="s1">&#39;email&#39;</span><span class="p">]</span>
+    <span class="n">domain</span> <span class="o">=</span> <span class="n">email</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;@&#39;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;domain is </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">domain</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">QLOUD_AUTH_DOMAIN_CHECK</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">domain</span> <span class="ow">in</span> <span class="n">settings</span><span class="o">.</span><span class="n">QLOUD_AUTH_DOMAIN</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+
+    <span class="k">return</span> <span class="bp">False</span>
+
+
+<span class="nd">@blueprint.route</span><span class="p">(</span><span class="s1">&#39;/&lt;org_slug&gt;/oauth/qloud&#39;</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;authorize_org&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">org_login</span><span class="p">(</span><span class="n">org_slug</span><span class="p">):</span>
+    <span class="n">session</span><span class="p">[</span><span class="s1">&#39;org_slug&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">current_org</span><span class="o">.</span><span class="n">slug</span>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s2">&quot;.authorize&quot;</span><span class="p">,</span> <span class="nb">next</span><span class="o">=</span><span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;next&#39;</span><span class="p">,</span> <span class="bp">None</span><span class="p">)))</span>
+
+
+<span class="nd">@blueprint.route</span><span class="p">(</span><span class="s1">&#39;/oauth/qloud&#39;</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;authorize&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">login</span><span class="p">():</span>
+    <span class="n">callback</span> <span class="o">=</span> <span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;.callback&#39;</span><span class="p">,</span> <span class="n">_external</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">next_path</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;next&#39;</span><span class="p">,</span> <span class="n">url_for</span><span class="p">(</span><span class="s2">&quot;redash.index&quot;</span><span class="p">,</span> <span class="n">org_slug</span><span class="o">=</span><span class="n">session</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;org_slug&#39;</span><span class="p">)))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Callback url: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">callback</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Next is: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">next_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">qloud_remote_app</span><span class="p">()</span><span class="o">.</span><span class="n">authorize</span><span class="p">(</span><span class="n">callback</span><span class="o">=</span><span class="n">callback</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">next_path</span><span class="p">)</span>
+
+
+<span class="nd">@blueprint.route</span><span class="p">(</span><span class="s1">&#39;/oauth/qloud_callback&#39;</span><span class="p">,</span> <span class="n">endpoint</span><span class="o">=</span><span class="s2">&quot;callback&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">authorized</span><span class="p">():</span>
+    <span class="n">resp</span> <span class="o">=</span> <span class="n">qloud_remote_app</span><span class="p">()</span><span class="o">.</span><span class="n">authorized_response</span><span class="p">()</span>
+    <span class="n">access_token</span> <span class="o">=</span> <span class="n">resp</span><span class="p">[</span><span class="s1">&#39;access_token&#39;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">access_token</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Access token missing in call back request.&quot;</span><span class="p">)</span>
+        <span class="n">flash</span><span class="p">(</span><span class="s2">&quot;Validation error. Please retry.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;redash.login&#39;</span><span class="p">))</span>
+
+    <span class="n">profile</span> <span class="o">=</span> <span class="n">get_user_profile</span><span class="p">(</span><span class="n">access_token</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">profile</span> <span class="ow">is</span> <span class="bp">None</span> <span class="ow">or</span> <span class="n">profile</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">flash</span><span class="p">(</span><span class="s2">&quot;Validation error. Please retry.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;redash.login&#39;</span><span class="p">))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;user profile is </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">profile</span><span class="p">)</span>
+    <span class="c1"># id  mapping to name</span>
+    <span class="n">user_name</span> <span class="o">=</span> <span class="n">profile</span><span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="s1">&#39;org_slug&#39;</span> <span class="ow">in</span> <span class="n">session</span><span class="p">:</span>
+        <span class="n">org</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">Organization</span><span class="o">.</span><span class="n">get_by_slug</span><span class="p">(</span><span class="n">session</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;org_slug&#39;</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">org</span> <span class="o">=</span> <span class="n">current_org</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">verify_profile</span><span class="p">(</span><span class="n">org</span><span class="p">,</span> <span class="n">profile</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;User tried to login with unauthorized domain name: </span><span class="si">%s</span><span class="s2"> (org: </span><span class="si">%s</span><span class="s2">)&quot;</span><span class="p">,</span> <span class="n">profile</span><span class="p">[</span><span class="s1">&#39;email&#39;</span><span class="p">],</span> <span class="n">org</span><span class="p">)</span>
+        <span class="n">flash</span><span class="p">(</span><span class="s2">&quot;Your Qloud Apps account ({}) isn&#39;t allowed.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">profile</span><span class="p">[</span><span class="s1">&#39;email&#39;</span><span class="p">]))</span>
+        <span class="c1"># check failed, please logout</span>
+        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;redash.logout&#39;</span><span class="p">,</span> <span class="n">org_slug</span><span class="o">=</span><span class="n">org</span><span class="o">.</span><span class="n">slug</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">profile</span><span class="p">[</span><span class="s1">&#39;photo&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="n">picture_url</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">%s</span><span class="s2">?sz=40&quot;</span> <span class="o">%</span> <span class="n">profile</span><span class="p">[</span><span class="s1">&#39;photo&#39;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">picture_url</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="n">user</span> <span class="o">=</span> <span class="n">create_and_login_user</span><span class="p">(</span><span class="n">org</span><span class="p">,</span> <span class="n">user_name</span><span class="p">,</span> <span class="n">profile</span><span class="p">[</span><span class="s1">&#39;email&#39;</span><span class="p">],</span> <span class="n">picture_url</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">user</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">logout_and_redirect_to_index</span><span class="p">()</span>
+
+    <span class="n">unsafe_next_path</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">args</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;state&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">url_for</span><span class="p">(</span><span class="s2">&quot;redash.index&quot;</span><span class="p">,</span> <span class="n">org_slug</span><span class="o">=</span><span class="n">org</span><span class="o">.</span><span class="n">slug</span><span class="p">)</span>
+    <span class="n">next_path</span> <span class="o">=</span> <span class="n">get_next_path</span><span class="p">(</span><span class="n">unsafe_next_path</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">next_path</span><span class="p">)</span>
+</pre></div>
+
+
+<h2>修改login,登录跳转到自己的登录页面</h2>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_qloud_auth_url</span><span class="p">(</span><span class="n">next_path</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">MULTI_ORG</span><span class="p">:</span>
+        <span class="n">qloud_auth_url</span> <span class="o">=</span> <span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;qloud_oauth.authorize_org&#39;</span><span class="p">,</span> <span class="nb">next</span><span class="o">=</span><span class="n">next_path</span><span class="p">,</span> <span class="n">org_slug</span><span class="o">=</span><span class="n">current_org</span><span class="o">.</span><span class="n">slug</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">qloud_auth_url</span> <span class="o">=</span> <span class="n">url_for</span><span class="p">(</span><span class="s1">&#39;qloud_oauth.authorize&#39;</span><span class="p">,</span> <span class="nb">next</span><span class="o">=</span><span class="n">next_path</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">qloud_auth_url</span>
+
+<span class="c1"># 修改方法def login(org_slug=None),添加如下代码</span>
+
+<span class="n">qloud_auth_url</span> <span class="o">=</span> <span class="n">get_qloud_auth_url</span><span class="p">(</span><span class="n">next_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">QLOUD_OAUTH_ENABLED</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;redirect to qloud auth </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">qloud_auth_url</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">qloud_auth_url</span><span class="p">)</span>
+</pre></div>
+
+
+<h2>修改登录函数,实现sso登出</h2>
+<div class="highlight"><pre><span></span><span class="nd">@routes.route</span><span class="p">(</span><span class="n">org_scoped_rule</span><span class="p">(</span><span class="s1">&#39;/logout&#39;</span><span class="p">))</span>
+<span class="k">def</span> <span class="nf">logout</span><span class="p">(</span><span class="n">org_slug</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">settings</span><span class="o">.</span><span class="n">QLOUD_OAUTH_ENABLED</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;redirect to qloud auth&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;logout url </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">QLOUD_LOGOUT_URL</span><span class="o">+</span><span class="n">get_login_url</span><span class="p">(</span>
+            <span class="nb">next</span><span class="o">=</span><span class="p">(</span><span class="n">request</span><span class="o">.</span><span class="n">host_url</span> <span class="o">+</span> <span class="s1">&#39;/qloud-auth/logout&#39;</span><span class="p">))))</span>
+        <span class="n">logout_user</span><span class="p">()</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">QLOUD_LOGOUT_URL</span> <span class="o">+</span> <span class="n">request</span><span class="o">.</span><span class="n">host_url</span> <span class="o">+</span> <span class="s1">&#39;qloud-auth/logout&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">settings</span><span class="o">.</span><span class="n">QLOUD_LOGOUT_URL</span> <span class="o">+</span> <span class="n">request</span><span class="o">.</span><span class="n">host_url</span> <span class="o">+</span> <span class="s1">&#39;qloud-auth/logout&#39;</span><span class="p">)</span>
+
+    <span class="n">logout_user</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">get_login_url</span><span class="p">(</span><span class="nb">next</span><span class="o">=</span><span class="bp">None</span><span class="p">))</span>
+</pre></div>
+
+
+<p>redash默认的用户登录信息是在客户端的cookie中存储的,无法实现从sso登出之后,实现redash登录,如果需要实现的话,应该修改redsh的session存储
+在SSO登出的时候,通知redash在Server端删除session.等下次客户端访问的时候,进行cookie的删除.具体做法如下:</p>
+<div class="highlight"><pre><span></span><span class="c1">#在app.py中,导入flask_session</span>
+<span class="kn">from</span> <span class="nn">flask_session</span> <span class="kn">import</span> <span class="n">Session</span>
+
+<span class="c1">#在create_app方法中添加如下代码</span>
+
+<span class="c1"># set session in redis</span>
+<span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;SECRET_KEY&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">settings</span><span class="o">.</span><span class="n">SECRET_KEY</span>
+<span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;SESSION_TYPE&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;redis&#39;</span>
+<span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;SESSION_KEY_PREFIX&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;redash-session:&#39;</span>
+<span class="n">app</span><span class="o">.</span><span class="n">config</span><span class="p">[</span><span class="s1">&#39;SESSION_REDIS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">redis_connection</span>
+<span class="n">Session</span><span class="p">(</span><span class="n">app</span><span class="p">)</span>
+</pre></div>
+
+
+<p>在SSO回调的方法中,删除用户session</p>
+<div class="highlight"><pre><span></span><span class="c1">#该方法为sso的回调方法</span>
+<span class="nd">@routes.route</span><span class="p">(</span><span class="n">org_scoped_rule</span><span class="p">(</span><span class="s1">&#39;/qloud-auth/logout&#39;</span><span class="p">),</span> <span class="n">methods</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;GET&#39;</span><span class="p">,</span> <span class="s1">&#39;POST&#39;</span><span class="p">])</span>
+<span class="k">def</span> <span class="nf">qloud_auth_logout</span><span class="p">(</span><span class="n">org_slug</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+
+    <span class="k">if</span> <span class="n">request</span><span class="o">.</span><span class="n">method</span> <span class="o">==</span> <span class="s1">&#39;POST&#39;</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;begin to qloud-auth logout with post&quot;</span><span class="p">)</span>
+        <span class="n">request_data</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s1">&#39;logoutRequest&#39;</span><span class="p">]</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;request data is </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">request_data</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">tree</span> <span class="o">=</span> <span class="n">et</span><span class="o">.</span><span class="n">fromstring</span><span class="p">(</span><span class="n">request_data</span><span class="p">)</span>
+            <span class="n">user_name</span> <span class="o">=</span> <span class="n">tree</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">text</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;user_name </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">user_name</span><span class="p">)</span>
+
+            <span class="n">user</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">User</span><span class="o">.</span><span class="n">get_by_name_and_org</span><span class="p">(</span><span class="n">user_name</span><span class="p">,</span> <span class="n">current_org</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;user_id </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+            <span class="n">__delete_server_session</span><span class="p">(</span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">models</span><span class="o">.</span><span class="n">NoResultFound</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;do not found user with request body </span><span class="si">%s</span><span class="s2"> &quot;</span> <span class="o">%</span> <span class="n">request_data</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;begin to qloud-auth logout with get&quot;</span><span class="p">)</span>
+        <span class="n">logout_user</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">redirect</span><span class="p">(</span><span class="n">get_login_url</span><span class="p">(</span><span class="nb">next</span><span class="o">=</span><span class="bp">None</span><span class="p">))</span>
+
+
+<span class="k">def</span> <span class="nf">__delete_server_session</span><span class="p">(</span><span class="n">user_id</span><span class="p">):</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="n">redis_connection</span><span class="o">.</span><span class="n">keys</span><span class="p">(</span><span class="s1">&#39;redash-session:*&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">redis_connection</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;session value is </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;V</span><span class="si">%s</span><span class="s2">-&quot;</span> <span class="o">%</span> <span class="n">user_id</span><span class="p">)</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+            <span class="n">redis_connection</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">True</span>
+    <span class="k">return</span> <span class="bp">False</span>
+</pre></div>
+
+
+<p>在loader_user的时候,进行session查询和判断,没有找到session,通知客户端,删除cookie</p>
+<div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">__check_server_session</span><span class="p">(</span><span class="n">user_id_with_identity</span><span class="p">):</span>
+    <span class="n">keys</span> <span class="o">=</span> <span class="n">redis_connection</span><span class="o">.</span><span class="n">keys</span><span class="p">(</span><span class="s1">&#39;redash-session:*&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="n">redis_connection</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;session value is </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">user_id_with_identity</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">True</span>
+    <span class="k">return</span> <span class="bp">False</span>
+
+<span class="nd">@login_manager.user_loader</span>
+<span class="k">def</span> <span class="nf">load_user</span><span class="p">(</span><span class="n">user_id_with_identity</span><span class="p">):</span>
+    <span class="n">org</span> <span class="o">=</span> <span class="n">current_org</span><span class="o">.</span><span class="n">_get_current_object</span><span class="p">()</span>
+
+    <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">    Users who logged in prior to https://github.com/getredash/redash/pull/3174 going live are going</span>
+<span class="sd">    to have their (integer) user_id as their session user identifier.</span>
+<span class="sd">    These session user identifiers will be updated the first time they visit any page so we add special</span>
+<span class="sd">    logic to allow a frictionless transition.</span>
+<span class="sd">    This logic will be removed 2-4 weeks after going live, and users who haven&#39;t</span>
+<span class="sd">    visited any page during that time will simply have to log in again.</span>
+<span class="sd">    &#39;&#39;&#39;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;session is </span><span class="si">%s</span><span class="s2"> &quot;</span> <span class="o">%</span> <span class="n">session</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;is_legacy_session_identifier is </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">user_id_with_identity</span><span class="p">)</span>
+
+    <span class="n">is_legacy_session_identifier</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">user_id_with_identity</span><span class="p">)</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">0</span>
+
+    <span class="k">if</span> <span class="n">is_legacy_session_identifier</span><span class="p">:</span>
+        <span class="n">user_id</span> <span class="o">=</span> <span class="n">user_id_with_identity</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">user_id</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">user_id_with_identity</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">user</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">User</span><span class="o">.</span><span class="n">get_by_id_and_org</span><span class="p">(</span><span class="n">user_id</span><span class="p">,</span> <span class="n">org</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">user</span><span class="o">.</span><span class="n">is_disabled</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+
+        <span class="k">if</span> <span class="n">is_legacy_session_identifier</span><span class="p">:</span>
+            <span class="n">login_user</span><span class="p">(</span><span class="n">user</span><span class="p">,</span> <span class="n">remember</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">user</span><span class="o">.</span><span class="n">get_id</span><span class="p">()</span> <span class="o">!=</span> <span class="n">user_id_with_identity</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">__check_server_session</span><span class="p">(</span><span class="n">user_id_with_identity</span><span class="p">):</span>
+            <span class="c1"># if server session dose not exist,note client to delete cookie</span>
+            <span class="k">if</span> <span class="s1">&#39;user_id&#39;</span> <span class="ow">in</span> <span class="n">session</span><span class="p">:</span>
+                <span class="n">session</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;user_id&#39;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="s1">&#39;_fresh&#39;</span> <span class="ow">in</span> <span class="n">session</span><span class="p">:</span>
+                <span class="n">session</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;_fresh&#39;</span><span class="p">)</span>
+
+            <span class="n">cookie_name</span> <span class="o">=</span> <span class="n">current_app</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;REMEMBER_COOKIE_NAME&#39;</span><span class="p">,</span> <span class="s2">&quot;remember_token&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">cookie_name</span> <span class="ow">in</span> <span class="n">request</span><span class="o">.</span><span class="n">cookies</span><span class="p">:</span>
+                <span class="n">session</span><span class="p">[</span><span class="s1">&#39;remember&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;clear&#39;</span>
+
+            <span class="n">user_logged_out</span><span class="o">.</span><span class="n">send</span><span class="p">(</span><span class="n">current_app</span><span class="o">.</span><span class="n">_get_current_object</span><span class="p">(),</span> <span class="n">user</span><span class="o">=</span><span class="n">user</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">None</span>
+
+        <span class="k">return</span> <span class="n">user</span>
+    <span class="k">except</span> <span class="n">models</span><span class="o">.</span><span class="n">NoResultFound</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">None</span>
+</pre></div>
+
+
+<h2></h2>
+<h1>参考</h1>
+<ul>
+<li><a href="https://redash.io/">https://redash.io/</a></li>
+<li><a href="https://redash.io/help/open-source/dev-guide/setup">https://redash.io/help/open-source/dev-guide/setup</a></li>
+<li><a href="https://redash.io/help/open-source/dev-guide/docker">https://redash.io/help/open-source/dev-guide/docker</a></li>
+<li><a href="https://www.jianshu.com/p/9e91aa8782da">https://www.jianshu.com/p/9e91aa8782da</a></li>
+<li><a href="https://github.com/getredash/redash">https://github.com/getredash/redash</a></li>
+</ul>
+            <aside>
+            <hr/>
+            <nav>
+            <ul class="articles_timeline">
+ 
+                <li class="previous_article">« <a href="/2019-05-28-100323-ch.html" title="Previous: 使用python链接stompy">使用python链接stompy</a></li>
+ 
+                <li class="next_article"><a href="/2019-05-30-141229-ch.html" title="Next: Debezium介绍和使用">Debezium介绍和使用</a> »</li>
+            </ul>
+            </nav>
+            </aside>
+        </div>
+        <section>
+        <div class="span2" style="float:right;font-size:0.9em;">
+ 
+            <h4>Published</h4>
+            <time pubdate="pubdate" datetime="2019-05-28T10:35:41+08:00"> 5 28, 2019</time>
+            <h4>Category</h4>
+            <a class="category-link" href="/categories.html#bigdata-ref">bigdata</a> 
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article"> 
+                <li><a href="/tags.html#Redash-ref">Redash
+                    <span>1</span>
+</a></li>
+            </ul>
+
+        </div>
+        </section>
+</div>
+<div id="gitalk-container"></div>
+</article>
+
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+<script>
+    var gitalk = new Gitalk({
+        clientID: '55daf540951794dd3faf',
+        clientSecret: 'd6eaad9fa6d9e7ff2647ef8b6e21327da0cc7cda',
+        repo: 'blog-comment',
+        owner: 'xixuebin',
+        admin: ['xixuebin'],
+        id: location.pathname,      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+    })
+
+    gitalk.render('gitalk-container')
+</script>
+
+                </div>
+                <div class="span1"></div>
+            </div>
+        </div>
+    </div>
+<footer>
+<div id="footer">
+    <ul class="footer-content">
+        <li class="elegant-power">Powered by <a href="http://getpelican.com/" title="Pelican Home Page">Pelican</a>. Theme: <a href="http://oncrashreboot.com/pelican-elegant" title="Theme Elegant Home Page">Elegant</a> by <a href="http://oncrashreboot.com" title="Talha Mansoor Home Page">Talha Mansoor</a></li>
+    </ul>
+</div>
+</footer>            <script src="https://code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+    </body>
+</html>

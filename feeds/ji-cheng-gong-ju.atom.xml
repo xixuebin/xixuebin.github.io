@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>寒玉 Blog - 集成工具</title><link href="xixuebin.github.io/" rel="alternate"></link><link href="xixuebin.github.io/feeds/ji-cheng-gong-ju.atom.xml" rel="self"></link><id>xixuebin.github.io/</id><updated>2019-04-01T14:43:03+08:00</updated><entry><title>Maven：mirror和repository区别</title><link href="xixuebin.github.io/2019-04-01-144303-ch.html" rel="alternate"></link><published>2019-04-01T14:43:03+08:00</published><updated>2019-04-01T14:43:03+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-04-01:xixuebin.github.io/2019-04-01-144303-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;hr&gt;
+&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
+
+&lt;h1&gt;Internal Repository&lt;/h1&gt;
+&lt;p&gt;Internal Repository是指在局域网内部构建的repository,它跟central repository的区别仅仅在于url指向的是一个内网网址.&lt;/p&gt;
+&lt;h1&gt;mirror&lt;/h1&gt;
+&lt;p&gt;mirror相当于一个代理,它会拦截去指定的远程仓库下载构建的请求,然后从自己这里找出构件回送给客户端。配置mirror的目的一般是出于网速考虑&lt;/p&gt;
+&lt;p&gt;关于maven如何查找pom.xml里dependencies里配置的插件，暂且不考虑本地仓库的存在maven会根据最终的repository集合里依次查找，如果查到了就从该仓库下载，并且停止对后续repository的查找。所以可以看出用户在pom.xml里配置repository时，repository的顺序还是挺重要的。&lt;/p&gt;
+&lt;p&gt;mirror是配置在maven的settings.xml文件中&lt;/p&gt;
+&lt;h2&gt;mirror的定义&lt;/h2&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nt"&gt;&amp;lt;mirrors&amp;gt;&lt;/span&gt;  
+    &lt;span class="nt"&gt;&amp;lt;mirror&amp;gt;&lt;/span&gt;  
+        &lt;span class="nt"&gt;&amp;lt;id&amp;gt;&lt;/span&gt;planetmirror.com&lt;span class="nt"&gt;&amp;lt;/id&amp;gt;&lt;/span&gt;  
+        &lt;span class="nt"&gt;&amp;lt;name&amp;gt;&lt;/span&gt;PlanetMirror Australia&lt;span class="nt"&gt;&amp;lt;/name&amp;gt;&lt;/span&gt;  
+        &lt;span class="nt"&gt;&amp;lt;url&amp;gt;&lt;/span&gt;http://downloads.planetmirror.com/pub/maven2&lt;span class="nt"&gt;&amp;lt;/url&amp;gt;&lt;/span&gt;  
+        &lt;span class="nt"&gt;&amp;lt;mirrorOf&amp;gt;&lt;/span&gt;central&lt;span class="nt"&gt;&amp;lt;/mirrorOf&amp;gt;&lt;/span&gt;  
+    &lt;span class="nt"&gt;&amp;lt;/mirror&amp;gt;&lt;/span&gt;  
+&lt;span class="nt"&gt;&amp;lt;/mirrors&amp;gt;&lt;/span&gt;  
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;id, name是该镜像的唯一定义符。id用来区分不同的mirror元素.
+url是该镜像的URL。构建系统会优先考虑使用该URL，而非使用默认的服务器URL。
+mirrorOf是被镜像的服务器的id。例如，如果我们要设置了一个Maven中央仓库&lt;a href="http://repo1.maven.org/maven2"&gt;http://repo1.maven.org/maven2&lt;/a&gt;的镜像，就需要将该元素设置成central。这必须和中央仓库的id central完全一致.&lt;/p&gt;
+&lt;h2&gt;repository的定义&lt;/h2&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nt"&gt;&amp;lt;repositories&amp;gt;&lt;/span&gt;  
+    &lt;span class="nt"&gt;&amp;lt;repository&amp;gt;&lt;/span&gt;  
+        &lt;span class="nt"&gt;&amp;lt;id&amp;gt;&lt;/span&gt;offical&lt;span class="nt"&gt;&amp;lt;/id&amp;gt;&lt;/span&gt;  
+        &lt;span class="nt"&gt;&amp;lt;name&amp;gt;&lt;/span&gt;Maven Official Repository&lt;span class="nt"&gt;&amp;lt;/name&amp;gt;&lt;/span&gt;  
+        &lt;span class="nt"&gt;&amp;lt;url&amp;gt;&lt;/span&gt;http://repo1.maven.org/maven2&lt;span class="nt"&gt;&amp;lt;/url&amp;gt;&lt;/span&gt;  
+        &lt;span class="nt"&gt;&amp;lt;snapshots&amp;gt;&lt;/span&gt;  
+            &lt;span class="nt"&gt;&amp;lt;enabled&amp;gt;&lt;/span&gt;false&lt;span class="nt"&gt;&amp;lt;/enabled&amp;gt;&lt;/span&gt;  
+        &lt;span class="nt"&gt;&amp;lt;/snapshots&amp;gt;&lt;/span&gt;  
+    &lt;span class="nt"&gt;&amp;lt;/repository&amp;gt;&lt;/span&gt;  
+    &lt;span class="nt"&gt;&amp;lt;repository&amp;gt;&lt;/span&gt;  
+        &lt;span class="nt"&gt;&amp;lt;id&amp;gt;&lt;/span&gt;jboss&lt;span class="nt"&gt;&amp;lt;/id&amp;gt;&lt;/span&gt;  
+        &lt;span class="nt"&gt;&amp;lt;name&amp;gt;&lt;/span&gt;Jboss Repository&lt;span class="nt"&gt;&amp;lt;/name&amp;gt;&lt;/span&gt;  
+        &lt;span class="nt"&gt;&amp;lt;url&amp;gt;&lt;/span&gt;http://repository.jboss.org/nexus/content/groups/public-jboss/&lt;span class="nt"&gt;&amp;lt;/url&amp;gt;&lt;/span&gt;  
+        &lt;span class="nt"&gt;&amp;lt;snapshots&amp;gt;&lt;/span&gt;  
+            &lt;span class="nt"&gt;&amp;lt;enabled&amp;gt;&lt;/span&gt;false&lt;span class="nt"&gt;&amp;lt;/enabled&amp;gt;&lt;/span&gt;  
+        &lt;span class="nt"&gt;&amp;lt;/snapshots&amp;gt;&lt;/span&gt;  
+    &lt;span class="nt"&gt;&amp;lt;/repository&amp;gt;&lt;/span&gt;  
+&lt;span class="nt"&gt;&amp;lt;/repositories&amp;gt;&lt;/span&gt;  
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h1&gt;参考&lt;/h1&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://blog.csdn.net/u011768325/article/details/49735397"&gt;https://blog.csdn.net/u011768325/article/details/49735397&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><category term="集成工具"></category><category term="maven"></category></entry></feed>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>寒玉 Blog - risk controller</title><link href="xixuebin.github.io/" rel="alternate"></link><link href="xixuebin.github.io/feeds/risk-controller.atom.xml" rel="self"></link><id>xixuebin.github.io/</id><updated>2018-08-24T10:27:02+08:00</updated><entry><title>基于Storm、Esper CEP及Spark构建异常交易行为风险监控系统</title><link href="xixuebin.github.io/risk-controller-2018-08-24-1550-ch.html" rel="alternate"></link><published>2018-08-24T10:27:02+08:00</published><updated>2018-08-24T10:27:02+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2018-08-24:xixuebin.github.io/risk-controller-2018-08-24-1550-ch.html</id><summary type="html"></summary><content type="html">&lt;hr&gt;
+&lt;blockquote&gt;
+&lt;p&gt;2015年以来，随着股市的持续火爆，中国证监会、证券业协会先后发布相关文件，要求对证券公司外部信息系统接入风险加强行业监管和自律。其中要求证券公司应当建立投资者证券、资金账户风险监测模型，动态监测账户交易行为特征、客户交易终端定位信息、账户资金进出等情况，及时发现借助信息系统外部接入、非法接入网上交易接口等方式开展的违规拆分账户、出借账户或违反账户实名制等违法违规行为线索，并及时予以处理。同时，根据交易所的相关规定，对于出现某些异常交易行为的，交易所会对相关投资者发出书面警示，或者直接采取暂停投资者账户当日交易、限制投资者账户交易等措施。为了更好地应对此类风险，我们利用最新的大数据相关技术，实现对海量交易数据进行各类复杂的实时与离线相结合的异常交易行为分析。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h1&gt;业务需求&lt;/h1&gt;
+&lt;h2&gt;事前风控&lt;/h2&gt;
+&lt;p&gt;事前风控可对交易指令先进行风险监控,通过监控的交易质量才提交给交易系统进行处理,未通过监控的交易指令将直接予以拒绝.事前风控要求处理时间很短.&lt;/p&gt;</content><category term="storm"></category><category term="spark"></category><category term="risk controller"></category></entry></feed>
