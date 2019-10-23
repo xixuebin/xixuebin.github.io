@@ -78,10 +78,123 @@
 <ul>
 <li>index文件按照书序记录了Mariadb/Mysql使用的所有binlog文件，管理binlog文件。</li>
 </ul>
+<h2>binlog操作</h2>
+<div class="highlight"><pre><span></span><span class="c1"># 查看binlog</span>
+mysql&gt; show binary logs<span class="p">;</span>
+<span class="c1"># 查看binlog事件</span>
+mysql&gt; show binary events<span class="p">;</span>
+</pre></div>
+
+
+<h2>binlog配置</h2>
+<p>binlog的配置在mysql的配置文件中,默认的配置文件是<code>/etc/my.cnf</code>.相关配置项</p>
+<div class="highlight"><pre><span></span><span class="nv">expire_logs_days</span> <span class="o">=</span> <span class="m">5</span> <span class="c1">#配置定情清理</span>
+log-bin<span class="o">=</span>/var/mysql/mysql-bin <span class="c1"># bin log日志路径</span>
+<span class="nv">binlog_format</span><span class="o">=</span>ROW
+</pre></div>
+
+
+<p>修改完成之后必须重启,才能生效</p>
+<h2>binlog常用命令</h2>
+<div class="highlight"><pre><span></span><span class="c1">#0 查看日志开启状态 show variables like &#39;log_%&#39;;</span>
+mysql&gt; show variables like <span class="s1">&#39;log_%&#39;</span><span class="p">;</span>
++-------------------------------------------------------------------------------------------------------------------------------------+
+<span class="p">|</span> Variable_name                   <span class="p">|</span> Value                                                                                             <span class="p">|</span>
++-------------------------------------------------------------------------------------------------------------------------------------+
+<span class="p">|</span> log_bin                         <span class="p">|</span> ON                                                                                                <span class="p">|</span>
+<span class="p">|</span> log_bin_basename                <span class="p">|</span> /var/log/mysql/mariadb-bin                                                                        <span class="p">|</span>
+<span class="p">|</span> log_bin_compress                <span class="p">|</span> OFF                                                                                               <span class="p">|</span>
+<span class="p">|</span> log_bin_compress_min_len        <span class="p">|</span> <span class="m">256</span>                                                                                               <span class="p">|</span>
+<span class="p">|</span> log_bin_index                   <span class="p">|</span> /var/log/mysql/mariadb-bin.index                                                                  <span class="p">|</span>
+<span class="p">|</span> log_bin_trust_function_creators <span class="p">|</span> OFF                                                                                               <span class="p">|</span>
+<span class="p">|</span> log_disabled_statements         <span class="p">|</span> sp                                                                                                <span class="p">|</span>
+<span class="p">|</span> log_error                       <span class="p">|</span>                                                                                                   <span class="p">|</span>
+<span class="p">|</span> log_output                      <span class="p">|</span> FILE                                                                                              <span class="p">|</span>
+<span class="p">|</span> log_queries_not_using_indexes   <span class="p">|</span> OFF                                                                                               <span class="p">|</span>
+<span class="p">|</span> log_slave_updates               <span class="p">|</span> OFF                                                                                               <span class="p">|</span>
+<span class="p">|</span> log_slow_admin_statements       <span class="p">|</span> ON                                                                                                <span class="p">|</span>
+<span class="p">|</span> log_slow_disabled_statements    <span class="p">|</span> sp                                                                                                <span class="p">|</span>
+<span class="p">|</span> log_slow_filter                 <span class="p">|</span> admin,filesort,filesort_on_disk,filesort_priority_queue,...,query_cache_miss,tmp_table            <span class="p">|</span>
+<span class="p">|</span> log_slow_rate_limit             <span class="p">|</span> <span class="m">1</span>                                                                                                 <span class="p">|</span>
+<span class="p">|</span> log_slow_slave_statements       <span class="p">|</span> ON                                                                                                <span class="p">|</span>
+<span class="p">|</span> log_slow_verbosity              <span class="p">|</span>                                                                                                   <span class="p">|</span>
+<span class="p">|</span> log_tc_size                     <span class="p">|</span> <span class="m">24576</span>                                                                                             <span class="p">|</span>
+<span class="p">|</span> log_warnings                    <span class="p">|</span> <span class="m">2</span>                                                                                                 <span class="p">|</span>
++-------------------------------------------------------------------------------------------------------------------------------------+
+<span class="m">19</span> rows in <span class="nb">set</span> <span class="o">(</span><span class="m">0</span>.05 sec<span class="o">)</span>
+<span class="c1"># 查看所有日志</span>
+mysql&gt; show master logs<span class="p">;</span>
++--------------------+-----------+
+<span class="p">|</span> Log_name           <span class="p">|</span> File_size <span class="p">|</span>
++--------------------+-----------+
+<span class="p">|</span> mariadb-bin.000017 <span class="p">|</span> <span class="m">104858004</span> <span class="p">|</span>
+<span class="p">|</span> mariadb-bin.000018 <span class="p">|</span> <span class="m">105248607</span> <span class="p">|</span>
+<span class="p">|</span> mariadb-bin.000019 <span class="p">|</span> <span class="m">105317664</span> <span class="p">|</span>
+<span class="p">|</span> mariadb-bin.000020 <span class="p">|</span> <span class="m">105143468</span> <span class="p">|</span>
+<span class="p">|</span> mariadb-bin.000021 <span class="p">|</span> <span class="m">104857727</span> <span class="p">|</span>
+<span class="p">|</span> mariadb-bin.000022 <span class="p">|</span> <span class="m">104915425</span> <span class="p">|</span>
+<span class="p">|</span> mariadb-bin.000023 <span class="p">|</span> <span class="m">94849361</span>  <span class="p">|</span>
++--------------------+-----------+
+<span class="m">7</span> rows in <span class="nb">set</span> <span class="o">(</span><span class="m">0</span>.09 sec<span class="o">)</span>
+<span class="c1">#查看最新一个binlog日志的编号名称，及其最后一个操作事件结束点 show master status;</span>
+mysql&gt; show master status<span class="p">;</span>
++--------------------+----------+--------------+------------------+
+<span class="p">|</span> File               <span class="p">|</span> Position <span class="p">|</span> Binlog_Do_DB <span class="p">|</span> Binlog_Ignore_DB <span class="p">|</span>
++--------------------+----------+--------------+------------------+
+<span class="p">|</span> mariadb-bin.000023 <span class="p">|</span> <span class="m">94861723</span> <span class="p">|</span>              <span class="p">|</span>                  <span class="p">|</span>
++--------------------+----------+--------------+------------------+
+<span class="m">1</span> rows in <span class="nb">set</span> <span class="o">(</span><span class="m">0</span>.05 sec<span class="o">)</span>
+
+<span class="c1"># 刷新log日志，立刻产生一个新编号的binlog日志文件，跟重启一个效果 flush logs;</span>
+<span class="c1"># 清空所有binlog日志 reset master;</span>
+
+<span class="c1"># 查看指定binlog文件的内容(show binlog events in &#39;binname.xxxxx&#39;)#</span>
+mysql&gt; show binlog events in <span class="s1">&#39;mariadb-bin.000023&#39;</span> limit <span class="m">4</span><span class="p">;</span>
++--------------------+-----+-------------------+-----------+-------------+-----------------------------------------------------------------------+
+<span class="p">|</span> Log_name           <span class="p">|</span> Pos <span class="p">|</span> Event_type        <span class="p">|</span> Server_id <span class="p">|</span> End_log_pos <span class="p">|</span> Info                                                                  <span class="p">|</span>
++--------------------+-----+-------------------+-----------+-------------+-----------------------------------------------------------------------+
+<span class="p">|</span> mariadb-bin.000023 <span class="p">|</span> <span class="m">4</span>   <span class="p">|</span> Format_desc       <span class="p">|</span> <span class="m">1</span>         <span class="p">|</span> <span class="m">256</span>         <span class="p">|</span> Server ver: <span class="m">10</span>.3.10-MariaDB-1:10.3.10+maria~bionic-log, Binlog ver: <span class="m">4</span> <span class="p">|</span>
+<span class="p">|</span> mariadb-bin.000023 <span class="p">|</span> <span class="m">256</span> <span class="p">|</span> Gtid_list         <span class="p">|</span> <span class="m">1</span>         <span class="p">|</span> <span class="m">299</span>         <span class="p">|</span> <span class="o">[</span><span class="m">0</span>-1-1650762<span class="o">]</span>                                                         <span class="p">|</span>
+<span class="p">|</span> mariadb-bin.000023 <span class="p">|</span> <span class="m">299</span> <span class="p">|</span> Binlog_checkpoint <span class="p">|</span> <span class="m">1</span>         <span class="p">|</span> <span class="m">344</span>         <span class="p">|</span> mariadb-bin.000022                                                    <span class="p">|</span>
+<span class="p">|</span> mariadb-bin.000023 <span class="p">|</span> <span class="m">344</span> <span class="p">|</span> Gtid              <span class="p">|</span> <span class="m">1</span>         <span class="p">|</span> <span class="m">386</span>         <span class="p">|</span> BEGIN GTID <span class="m">0</span>-1-1650763                                                <span class="p">|</span>
++--------------------+-----+-------------------+-----------+-------------+-----------------------------------------------------------------------+
+
+<span class="c1"># 获取指定位置binlog的内容(show binlog events from)</span>
+</pre></div>
+
+
+<h2>Mysqlbinlog方式提取binlog</h2>
+<div class="highlight"><pre><span></span><span class="c1">#a、提取指定的binlog日志</span>
+<span class="c1"># mysqlbinlog /opt/data/APP01bin.000001</span>
+<span class="c1"># mysqlbinlog /opt/data/APP01bin.000001|grep insert</span>
+/*!40019 SET @@session.max_insert_delayed_threads<span class="o">=</span><span class="m">0</span>*/<span class="p">;</span>
+insert into tb values<span class="o">(</span><span class="m">2</span>,<span class="s1">&#39;jack&#39;</span><span class="o">)</span>
+<span class="c1">#b、提取指定position位置的binlog日志</span>
+mysqlbinlog --start-position<span class="o">=</span><span class="s2">&quot;120&quot;</span> --stop-position<span class="o">=</span><span class="s2">&quot;332&quot;</span> /opt/data/APP01bin.000001
+<span class="c1">#c、提取指定position位置的binlog日志并输出到压缩文件</span>
+mysqlbinlog --start-position<span class="o">=</span><span class="s2">&quot;120&quot;</span> --stop-position<span class="o">=</span><span class="s2">&quot;332&quot;</span> /opt/data/APP01bin.000001 <span class="p">|</span>gzip &gt;extra_01.sql.gz
+<span class="c1">#d、提取指定position位置的binlog日志导入数据库</span>
+mysqlbinlog --start-position<span class="o">=</span><span class="s2">&quot;120&quot;</span> --stop-position<span class="o">=</span><span class="s2">&quot;332&quot;</span> /opt/data/APP01bin.000001 <span class="p">|</span> mysql -uroot -p
+<span class="c1">#e、提取指定开始时间的binlog并输出到日志文件</span>
+mysqlbinlog --start-datetime<span class="o">=</span><span class="s2">&quot;2014-12-15 20:15:23&quot;</span> /opt/data/APP01bin.000002 --result-file<span class="o">=</span>extra02.sql
+<span class="c1">#f、提取指定位置的多个binlog日志文件</span>
+mysqlbinlog --start-position<span class="o">=</span><span class="s2">&quot;120&quot;</span> --stop-position<span class="o">=</span><span class="s2">&quot;332&quot;</span> /opt/data/APP01bin.000001 /opt/data/APP01bin.000002<span class="p">|</span>more
+<span class="c1">#g、提取指定数据库binlog并转换字符集到UTF8</span>
+mysqlbinlog --database<span class="o">=</span><span class="nb">test</span> --set-charset<span class="o">=</span>utf8 /opt/data/APP01bin.000001 /opt/data/APP01bin.000002 &gt;test.sql
+<span class="c1">#h、远程提取日志，指定结束时间 </span>
+mysqlbinlog -urobin -p -h192.168.1.116 -P3306 --stop-datetime<span class="o">=</span><span class="s2">&quot;2014-12-15 20:30:23&quot;</span> --read-from-remote-server mysql-bin.000033 <span class="p">|</span>more
+<span class="c1">#i、远程提取使用row格式的binlog日志并输出到本地文件</span>
+mysqlbinlog -urobin -p -P3606 -h192.168.1.177 --read-from-remote-server -vv inst3606bin.000005 &gt;row.sql
+</pre></div>
+
+
 <h2>参考</h2>
 <ul>
+<li><a href="https://blog.51cto.com/6226001001/1672159">https://blog.51cto.com/6226001001/1672159</a></li>
 <li><a href="https://mariadb.com/kb/en/library/binary-log/">https://mariadb.com/kb/en/library/binary-log/</a></li>
 <li><a href="https://www.cnblogs.com/skymyyang/p/7798670.html">https://www.cnblogs.com/skymyyang/p/7798670.html</a></li>
+<li><a href="https://blog.csdn.net/leshami/article/details/41962243">https://blog.csdn.net/leshami/article/details/41962243</a></li>
+<li><a href="https://www.linuxidc.com/Linux/2018-01/150149.htm">https://www.linuxidc.com/Linux/2018-01/150149.htm</a></li>
 </ul>
             <aside>
             <hr/>
@@ -108,7 +221,7 @@
                     <span>1</span>
 </a></li>
                 <li><a href="/tags.html#database-ref">database
-                    <span>1</span>
+                    <span>3</span>
 </a></li>
                 <li><a href="/tags.html#mysql-ref">mysql
                     <span>1</span>

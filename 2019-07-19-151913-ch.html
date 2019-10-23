@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en-US">
+    <head>
+        <meta charset="utf-8"> 
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="author" content="kevin.xi" />
+        <meta name="copyright" content="kevin.xi" />
+
+<meta name="keywords" content="database, debezium, database, " />
+        <title>Debezium趟坑记录  · 寒玉 Blog
+</title>
+        <!-- <link href="http://cdn-images.mailchimp.com/embedcode/slim-081711.css" rel="stylesheet" type="text/css"> -->
+        <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="/theme/css/style.css" media="screen">
+        <link rel="stylesheet" type="text/css" href="/theme/css/solarizedlight.css" media="screen">
+        <link rel="shortcut icon" href="/theme/images/favicon.ico" type="image/x-icon" />
+        <link rel="apple-touch-icon" href="/theme/images/apple-touch-icon.png" />
+        <link rel="apple-touch-icon" sizes="57x57" href="/theme/images/apple-touch-icon-57x57.png" />
+        <link rel="apple-touch-icon" sizes="72x72" href="/theme/images/apple-touch-icon-72x72.png" />
+        <link rel="apple-touch-icon" sizes="114x114" href="/theme/images/apple-touch-icon-114x114.png" />
+        <link rel="apple-touch-icon" sizes="144x144" href="/theme/images/apple-touch-icon-144x144.png" />
+        <link rel="icon" href="/theme/images/apple-touch-icon-144x144.png" />
+    </head>
+    <body>
+        <div id="content-sans-footer">
+        <div class="navbar navbar-static-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a class="brand" href="/"><span class=site-name>寒玉 Blog</span></a>
+                    <div class="nav-collapse collapse">
+                        <ul class="nav pull-right top-menu">
+                            <li ><a href="">Home</a></li>
+                            <li ><a href="/pages/books-date-2017-12-05-1130-ch.html">Books</a></li>
+                            <li ><a href="/pages/about-date-2015-05-10-1010-ch.html">About Me</a></li>
+                            <li ><a href="/categories.html">Categories</a></li>
+                            <li ><a href="/tags.html">Tags</a></li>
+                            <li ><a href="/archives.html">Archives</a></li>
+                            <li><form class="navbar-search" action="/search.html" onsubmit="return validateForm(this.elements['q'].value);"> <input type="text" class="search-query" placeholder="Search" name="q" id="tipue_search_input"></form></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span1"></div>
+                <div class="span10">
+<article>
+<div class="row-fluid">
+    <header class="page_header span10 offset2">
+    <h1><a href="/2019-07-19-151913-ch.html"> Debezium趟坑记录  </a></h1>
+    </header>
+</div>
+
+<div class="row-fluid">
+        <div class="span8 offset2 article-content">
+
+            <!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets -->
+
+<h1>Debezium趟坑记录</h1>
+<h2>创建表导致connector报错</h2>
+<p>这几天发现Debezium上注册的mysql connector 在报一个错误,错误信息如下:</p>
+<div class="highlight"><pre><span></span>org.apache.kafka.connect.errors.ConnectException: Maximum width must be from <span class="m">1</span> to <span class="m">9</span> inclusive but was <span class="m">0</span>
+    at io.debezium.connector.mysql.AbstractReader.wrap<span class="o">(</span>AbstractReader.java:230<span class="o">)</span>
+    at io.debezium.connector.mysql.AbstractReader.failed<span class="o">(</span>AbstractReader.java:208<span class="o">)</span>
+    at io.debezium.connector.mysql.BinlogReader.handleEvent<span class="o">(</span>BinlogReader.java:508<span class="o">)</span>
+    at com.github.shyiko.mysql.binlog.BinaryLogClient.notifyEventListeners<span class="o">(</span>BinaryLogClient.java:1095<span class="o">)</span>
+    at com.github.shyiko.mysql.binlog.BinaryLogClient.listenForEventPackets<span class="o">(</span>BinaryLogClient.java:943<span class="o">)</span>
+    at com.github.shyiko.mysql.binlog.BinaryLogClient.connect<span class="o">(</span>BinaryLogClient.java:580<span class="o">)</span>
+    at com.github.shyiko.mysql.binlog.BinaryLogClient<span class="nv">$7</span>.run<span class="o">(</span>BinaryLogClient.java:825<span class="o">)</span>
+    at java.lang.Thread.run<span class="o">(</span>Thread.java:748<span class="o">)</span>
+Caused by: java.lang.IllegalArgumentException: Maximum width must be from <span class="m">1</span> to <span class="m">9</span> inclusive but was <span class="m">0</span>
+    at java.time.format.DateTimeFormatterBuilder<span class="nv">$FractionPrinterParser</span>.&lt;init&gt;<span class="o">(</span>DateTimeFormatterBuilder.java:2922<span class="o">)</span>
+    at java.time.format.DateTimeFormatterBuilder.appendFraction<span class="o">(</span>DateTimeFormatterBuilder.java:687<span class="o">)</span>
+    at io.debezium.connector.mysql.MySqlDefaultValuePreConverter.timestampFormat<span class="o">(</span>MySqlDefaultValuePreConverter.java:239<span class="o">)</span>
+    at io.debezium.connector.mysql.MySqlDefaultValuePreConverter.convertToLocalDateTime<span class="o">(</span>MySqlDefaultValuePreConverter.java:129<span class="o">)</span>
+    at io.debezium.connector.mysql.MySqlDefaultValuePreConverter.convert<span class="o">(</span>MySqlDefaultValuePreConverter.java:68<span class="o">)</span>
+    at io.debezium.connector.mysql.antlr.listener.ColumnDefinitionParserListener.convertDefaultValueToSchemaType<span class="o">(</span>ColumnDefinitionParserListener.java:303<span class="o">)</span>
+    at io.debezium.connector.mysql.antlr.listener.ColumnDefinitionParserListener.enterDefaultValue<span class="o">(</span>ColumnDefinitionParserListener.java:142<span class="o">)</span>
+    at io.debezium.ddl.parser.mysql.generated.MySqlParser<span class="nv">$DefaultValueContext</span>.enterRule<span class="o">(</span>MySqlParser.java:46698<span class="o">)</span>
+    at io.debezium.antlr.ProxyParseTreeListenerUtil.delegateEnterRule<span class="o">(</span>ProxyParseTreeListenerUtil.java:46<span class="o">)</span>
+    at io.debezium.connector.mysql.antlr.listener.MySqlAntlrDdlParserListener.enterEveryRule<span class="o">(</span>MySqlAntlrDdlParserListener.java:89<span class="o">)</span>
+    at org.antlr.v4.runtime.tree.ParseTreeWalker.enterRule<span class="o">(</span>ParseTreeWalker.java:41<span class="o">)</span>
+    at org.antlr.v4.runtime.tree.ParseTreeWalker.walk<span class="o">(</span>ParseTreeWalker.java:25<span class="o">)</span>
+    at org.antlr.v4.runtime.tree.ParseTreeWalker.walk<span class="o">(</span>ParseTreeWalker.java:28<span class="o">)</span>
+    at org.antlr.v4.runtime.tree.ParseTreeWalker.walk<span class="o">(</span>ParseTreeWalker.java:28<span class="o">)</span>
+    at org.antlr.v4.runtime.tree.ParseTreeWalker.walk<span class="o">(</span>ParseTreeWalker.java:28<span class="o">)</span>
+    at org.antlr.v4.runtime.tree.ParseTreeWalker.walk<span class="o">(</span>ParseTreeWalker.java:28<span class="o">)</span>
+    at org.antlr.v4.runtime.tree.ParseTreeWalker.walk<span class="o">(</span>ParseTreeWalker.java:28<span class="o">)</span>
+    at org.antlr.v4.runtime.tree.ParseTreeWalker.walk<span class="o">(</span>ParseTreeWalker.java:28<span class="o">)</span>
+    at org.antlr.v4.runtime.tree.ParseTreeWalker.walk<span class="o">(</span>ParseTreeWalker.java:28<span class="o">)</span>
+    at org.antlr.v4.runtime.tree.ParseTreeWalker.walk<span class="o">(</span>ParseTreeWalker.java:28<span class="o">)</span>
+    at org.antlr.v4.runtime.tree.ParseTreeWalker.walk<span class="o">(</span>ParseTreeWalker.java:28<span class="o">)</span>
+    at io.debezium.antlr.AntlrDdlParser.parse<span class="o">(</span>AntlrDdlParser.java:85<span class="o">)</span>
+    at io.debezium.connector.mysql.MySqlSchema.applyDdl<span class="o">(</span>MySqlSchema.java:307<span class="o">)</span>
+    at io.debezium.connector.mysql.BinlogReader.handleQueryEvent<span class="o">(</span>BinlogReader.java:694<span class="o">)</span>
+    at io.debezium.connector.mysql.BinlogReader.handleEvent<span class="o">(</span>BinlogReader.java:492<span class="o">)</span>
+</pre></div>
+
+
+<p>很明显是一个日期格式解析的错误,但是会是什么日期呢,根据错误日志,往回翻了下日志,找到了相联系的上次条出错日志</p>
+<div class="highlight"><pre><span></span><span class="o">[</span><span class="m">2019</span>-07-19 <span class="m">09</span>:38:05,247<span class="o">]</span> ERROR Error during binlog processing. Last offset <span class="nv">stored</span> <span class="o">=</span> <span class="o">{</span><span class="nv">ts_sec</span><span class="o">=</span><span class="m">1562746455</span>, <span class="nv">file</span><span class="o">=</span>mariadb-bin.000018, <span class="nv">pos</span><span class="o">=</span><span class="m">58777691</span>, <span class="nv">row</span><span class="o">=</span><span class="m">1</span>, <span class="nv">server_id</span><span class="o">=</span><span class="m">1</span>, <span class="nv">event</span><span class="o">=</span><span class="m">6</span><span class="o">}</span>, binlog reader near <span class="nv">position</span> <span class="o">=</span> mariadb-bin.000018/67582355 <span class="o">(</span>io.debezium.connector.mysql.BinlogReader:1054<span class="o">)[</span><span class="m">2019</span>-07-19 <span class="m">09</span>:38:05,247<span class="o">]</span> TRACE Received event: Event<span class="o">{</span><span class="nv">header</span><span class="o">=</span>EventHeaderV4<span class="o">{</span><span class="nv">timestamp</span><span class="o">=</span><span class="m">1562642991000</span>, <span class="nv">eventType</span><span class="o">=</span>QUERY, <span class="nv">serverId</span><span class="o">=</span><span class="m">1</span>, <span class="nv">headerLength</span><span class="o">=</span><span class="m">19</span>, <span class="nv">dataLength</span><span class="o">=</span><span class="m">356</span>, <span class="nv">nextPosition</span><span class="o">=</span><span class="m">95707350</span>, <span class="nv">flags</span><span class="o">=</span><span class="m">8</span><span class="o">}</span>, <span class="nv">data</span><span class="o">=</span>QueryEventData<span class="o">{</span><span class="nv">threadId</span><span class="o">=</span><span class="m">0</span>, <span class="nv">executionTime</span><span class="o">=</span><span class="m">0</span>,errorCode<span class="o">=</span><span class="m">0</span>, <span class="nv">database</span><span class="o">=</span><span class="s1">&#39;&#39;</span>, <span class="nv">sql</span><span class="o">=</span><span class="err">&#39;</span><span class="c1"># Dummy event replacing event type 160 that slave cannot handle.</span>
+</pre></div>
+
+
+<p>上面的日志给出了具体出错的binlog所在的文件和位置.dump出具体的binlog内容,查看</p>
+<div class="highlight"><pre><span></span><span class="c1"># 开始位置必须是我们日志中的位置,结束位置根据你期望看到的日志大小,增加一个值.这里我增加了2000</span>
+mysqlbinlog --start-position<span class="o">=</span><span class="s2">&quot;67582355&quot;</span> --stop-position<span class="o">=</span><span class="s2">&quot;67584355&quot;</span> /opt/data/mariadb-bin.000018
+
+<span class="c1">#bin log 内容如下</span>
+
+root@mariadb-1-598c45cfb9-kf6rt:/var/log/mysql# mysqlbinlog --start-position<span class="o">=</span><span class="s2">&quot;67582355&quot;</span> --stop-position<span class="o">=</span><span class="s2">&quot;67585355&quot;</span> /var/log/mysql/mariadb-bin.000018
+/*!50530 SET @@SESSION.PSEUDO_SLAVE_MODE<span class="o">=</span><span class="m">1</span>*/<span class="p">;</span>
+/*!40019 SET @@session.max_insert_delayed_threads<span class="o">=</span><span class="m">0</span>*/<span class="p">;</span>
+/*!50003 SET @OLD_COMPLETION_TYPE<span class="o">=</span>@@COMPLETION_TYPE,COMPLETION_TYPE<span class="o">=</span><span class="m">0</span>*/<span class="p">;</span>
+DELIMITER /*!*/<span class="p">;</span>
+<span class="c1"># at 4</span>
+<span class="c1">#190709  3:31:18 server id 1  end_log_pos 256 CRC32 0x9f4535ee  Start: binlog v 4, server v 10.3.10-MariaDB-1:10.3.10+maria~bionic-log created 190709  3:31:18</span>
+BINLOG <span class="s1">&#39;</span>
+<span class="s1">hgokXQ8BAAAA/AAAAAABAAAAAAQAMTAuMy4xMC1NYXJpYURCLTE6MTAuMy4xMCttYXJpYX5iaW9u</span>
+<span class="s1">aWMtbG9nAAAAAAAAAAAAAAAAEzgNAAgAEgAEBAQEEgAA5AAEGggAAAAICAgCAAAACgoKAAAAAAAA</span>
+<span class="s1">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</span>
+<span class="s1">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA</span>
+<span class="s1">AAAAAAAAAAAEEwQADQgICAoKCgHuNUWf</span>
+<span class="s1">&#39;</span>/*!*/<span class="p">;</span>
+<span class="c1"># at 67582355</span>
+<span class="c1">#190710  8:52:12 server id 1  end_log_pos 67584614 CRC32 0x0cc5dedc     Query   thread_id=2003941       exec_time=0     error_code=0</span>
+use <span class="sb">`</span>fact_contract<span class="sb">`</span>/*!*/<span class="p">;</span>
+SET <span class="nv">TIMESTAMP</span><span class="o">=</span><span class="m">1562748732</span>/*!*/<span class="p">;</span>
+SET @@session.pseudo_thread_id<span class="o">=</span><span class="m">2003941</span>/*!*/<span class="p">;</span>
+SET @@session.foreign_key_checks<span class="o">=</span><span class="m">0</span>, @@session.sql_auto_is_null<span class="o">=</span><span class="m">0</span>, @@session.unique_checks<span class="o">=</span><span class="m">1</span>, @@session.autocommit<span class="o">=</span><span class="m">1</span>, @@session.check_constraint_checks<span class="o">=</span><span class="m">1</span>/*!*/<span class="p">;</span>
+SET @@session.sql_mode<span class="o">=</span><span class="m">1411383304</span>/*!*/<span class="p">;</span>
+SET @@session.auto_increment_increment<span class="o">=</span><span class="m">1</span>, @@session.auto_increment_offset<span class="o">=</span><span class="m">1</span>/*!*/<span class="p">;</span>
+/*!<span class="se">\C</span> utf8mb4 *//*!*/<span class="p">;</span>
+SET @@session.character_set_client<span class="o">=</span><span class="m">45</span>,@@session.collation_connection<span class="o">=</span><span class="m">45</span>,@@session.collation_server<span class="o">=</span><span class="m">8</span>/*!*/<span class="p">;</span>
+SET @@session.lc_time_names<span class="o">=</span><span class="m">0</span>/*!*/<span class="p">;</span>
+SET @@session.collation_database<span class="o">=</span>DEFAULT/*!*/<span class="p">;</span>
+CREATE TABLE <span class="sb">`</span>instance<span class="sb">`</span>  <span class="o">(</span>
+  <span class="sb">`</span>id<span class="sb">`</span> varchar<span class="o">(</span><span class="m">32</span><span class="o">)</span> CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT <span class="s1">&#39;主键ID&#39;</span>,
+  <span class="sb">`</span>name<span class="sb">`</span> varchar<span class="o">(</span><span class="m">255</span><span class="o">)</span> CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT <span class="s1">&#39;合同名称&#39;</span>,
+  <span class="sb">`</span>templateId<span class="sb">`</span> varchar<span class="o">(</span><span class="m">32</span><span class="o">)</span> CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT <span class="s1">&#39;合同模板ID&#39;</span>,
+  <span class="sb">`</span>contractNo<span class="sb">`</span> varchar<span class="o">(</span><span class="m">64</span><span class="o">)</span> CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT <span class="s1">&#39;合同编号&#39;</span>,
+  <span class="sb">`</span>docNo<span class="sb">`</span> varchar<span class="o">(</span><span class="m">64</span><span class="o">)</span> CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT <span class="s1">&#39;单据编号&#39;</span>,
+  <span class="sb">`</span>docType<span class="sb">`</span> varchar<span class="o">(</span><span class="m">32</span><span class="o">)</span> CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT <span class="s1">&#39;单据类型（\&quot;0 订单\n1 结算票\n2 发票\n3 付款承诺\n4 其他\&quot;）&#39;</span>,
+  <span class="sb">`</span>ccy<span class="sb">`</span> varchar<span class="o">(</span><span class="m">32</span><span class="o">)</span> CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT <span class="s1">&#39;币种\r\n&#39;</span>,
+  <span class="sb">`</span>parAmt<span class="sb">`</span> varchar<span class="o">(</span><span class="m">24</span><span class="o">)</span> CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT <span class="s1">&#39;票面金额\r\n&#39;</span>,
+  <span class="sb">`</span>accountReceiveAmt<span class="sb">`</span> varchar<span class="o">(</span><span class="m">24</span><span class="o">)</span> CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT <span class="s1">&#39;应收账款金额\r\n&#39;</span>,
+  <span class="sb">`</span>accountBegDate<span class="sb">`</span> datetime<span class="o">(</span><span class="m">0</span><span class="o">)</span> NULL DEFAULT NULL COMMENT <span class="s1">&#39;账款起始日\r\n&#39;</span>,
+  <span class="sb">`</span>accountEndDate<span class="sb">`</span> datetime<span class="o">(</span><span class="m">0</span><span class="o">)</span> NULL DEFAULT NULL COMMENT <span class="s1">&#39;账款到期日\r\n&#39;</span>,
+  <span class="sb">`</span>payTerm<span class="sb">`</span> varchar<span class="o">(</span><span class="m">32</span><span class="o">)</span> CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT <span class="s1">&#39;付款条件\r\n&#39;</span>,
+  <span class="sb">`</span>draftDate<span class="sb">`</span> datetime<span class="o">(</span><span class="m">0</span><span class="o">)</span> NULL DEFAULT NULL COMMENT <span class="s1">&#39;发票日\r\n&#39;</span>,
+  <span class="sb">`</span>inspectionDate<span class="sb">`</span> datetime<span class="o">(</span><span class="m">0</span><span class="o">)</span> NULL DEFAULT NULL COMMENT <span class="s1">&#39;验货日\r\n&#39;</span>,
+  <span class="sb">`</span>payDays<span class="sb">`</span> varchar<span class="o">(</span><span class="m">24</span><span class="o">)</span> CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT <span class="s1">&#39;付款天数\r\n&#39;</span>,
+  <span class="sb">`</span>createdBy<span class="sb">`</span> varchar<span class="o">(</span><span class="m">64</span><span class="o">)</span> CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT <span class="s1">&#39;记录创建人账号ID&#39;</span>,
+  <span class="sb">`</span>createdAt<span class="sb">`</span> datetime<span class="o">(</span><span class="m">0</span><span class="o">)</span> NULL DEFAULT current_timestamp<span class="o">()</span> COMMENT <span class="s1">&#39;记录创建时间&#39;</span>,
+  <span class="sb">`</span>modifiedBy<span class="sb">`</span> varchar<span class="o">(</span><span class="m">64</span><span class="o">)</span> CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT <span class="s1">&#39;记录修改人账号ID&#39;</span>,
+  <span class="sb">`</span>modifiedAt<span class="sb">`</span> datetime<span class="o">(</span><span class="m">0</span><span class="o">)</span> NULL DEFAULT NULL COMMENT <span class="s1">&#39;记录修改时间&#39;</span>,
+  PRIMARY KEY <span class="o">(</span><span class="sb">`</span>id<span class="sb">`</span><span class="o">)</span> USING BTREE
+<span class="o">)</span> <span class="nv">ENGINE</span> <span class="o">=</span> InnoDB CHARACTER <span class="nv">SET</span> <span class="o">=</span> utf8 <span class="nv">COLLATE</span> <span class="o">=</span> utf8_general_ci <span class="nv">COMMENT</span> <span class="o">=</span> <span class="s1">&#39;合同实例表&#39;</span> <span class="nv">ROW_FORMAT</span> <span class="o">=</span> Dynamic
+/*!*/<span class="p">;</span>
+<span class="c1"># at 67584614</span>
+<span class="c1">#190710  8:52:12 server id 1  end_log_pos 67584656 CRC32 0x8b622d76     GTID 0-1-1455487 ddl</span>
+/*!100101 SET @@session.skip_parallel_replication<span class="o">=</span><span class="m">0</span>*//*!*/<span class="p">;</span>
+/*!100001 SET @@session.gtid_domain_id<span class="o">=</span><span class="m">0</span>*//*!*/<span class="p">;</span>
+/*!100001 SET @@session.server_id<span class="o">=</span><span class="m">1</span>*//*!*/<span class="p">;</span>
+/*!100001 SET @@session.gtid_seq_no<span class="o">=</span><span class="m">1455487</span>*//*!*/<span class="p">;</span>
+<span class="c1"># at 67584656</span>
+</pre></div>
+
+
+<p>可以看到是一个数据库创建语句,里面有字段<code>datetime(0)</code>, 之前一直创建表的时候,使用的<code>datetime</code>的时候, 都是直接使用,没有使用过<code>datetime(0)</code>这种写法. 使用上面的SQL语句执行,发现可以创建成功,同时CDC报错.验证了之前的CDC的错误.</p>
+<p>寻找相关资料,发现Mysql中支持这种写法,<a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-type-overview.html">相关链接</a>.括号里面的值表示时间的秒后面保留的微秒的精度,取值范围是0-6,如果为0的话,可以默认不写.</p>
+<div class="highlight"><pre><span></span><span class="o">#</span> <span class="k">create</span> <span class="k">table</span>
+<span class="n">mysql</span><span class="o">&gt;</span><span class="k">CREATE</span> <span class="k">TABLE</span> <span class="n">t1</span> <span class="p">(</span><span class="n">t</span> <span class="n">TIME</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">dt</span> <span class="n">DATETIME</span><span class="p">(</span><span class="mi">0</span><span class="p">),</span><span class="n">dt1</span> <span class="n">DATETIME</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span><span class="n">dt2</span> <span class="n">DATETIME</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span> <span class="n">dt3</span> <span class="n">DATETIME</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span> <span class="n">dt4</span> <span class="n">DATETIME</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="n">dt5</span> <span class="n">DATETIME</span><span class="p">(</span><span class="mi">5</span><span class="p">),</span> <span class="n">dt6</span> <span class="n">DATETIME</span><span class="p">(</span><span class="mi">6</span><span class="p">));</span>
+
+<span class="n">mysql</span><span class="o">&gt;</span> <span class="k">desc</span> <span class="n">t1</span><span class="p">;</span>
+<span class="o">+</span><span class="c1">-------+-------------+------+-----+---------+-------+</span>
+<span class="o">|</span> <span class="n">Field</span> <span class="o">|</span> <span class="k">Type</span>        <span class="o">|</span> <span class="k">Null</span> <span class="o">|</span> <span class="k">Key</span> <span class="o">|</span> <span class="k">Default</span> <span class="o">|</span> <span class="n">Extra</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">-------+-------------+------+-----+---------+-------+</span>
+<span class="o">|</span> <span class="n">t</span>     <span class="o">|</span> <span class="n">time</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>     <span class="o">|</span> <span class="n">YES</span>  <span class="o">|</span>     <span class="o">|</span> <span class="k">NULL</span>    <span class="o">|</span>       <span class="o">|</span>
+<span class="o">|</span> <span class="n">dt</span>    <span class="o">|</span> <span class="n">datetime</span>    <span class="o">|</span> <span class="n">YES</span>  <span class="o">|</span>     <span class="o">|</span> <span class="k">NULL</span>    <span class="o">|</span>       <span class="o">|</span>
+<span class="o">|</span> <span class="n">dt1</span>   <span class="o">|</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">|</span> <span class="n">YES</span>  <span class="o">|</span>     <span class="o">|</span> <span class="k">NULL</span>    <span class="o">|</span>       <span class="o">|</span>
+<span class="o">|</span> <span class="n">dt2</span>   <span class="o">|</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="o">|</span> <span class="n">YES</span>  <span class="o">|</span>     <span class="o">|</span> <span class="k">NULL</span>    <span class="o">|</span>       <span class="o">|</span>
+<span class="o">|</span> <span class="n">dt3</span>   <span class="o">|</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">|</span> <span class="n">YES</span>  <span class="o">|</span>     <span class="o">|</span> <span class="k">NULL</span>    <span class="o">|</span>       <span class="o">|</span>
+<span class="o">|</span> <span class="n">dt4</span>   <span class="o">|</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="o">|</span> <span class="n">YES</span>  <span class="o">|</span>     <span class="o">|</span> <span class="k">NULL</span>    <span class="o">|</span>       <span class="o">|</span>
+<span class="o">|</span> <span class="n">dt5</span>   <span class="o">|</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span> <span class="o">|</span> <span class="n">YES</span>  <span class="o">|</span>     <span class="o">|</span> <span class="k">NULL</span>    <span class="o">|</span>       <span class="o">|</span>
+<span class="o">|</span> <span class="n">dt6</span>   <span class="o">|</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span> <span class="o">|</span> <span class="n">YES</span>  <span class="o">|</span>     <span class="o">|</span> <span class="k">NULL</span>    <span class="o">|</span>       <span class="o">|</span>
+<span class="o">+</span><span class="c1">-------+-------------+------+-----+---------+-------+</span>
+<span class="mi">8</span> <span class="k">rows</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">05</span> <span class="n">sec</span><span class="p">)</span>
+
+<span class="n">mysql</span><span class="o">&gt;</span> <span class="k">select</span> <span class="o">*</span> <span class="k">from</span> <span class="n">t1</span><span class="p">;</span>
+<span class="o">+</span><span class="c1">--------------+---------------------+-----------------------+------------------------+-------------------------+--------------------------+---------------------------+----------------------------+</span>
+<span class="o">|</span> <span class="n">t</span>            <span class="o">|</span> <span class="n">dt</span>                  <span class="o">|</span> <span class="n">dt1</span>                   <span class="o">|</span> <span class="n">dt2</span>                    <span class="o">|</span> <span class="n">dt3</span>                     <span class="o">|</span> <span class="n">dt4</span>                      <span class="o">|</span> <span class="n">dt5</span>                       <span class="o">|</span> <span class="n">dt6</span>                        <span class="o">|</span>
+<span class="o">+</span><span class="c1">--------------+---------------------+-----------------------+------------------------+-------------------------+--------------------------+---------------------------+----------------------------+</span>
+<span class="o">|</span> <span class="mi">14</span><span class="p">:</span><span class="mi">18</span><span class="p">:</span><span class="mi">44</span><span class="p">.</span><span class="mi">000</span> <span class="o">|</span> <span class="mi">2019</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">19</span> <span class="mi">14</span><span class="p">:</span><span class="mi">18</span><span class="p">:</span><span class="mi">46</span> <span class="o">|</span> <span class="mi">2019</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">19</span> <span class="mi">14</span><span class="p">:</span><span class="mi">18</span><span class="p">:</span><span class="mi">49</span><span class="p">.</span><span class="mi">0</span> <span class="o">|</span> <span class="mi">2019</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">19</span> <span class="mi">14</span><span class="p">:</span><span class="mi">18</span><span class="p">:</span><span class="mi">51</span><span class="p">.</span><span class="mi">00</span> <span class="o">|</span> <span class="mi">2019</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">19</span> <span class="mi">14</span><span class="p">:</span><span class="mi">18</span><span class="p">:</span><span class="mi">52</span><span class="p">.</span><span class="mi">000</span> <span class="o">|</span> <span class="mi">2019</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">19</span> <span class="mi">14</span><span class="p">:</span><span class="mi">18</span><span class="p">:</span><span class="mi">54</span><span class="p">.</span><span class="mi">0000</span> <span class="o">|</span> <span class="mi">2019</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">19</span> <span class="mi">14</span><span class="p">:</span><span class="mi">18</span><span class="p">:</span><span class="mi">57</span><span class="p">.</span><span class="mi">00000</span> <span class="o">|</span> <span class="mi">2019</span><span class="o">-</span><span class="mi">07</span><span class="o">-</span><span class="mi">19</span> <span class="mi">14</span><span class="p">:</span><span class="mi">19</span><span class="p">:</span><span class="mi">00</span><span class="p">.</span><span class="mi">000000</span> <span class="o">|</span>
+<span class="o">+</span><span class="c1">--------------+---------------------+-----------------------+------------------------+-------------------------+--------------------------+---------------------------+----------------------------+</span>
+<span class="mi">1</span> <span class="k">rows</span> <span class="k">in</span> <span class="k">set</span> <span class="p">(</span><span class="mi">0</span><span class="p">.</span><span class="mi">04</span> <span class="n">sec</span><span class="p">)</span>
+</pre></div>
+
+
+<p>既然Mysql支持,那就是Debezium解析的时候,逻辑不严谨报错了.查看Debezium的代码.我们当前使用的Debezium的版本是v0.94.Final.</p>
+<p>追踪代码,发现在Debeziume的代码中,MySqlDefaultValuePreConverter类中,会对默认值进行转换,当为时间类型的时候,使用了JDK中的DateTimeFormatterBuilder,该类在format的时候,可以指定保留的微秒的位数.具体代码如下:</p>
+<div class="highlight"><pre><span></span><span class="kd">private</span> <span class="n">DateTimeFormatter</span> <span class="nf">timestampFormat</span><span class="o">(</span><span class="kt">int</span> <span class="n">length</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kd">final</span> <span class="n">DateTimeFormatterBuilder</span> <span class="n">dtf</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DateTimeFormatterBuilder</span><span class="o">()</span>
+                <span class="o">.</span><span class="na">appendPattern</span><span class="o">(</span><span class="s">&quot;yyyy-MM-dd HH:mm:ss&quot;</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">length</span> <span class="o">!=-</span><span class="mi">1</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">dtf</span><span class="o">.</span><span class="na">appendFraction</span><span class="o">(</span><span class="n">ChronoField</span><span class="o">.</span><span class="na">MICRO_OF_SECOND</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">length</span><span class="o">,</span> <span class="kc">true</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">dtf</span><span class="o">.</span><span class="na">toFormatter</span><span class="o">();</span>
+    <span class="o">}</span>
+</pre></div>
+
+
+<p>我们给datetime(0)的时候,该方法中的length值为0,而次方法中只进行length不等于-1的判断,所以会执行appendFraction方法</p>
+<div class="highlight"><pre><span></span><span class="kd">public</span> <span class="n">DateTimeFormatterBuilder</span> <span class="nf">appendFraction</span><span class="o">(</span>
+            <span class="n">TemporalField</span> <span class="n">field</span><span class="o">,</span> <span class="kt">int</span> <span class="n">minWidth</span><span class="o">,</span> <span class="kt">int</span> <span class="n">maxWidth</span><span class="o">,</span> <span class="kt">boolean</span> <span class="n">decimalPoint</span><span class="o">)</span> <span class="o">{</span>
+        <span class="n">appendInternal</span><span class="o">(</span><span class="k">new</span> <span class="n">FractionPrinterParser</span><span class="o">(</span><span class="n">field</span><span class="o">,</span> <span class="n">minWidth</span><span class="o">,</span> <span class="n">maxWidth</span><span class="o">,</span> <span class="n">decimalPoint</span><span class="o">));</span>
+        <span class="k">return</span> <span class="k">this</span><span class="o">;</span>
+    <span class="o">}</span>
+
+<span class="n">FractionPrinterParser</span><span class="o">(</span><span class="n">TemporalField</span> <span class="n">field</span><span class="o">,</span> <span class="kt">int</span> <span class="n">minWidth</span><span class="o">,</span> <span class="kt">int</span> <span class="n">maxWidth</span><span class="o">,</span> <span class="kt">boolean</span> <span class="n">decimalPoint</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">Objects</span><span class="o">.</span><span class="na">requireNonNull</span><span class="o">(</span><span class="n">field</span><span class="o">,</span> <span class="s">&quot;field&quot;</span><span class="o">);</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">field</span><span class="o">.</span><span class="na">range</span><span class="o">().</span><span class="na">isFixed</span><span class="o">()</span> <span class="o">==</span> <span class="kc">false</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span><span class="o">(</span><span class="s">&quot;Field must have a fixed set of values: &quot;</span> <span class="o">+</span> <span class="n">field</span><span class="o">);</span>
+            <span class="o">}</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">minWidth</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">minWidth</span> <span class="o">&gt;</span> <span class="mi">9</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span><span class="o">(</span><span class="s">&quot;Minimum width must be from 0 to 9 inclusive but was &quot;</span> <span class="o">+</span> <span class="n">minWidth</span><span class="o">);</span>
+            <span class="o">}</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">maxWidth</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="o">||</span> <span class="n">maxWidth</span> <span class="o">&gt;</span> <span class="mi">9</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span><span class="o">(</span><span class="s">&quot;Maximum width must be from 1 to 9 inclusive but was &quot;</span> <span class="o">+</span> <span class="n">maxWidth</span><span class="o">);</span>
+            <span class="o">}</span>
+            <span class="k">if</span> <span class="o">(</span><span class="n">maxWidth</span> <span class="o">&lt;</span> <span class="n">minWidth</span><span class="o">)</span> <span class="o">{</span>
+                <span class="k">throw</span> <span class="k">new</span> <span class="n">IllegalArgumentException</span><span class="o">(</span><span class="s">&quot;Maximum width must exceed or equal the minimum width but &quot;</span> <span class="o">+</span>
+                        <span class="n">maxWidth</span> <span class="o">+</span> <span class="s">&quot; &lt; &quot;</span> <span class="o">+</span> <span class="n">minWidth</span><span class="o">);</span>
+            <span class="o">}</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">field</span> <span class="o">=</span> <span class="n">field</span><span class="o">;</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">minWidth</span> <span class="o">=</span> <span class="n">minWidth</span><span class="o">;</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">maxWidth</span> <span class="o">=</span> <span class="n">maxWidth</span><span class="o">;</span>
+            <span class="k">this</span><span class="o">.</span><span class="na">decimalPoint</span> <span class="o">=</span> <span class="n">decimalPoint</span><span class="o">;</span>
+        <span class="o">}</span>
+</pre></div>
+
+
+<p>该方法在length &lt; 1 的时候会报错,从而导致connector悬起来了.发现在Debezium在后面的版本中,即v0.9.5.Final中已经修复了该问题,修复代码如下:</p>
+<div class="highlight"><pre><span></span><span class="kd">private</span> <span class="n">DateTimeFormatter</span> <span class="nf">timestampFormat</span><span class="o">(</span><span class="kt">int</span> <span class="n">length</span><span class="o">)</span> <span class="o">{</span>
+        <span class="kd">final</span> <span class="n">DateTimeFormatterBuilder</span> <span class="n">dtf</span> <span class="o">=</span> <span class="k">new</span> <span class="n">DateTimeFormatterBuilder</span><span class="o">()</span>
+                <span class="o">.</span><span class="na">appendPattern</span><span class="o">(</span><span class="s">&quot;yyyy-MM-dd HH:mm:ss&quot;</span><span class="o">);</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">length</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+            <span class="n">dtf</span><span class="o">.</span><span class="na">appendFraction</span><span class="o">(</span><span class="n">ChronoField</span><span class="o">.</span><span class="na">MICRO_OF_SECOND</span><span class="o">,</span> <span class="mi">0</span><span class="o">,</span> <span class="n">length</span><span class="o">,</span> <span class="kc">true</span><span class="o">);</span>
+        <span class="o">}</span>
+        <span class="k">return</span> <span class="n">dtf</span><span class="o">.</span><span class="na">toFormatter</span><span class="o">();</span>
+    <span class="o">}</span>
+</pre></div>
+
+
+<p>所以在v0.9.5.Final及以后的版本,应该不会出现该问题.</p>
+<h2>参考</h2>
+<ul>
+<li><a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-type-overview.html">https://dev.mysql.com/doc/refman/8.0/en/date-and-time-type-overview.html</a></li>
+<li><a href="https://dev.mysql.com/doc/refman/8.0/en/timestamp-initialization.html">https://dev.mysql.com/doc/refman/8.0/en/timestamp-initialization.html</a></li>
+<li><a href="https://github.com/debezium/debezium/">https://github.com/debezium/debezium/</a></li>
+<li><a href="https://debezium.io/docs/connectors/mysql/#enabling-gtids-optional">https://debezium.io/docs/connectors/mysql/#enabling-gtids-optional</a></li>
+</ul>
+            <aside>
+            <hr/>
+            <nav>
+            <ul class="articles_timeline">
+ 
+                <li class="previous_article">« <a href="/2019-06-28-100218-ch.html" title="Previous: Subllime工具">Subllime工具</a></li>
+ 
+                <li class="next_article"><a href="/2019-10-12-175329-ch.html" title="Next: Siddhi梳理">Siddhi梳理</a> »</li>
+            </ul>
+            </nav>
+            </aside>
+        </div>
+        <section>
+        <div class="span2" style="float:right;font-size:0.9em;">
+ 
+            <h4>Published</h4>
+            <time pubdate="pubdate" datetime="2019-07-19T15:19:13+08:00"> 7 19, 2019</time>
+            <h4>Category</h4>
+            <a class="category-link" href="/categories.html#database-ref">database</a> 
+            <h4>Tags</h4>
+            <ul class="list-of-tags tags-in-article"> 
+                <li><a href="/tags.html#database-ref">database
+                    <span>3</span>
+</a></li>
+                <li><a href="/tags.html#debezium-ref">debezium
+                    <span>2</span>
+</a></li>
+            </ul>
+
+        </div>
+        </section>
+</div>
+<div id="gitalk-container"></div>
+</article>
+
+<link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+<script>
+    var gitalk = new Gitalk({
+        clientID: '55daf540951794dd3faf',
+        clientSecret: 'd6eaad9fa6d9e7ff2647ef8b6e21327da0cc7cda',
+        repo: 'blog-comment',
+        owner: 'xixuebin',
+        admin: ['xixuebin'],
+        id: location.pathname,      // Ensure uniqueness and length less than 50
+        distractionFreeMode: false  // Facebook-like distraction free mode
+    })
+
+    gitalk.render('gitalk-container')
+</script>
+
+                </div>
+                <div class="span1"></div>
+            </div>
+        </div>
+    </div>
+<footer>
+<div id="footer">
+    <ul class="footer-content">
+        <li class="elegant-power">Powered by <a href="http://getpelican.com/" title="Pelican Home Page">Pelican</a>. Theme: <a href="http://oncrashreboot.com/pelican-elegant" title="Theme Elegant Home Page">Elegant</a> by <a href="http://oncrashreboot.com" title="Talha Mansoor Home Page">Talha Mansoor</a></li>
+    </ul>
+</div>
+</footer>            <script src="https://code.jquery.com/jquery.min.js"></script>
+        <script src="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
+        <script>
+            function validateForm(query)
+            {
+                return (query.length > 0);
+            }
+        </script>
+
+    </body>
+</html>

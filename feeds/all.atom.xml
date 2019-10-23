@@ -1,5 +1,423 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>寒玉 Blog</title><link href="xixuebin.github.io/" rel="alternate"></link><link href="xixuebin.github.io/feeds/all.atom.xml" rel="self"></link><id>xixuebin.github.io/</id><updated>2019-06-28T10:02:18+08:00</updated><entry><title>Subllime工具</title><link href="xixuebin.github.io/2019-06-28-100218-ch.html" rel="alternate"></link><published>2019-06-28T10:02:18+08:00</published><updated>2019-06-28T10:02:18+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-06-28:xixuebin.github.io/2019-06-28-100218-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>寒玉 Blog</title><link href="xixuebin.github.io/" rel="alternate"></link><link href="xixuebin.github.io/feeds/all.atom.xml" rel="self"></link><id>xixuebin.github.io/</id><updated>2019-10-12T17:53:29+08:00</updated><entry><title>Siddhi梳理</title><link href="xixuebin.github.io/2019-10-12-175329-ch.html" rel="alternate"></link><published>2019-10-12T17:53:29+08:00</published><updated>2019-10-12T17:53:29+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-10-12:xixuebin.github.io/2019-10-12-175329-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
+
+&lt;h2&gt;介绍&lt;/h2&gt;
+&lt;p&gt;&lt;em&gt;Siddhi CEP&lt;/em&gt; 是一个开源的,轻量级,易使用的Complex Event Processing Engine(ecp).具有自己的DSL.丰富的模式匹配功能和可扩展性.
+官网地址&lt;a href="https://siddhi.io/"&gt;https://siddhi.io/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;架构&lt;/p&gt;
+&lt;p&gt;&lt;img alt="2019-10-12-18-44-14" src="http://xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/images/b4b2d7aa76a27bd84ebda0d5710c5281.png"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt="2019-10-12-18-45-35" src="http://xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/images/3137a440a32c635a8546fbcce94cb2ed.png"&gt;&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;名称&lt;/th&gt;
+&lt;th&gt;描述&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Stream&lt;/td&gt;
+&lt;td&gt;A logical series of events ordered in time with a uniquely identifiable name, and a defined set of typed attributes defining its schema.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Event&lt;/td&gt;
+&lt;td&gt;An event is a single event object associated with a stream. All events of a stream contains a timestamp and an identical set of typed attributes based on the schema of the stream they belong to.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Table&lt;/td&gt;
+&lt;td&gt;A structured representation of data stored with a defined schema. Stored data can be backed by In-Memory, or external data stores such as RDBMS, MongoDB, etc. The tables can be accessed and manipulated at runtime.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Named-Window&lt;/td&gt;
+&lt;td&gt;A structured representation of data stored with a defined schema and eviction policy. Window data is stored In-Memory and automatically cleared by the named-window constrain. Other siddhi elements can only query the values in windows at runtime but they cannot modify them.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Named-Aggregation&lt;/td&gt;
+&lt;td&gt;A structured representation of data that's incrementally aggregated and stored with a defined schema and aggregation granularity such as seconds, minutes, hours, etc. Aggregation data is stored both In-Memory and in external data stores such as RDBMS. Other siddhi elements can only query the values in windows at runtime but they cannot modify them.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Query&lt;/td&gt;
+&lt;td&gt;A logical construct that processes events in streaming manner by by consuming data from one or more streams, tables, windows and aggregations, and publishes output events into a stream, table or a window.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Source&lt;/td&gt;
+&lt;td&gt;A construct that consumes data from external sources (such as TCP, Kafka, HTTP, etc) with various event formats such as XML, JSON, binary, etc, convert then to Siddhi events, and passes into streams for processing.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Sink&lt;/td&gt;
+&lt;td&gt;A construct that consumes events arriving at a stream, maps them to a predefined data format (such as XML, JSON, binary, etc), and publishes them to external endpoints (such as E-mail, TCP, Kafka, HTTP, etc).&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Input Handler&lt;/td&gt;
+&lt;td&gt;A mechanism to programmatically inject events into streams.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Stream/Query Callback&lt;/td&gt;
+&lt;td&gt;A mechanism to programmatically consume output events from streams or queries.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Partition&lt;/td&gt;
+&lt;td&gt;A logical container that isolates the processing of queries based on the partition keys derived from the events.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Inner Stream&lt;/td&gt;
+&lt;td&gt;A positionable stream that connects portioned queries with each other within the partition.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2&gt;组件&lt;/h2&gt;
+&lt;h3&gt;siddhi-running&lt;/h3&gt;
+&lt;p&gt;siddhi的主应用程序,负责规则的调度,运行&lt;/p&gt;
+&lt;h3&gt;siddhi-tooling&lt;/h3&gt;
+&lt;p&gt;siddhi的规则编辑器,完成规则的编辑,测试和发布&lt;/p&gt;
+&lt;h2&gt;部署&lt;/h2&gt;
+&lt;h3&gt;部署前提条件&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Memory - 128 MB (最小), 500 MB (建议), higher memory might be needed based on in-memory data stored for processing&lt;/li&gt;
+&lt;li&gt;Cores - 2 cores (建议), use lower number of cores after testing Siddhi Apps for performance&lt;/li&gt;
+&lt;li&gt;JDK - 8 or 11&lt;/li&gt;
+&lt;li&gt;To build Siddhi from the Source distribution, it is necessary that you have JDK version 8 or 11 and Maven 3.0.4 or later&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;部署Siddhi-runner&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;wget https://github.com/siddhi-io/distribution/releases/download/v5.1.0/siddhi-runner-5.1.0.zip
+mv siddhi-runner-5.1.0.zip /opt/siddhi
+unzip siddhi-runner-5.1.0.zip
+./siddhi-runner-5.1.0/bin/runner.sh //启动runner
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;部署Siddhi-tooling&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;wget https://github.com/siddhi-io/distribution/releases/download/v5.1.0/siddhi-tooling-5.1.0.zip
+mv siddhi-tooling-5.1.0.zip /opt/siddhi
+unzip siddhi-tooling-5.1.0.zip
+./siddhi-tooling-5.1.0/bin/tooling.s //启动tooling
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;tooling启动之后,访问地址&lt;a href="htt://localhost:9390/editor#"&gt;htt://localhost:9390/editor#&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;主页如下:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="2019-10-12-18-51-47" src="http://xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/images/9de3a123f4eb93f7854e40064f5cfce6.png"&gt;&lt;/p&gt;
+&lt;p&gt;流程可视化界面&lt;/p&gt;
+&lt;p&gt;&lt;img alt="2019-10-12-18-52-30" src="http://xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/images/fb0e8b427f3c0405c780b92a22855f69.png"&gt;&lt;/p&gt;
+&lt;h2&gt;扩展&lt;/h2&gt;
+&lt;p&gt;siddhi有许多扩展可以使用,用于扩展它的消息处理形式和扩展.扩展列表&lt;a href="https://siddhi.io/en/v5.1/docs/extensions/"&gt;https://siddhi.io/en/v5.1/docs/extensions/&lt;/a&gt;.&lt;/p&gt;
+&lt;h3&gt;siddhi-io-kafka&lt;/h3&gt;
+&lt;p&gt;siddhi-io-kafka可以帮助siddhi从kafka收取消息,并将处理的结果发送回kafka topic. &lt;a href="https://siddhi-io.github.io/siddhi-io-kafka/"&gt;地址&lt;/a&gt;.&lt;/p&gt;
+&lt;h4&gt;安装siddhi-io-kafka&lt;/h4&gt;
+&lt;p&gt;该扩展的安装需要,需要一些kafka的jar包.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;kafka_2.11-*.jar
+kafka-clients-*.jar
+metrics-core-*.jar
+scala-library-2.11.*.jar
+scala-parser-combinators_2.11.*.jar &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;if&lt;/span&gt; exists&lt;span class="o"&gt;)&lt;/span&gt;
+zkclient-*.jar
+zookeeper-*.jar
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;siddhi的扩展jar包会放到根目录下的jars和bundles目录下.&lt;/p&gt;
+&lt;p&gt;转化jar文件为osgi的bundle jar .操作过程如下&lt;/p&gt;
+&lt;p&gt;创建目录source,放置kafka的相关jar文件到该目录下.创建一个destination目录.运行命令:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;{&lt;/span&gt;WSO2SPHome&lt;span class="o"&gt;}&lt;/span&gt;/bin/jartobundle.sh  &lt;span class="nb"&gt;source&lt;/span&gt; destination
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;添加destination目录下的jar文件到siddhi的bundles目录下,添加source目录下的jar文件到siddhi的jar文件夹下,重启siddhi,完成组件安装&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;备注&lt;/em&gt;
+因为siddhi中本身是安装有siddhi-io-kafka插件的,我们所做的工作其实就是添加kafka的链接类库&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="n"&gt;App&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;HelloKafkaApp&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="n"&gt;App&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="n"&gt;description&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;Description of the plan&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="c1"&gt;-- define stream siddhiStream1 (symbol string, price double, volume long);&lt;/span&gt;
+
+&lt;span class="c1"&gt;-- @sink(type=&amp;#39;kafka&amp;#39;, bootstrap.servers=&amp;#39;localhost:6667&amp;#39;,topic=&amp;#39;siddhi_sink_kafka&amp;#39;,is.binary.message=&amp;#39;True&amp;#39; )&lt;/span&gt;
+
+&lt;span class="c1"&gt;-- @sink(type=&amp;#39;kafka&amp;#39; , bootstrap.servers=&amp;#39;localhost:6667&amp;#39;,topic=&amp;#39;siddhi_sink_kafka&amp;#39;,is.binary.message=&amp;#39;True&amp;#39;)&lt;/span&gt;
+&lt;span class="c1"&gt;-- define stream outputStream (symbol string, price double, volume long);&lt;/span&gt;
+&lt;span class="c1"&gt;-- @sink(type=&amp;#39;log&amp;#39;, prefix=&amp;#39;LOGGER&amp;#39;)&lt;/span&gt;
+&lt;span class="c1"&gt;-- @sink(type=&amp;#39;kafka&amp;#39; , bootstrap.servers=&amp;#39;localhost:6667&amp;#39;,topic=&amp;#39;siddhi_sink_kafka&amp;#39;,is.binary.message=&amp;#39;True&amp;#39;, @map(type=&amp;#39;json&amp;#39;) )&lt;/span&gt;
+&lt;span class="c1"&gt;-- @sink(type=&amp;#39;log&amp;#39;, prefix=&amp;#39;LOGGER&amp;#39;)&lt;/span&gt;
+&lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="n"&gt;sink&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;type&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;kafka&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;bootstrap&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;servers&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="ss"&gt;&amp;quot;localhost:6667&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;topic&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="ss"&gt;&amp;quot;siddhi_sink_kafka&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;is&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nb"&gt;binary&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;message&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="ss"&gt;&amp;quot;True&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="k"&gt;map&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;type&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;json&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;span class="n"&gt;define&lt;/span&gt; &lt;span class="n"&gt;stream&lt;/span&gt; &lt;span class="n"&gt;OutputStream1&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;price&lt;/span&gt; &lt;span class="n"&gt;double&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+&lt;span class="c1"&gt;-- Please refer to https://siddhi.io/en/v5.1/docs/quick-start/ on getting started with Siddhi editor.&lt;/span&gt;
+&lt;span class="c1"&gt;-- , enclosing.element=&amp;#39;$&amp;#39;, @attributes(price=&amp;quot;price&amp;quot;)&lt;/span&gt;
+&lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="k"&gt;source&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;type&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;kafka&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;bootstrap&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;servers&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="ss"&gt;&amp;quot;localhost:6667&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;topic&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;list&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="ss"&gt;&amp;quot;siddhi_kafka&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;group&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="ss"&gt;&amp;quot;siddhi_group&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;threading&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="k"&gt;option&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="ss"&gt;&amp;quot;single.thread&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="k"&gt;map&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;type&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;json&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;span class="n"&gt;define&lt;/span&gt; &lt;span class="n"&gt;stream&lt;/span&gt; &lt;span class="n"&gt;siddhiStream1&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;price&lt;/span&gt; &lt;span class="n"&gt;double&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+&lt;span class="c1"&gt;-- -- define stream OutputStream(symbol string, price double, volume long);&lt;/span&gt;
+
+&lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="n"&gt;info&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;query1&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;from&lt;/span&gt; &lt;span class="n"&gt;siddhiStream1&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;price&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;20&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="k"&gt;select&lt;/span&gt; &lt;span class="n"&gt;price&lt;/span&gt;
+&lt;span class="k"&gt;insert&lt;/span&gt; &lt;span class="k"&gt;into&lt;/span&gt; &lt;span class="n"&gt;OutputStream1&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;siddhi-store-rdbms&lt;/h3&gt;
+&lt;p&gt;siddhi-store-rdbms插件可以帮助siddhi将事件持久化并从数据库中(如mysql,ms-sql,postgresql,h2和oracle中检索事件).&lt;a href="https://github.com/siddhi-io/siddhi-store-rdbms"&gt;地址&lt;/a&gt;&lt;/p&gt;
+&lt;h4&gt;安装siddhi-store-rdbms&lt;/h4&gt;
+&lt;p&gt;改组建的安装,只需要copy相关的jdbc connector jar到siddhi中即可.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="n"&gt;App&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;&amp;quot;SquidAlertRule&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="n"&gt;App&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="n"&gt;description&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;&amp;quot;Description of the plan&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="c1"&gt;-- Please refer to https://siddhi.io/en/v5.1/docs/quick-start/ on getting started with Siddhi editor.&lt;/span&gt;
+
+
+&lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="k"&gt;source&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;type&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;kafka&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;bootstrap&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;servers&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="ss"&gt;&amp;quot;localhost:6667&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;topic&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;list&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="ss"&gt;&amp;quot;siddhi_squid_kafka&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;group&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="ss"&gt;&amp;quot;siddhi_group&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;threading&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="k"&gt;option&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="ss"&gt;&amp;quot;single.thread&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="k"&gt;map&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;type&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;json&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;span class="n"&gt;define&lt;/span&gt; &lt;span class="n"&gt;stream&lt;/span&gt; &lt;span class="n"&gt;SquidDataStream&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;domain&lt;/span&gt; &lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+&lt;span class="c1"&gt;-- @store(type=&amp;quot;rdbms&amp;quot;, jdbc.url=&amp;quot;jdbc:mysql://localhost:3306/hotel&amp;quot;,&lt;/span&gt;
+&lt;span class="c1"&gt;--       username=&amp;quot;siddhi&amp;quot;, password=&amp;quot;123&amp;quot;,&lt;/span&gt;
+&lt;span class="c1"&gt;--       jdbc.driver.name=&amp;quot;com.mysql.jdbc.Driver&amp;quot;,&lt;/span&gt;
+&lt;span class="c1"&gt;--       @cache(size=&amp;quot;1000&amp;quot;, retention.period=&amp;quot;5 min&amp;quot;, purge.interval=&amp;quot;1 min&amp;quot;))&lt;/span&gt;
+&lt;span class="c1"&gt;-- define table BlackDomainTable (username string, salary double);&lt;/span&gt;
+
+
+&lt;span class="c1"&gt;-- @store(type=&amp;#39;rdbms&amp;#39; , jdbc.url=&amp;#39;jdbc:mariadb://localhost:30939/siddhi&amp;#39;,username=&amp;#39;root&amp;#39;,password=&amp;#39;******&amp;#39;,jdbc.driver.name=&amp;#39;org.mariadb.jdbc.Driver&amp;#39;,table.name=&amp;#39;blackDomain&amp;#39;)&lt;/span&gt;
+&lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="n"&gt;store&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;type&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;rdbms&amp;#39;&lt;/span&gt; &lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;jdbc&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;url&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;jdbc:mysql://localhost:3306/siddhi&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;username&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;root&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;password&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;******&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;jdbc&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;driver&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;com.mysql.cj.jdbc.Driver&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="k"&gt;table&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;blackDomain&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;define&lt;/span&gt; &lt;span class="k"&gt;table&lt;/span&gt; &lt;span class="n"&gt;blackDomain&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;domain&lt;/span&gt; &lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+
+&lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="n"&gt;sink&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;type&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;kafka&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;bootstrap&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;servers&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="ss"&gt;&amp;quot;localhost:6667&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;topic&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="ss"&gt;&amp;quot;siddhi_squid_sink_kafka&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;is&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nb"&gt;binary&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;message&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="ss"&gt;&amp;quot;True&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="k"&gt;map&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;type&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;json&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;span class="n"&gt;define&lt;/span&gt; &lt;span class="n"&gt;stream&lt;/span&gt; &lt;span class="n"&gt;SquidSinkDataStream&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;domain&lt;/span&gt; &lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;is_alert&lt;/span&gt; &lt;span class="n"&gt;bool&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+&lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="n"&gt;info&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;QueryBlack&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;from&lt;/span&gt; &lt;span class="n"&gt;SquidDataStream&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;blackDomain&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="k"&gt;domain&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="k"&gt;domain&lt;/span&gt; &lt;span class="k"&gt;in&lt;/span&gt; &lt;span class="n"&gt;blackDomain&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="k"&gt;select&lt;/span&gt; &lt;span class="k"&gt;domain&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="k"&gt;True&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;is_alert&lt;/span&gt;
+&lt;span class="k"&gt;insert&lt;/span&gt; &lt;span class="k"&gt;into&lt;/span&gt; &lt;span class="n"&gt;SquidSinkDataStream&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="n"&gt;info&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;QueryNotBlack&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;from&lt;/span&gt; &lt;span class="n"&gt;SquidDataStream&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt; &lt;span class="k"&gt;not&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;blackDomain&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="k"&gt;domain&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="k"&gt;domain&lt;/span&gt; &lt;span class="k"&gt;in&lt;/span&gt; &lt;span class="n"&gt;blackDomain&lt;/span&gt;&lt;span class="p"&gt;)]&lt;/span&gt;
+&lt;span class="k"&gt;select&lt;/span&gt; &lt;span class="k"&gt;domain&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;False&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;is_alert&lt;/span&gt;
+&lt;span class="k"&gt;insert&lt;/span&gt; &lt;span class="k"&gt;into&lt;/span&gt; &lt;span class="n"&gt;SquidSinkDataStream&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Rule Editor&lt;/h2&gt;
+&lt;p&gt;Rule Editor是一个可视化的规则编辑器,该编辑器可以实现规则的编辑,管理,消息模拟和应用部署.&lt;/p&gt;
+&lt;p&gt;界面如下:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="2019-10-14-10-18-12" src="http://xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/images/5e62c5b9912aaf0e252e813783ac6095.png"&gt;&lt;/p&gt;
+&lt;h2&gt;Rule 部署&lt;/h2&gt;
+&lt;p&gt;在完成规则书写完之后,我们可以直接部署.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;点击菜单上的deploy&lt;/li&gt;
+&lt;li&gt;添加服务器,默认用户名可以不填&lt;/li&gt;
+&lt;li&gt;选择要部署的siddhi脚本和要部署到的服务器,点击deploy进行部署&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img alt="2019-10-14-10-19-59" src="http://xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/images/d2b1ecf8ac5eafaa7c3205fbd54ef380.png"&gt;&lt;/p&gt;
+&lt;h2&gt;参考&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://siddhi.io/en/v5.1"&gt;https://siddhi.io/en/v5.1&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://medium.com/siddhi-io/https-medium-com-niruhan-apache-kafka-integration-for-siddhi-part1-e9dd8d4955aa"&gt;Introduction to Apache Kafka Integration for Siddhi&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/siddhi-io/siddhi/"&gt;https://github.com/siddhi-io/siddhi/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><category term="bigdata"></category><category term="siddhi"></category></entry><entry><title>Debezium趟坑记录</title><link href="xixuebin.github.io/2019-07-19-151913-ch.html" rel="alternate"></link><published>2019-07-19T15:19:13+08:00</published><updated>2019-07-19T15:19:13+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-07-19:xixuebin.github.io/2019-07-19-151913-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
+
+&lt;h1&gt;Debezium趟坑记录&lt;/h1&gt;
+&lt;h2&gt;创建表导致connector报错&lt;/h2&gt;
+&lt;p&gt;这几天发现Debezium上注册的mysql connector 在报一个错误,错误信息如下:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;org.apache.kafka.connect.errors.ConnectException: Maximum width must be from &lt;span class="m"&gt;1&lt;/span&gt; to &lt;span class="m"&gt;9&lt;/span&gt; inclusive but was &lt;span class="m"&gt;0&lt;/span&gt;
+    at io.debezium.connector.mysql.AbstractReader.wrap&lt;span class="o"&gt;(&lt;/span&gt;AbstractReader.java:230&lt;span class="o"&gt;)&lt;/span&gt;
+    at io.debezium.connector.mysql.AbstractReader.failed&lt;span class="o"&gt;(&lt;/span&gt;AbstractReader.java:208&lt;span class="o"&gt;)&lt;/span&gt;
+    at io.debezium.connector.mysql.BinlogReader.handleEvent&lt;span class="o"&gt;(&lt;/span&gt;BinlogReader.java:508&lt;span class="o"&gt;)&lt;/span&gt;
+    at com.github.shyiko.mysql.binlog.BinaryLogClient.notifyEventListeners&lt;span class="o"&gt;(&lt;/span&gt;BinaryLogClient.java:1095&lt;span class="o"&gt;)&lt;/span&gt;
+    at com.github.shyiko.mysql.binlog.BinaryLogClient.listenForEventPackets&lt;span class="o"&gt;(&lt;/span&gt;BinaryLogClient.java:943&lt;span class="o"&gt;)&lt;/span&gt;
+    at com.github.shyiko.mysql.binlog.BinaryLogClient.connect&lt;span class="o"&gt;(&lt;/span&gt;BinaryLogClient.java:580&lt;span class="o"&gt;)&lt;/span&gt;
+    at com.github.shyiko.mysql.binlog.BinaryLogClient&lt;span class="nv"&gt;$7&lt;/span&gt;.run&lt;span class="o"&gt;(&lt;/span&gt;BinaryLogClient.java:825&lt;span class="o"&gt;)&lt;/span&gt;
+    at java.lang.Thread.run&lt;span class="o"&gt;(&lt;/span&gt;Thread.java:748&lt;span class="o"&gt;)&lt;/span&gt;
+Caused by: java.lang.IllegalArgumentException: Maximum width must be from &lt;span class="m"&gt;1&lt;/span&gt; to &lt;span class="m"&gt;9&lt;/span&gt; inclusive but was &lt;span class="m"&gt;0&lt;/span&gt;
+    at java.time.format.DateTimeFormatterBuilder&lt;span class="nv"&gt;$FractionPrinterParser&lt;/span&gt;.&amp;lt;init&amp;gt;&lt;span class="o"&gt;(&lt;/span&gt;DateTimeFormatterBuilder.java:2922&lt;span class="o"&gt;)&lt;/span&gt;
+    at java.time.format.DateTimeFormatterBuilder.appendFraction&lt;span class="o"&gt;(&lt;/span&gt;DateTimeFormatterBuilder.java:687&lt;span class="o"&gt;)&lt;/span&gt;
+    at io.debezium.connector.mysql.MySqlDefaultValuePreConverter.timestampFormat&lt;span class="o"&gt;(&lt;/span&gt;MySqlDefaultValuePreConverter.java:239&lt;span class="o"&gt;)&lt;/span&gt;
+    at io.debezium.connector.mysql.MySqlDefaultValuePreConverter.convertToLocalDateTime&lt;span class="o"&gt;(&lt;/span&gt;MySqlDefaultValuePreConverter.java:129&lt;span class="o"&gt;)&lt;/span&gt;
+    at io.debezium.connector.mysql.MySqlDefaultValuePreConverter.convert&lt;span class="o"&gt;(&lt;/span&gt;MySqlDefaultValuePreConverter.java:68&lt;span class="o"&gt;)&lt;/span&gt;
+    at io.debezium.connector.mysql.antlr.listener.ColumnDefinitionParserListener.convertDefaultValueToSchemaType&lt;span class="o"&gt;(&lt;/span&gt;ColumnDefinitionParserListener.java:303&lt;span class="o"&gt;)&lt;/span&gt;
+    at io.debezium.connector.mysql.antlr.listener.ColumnDefinitionParserListener.enterDefaultValue&lt;span class="o"&gt;(&lt;/span&gt;ColumnDefinitionParserListener.java:142&lt;span class="o"&gt;)&lt;/span&gt;
+    at io.debezium.ddl.parser.mysql.generated.MySqlParser&lt;span class="nv"&gt;$DefaultValueContext&lt;/span&gt;.enterRule&lt;span class="o"&gt;(&lt;/span&gt;MySqlParser.java:46698&lt;span class="o"&gt;)&lt;/span&gt;
+    at io.debezium.antlr.ProxyParseTreeListenerUtil.delegateEnterRule&lt;span class="o"&gt;(&lt;/span&gt;ProxyParseTreeListenerUtil.java:46&lt;span class="o"&gt;)&lt;/span&gt;
+    at io.debezium.connector.mysql.antlr.listener.MySqlAntlrDdlParserListener.enterEveryRule&lt;span class="o"&gt;(&lt;/span&gt;MySqlAntlrDdlParserListener.java:89&lt;span class="o"&gt;)&lt;/span&gt;
+    at org.antlr.v4.runtime.tree.ParseTreeWalker.enterRule&lt;span class="o"&gt;(&lt;/span&gt;ParseTreeWalker.java:41&lt;span class="o"&gt;)&lt;/span&gt;
+    at org.antlr.v4.runtime.tree.ParseTreeWalker.walk&lt;span class="o"&gt;(&lt;/span&gt;ParseTreeWalker.java:25&lt;span class="o"&gt;)&lt;/span&gt;
+    at org.antlr.v4.runtime.tree.ParseTreeWalker.walk&lt;span class="o"&gt;(&lt;/span&gt;ParseTreeWalker.java:28&lt;span class="o"&gt;)&lt;/span&gt;
+    at org.antlr.v4.runtime.tree.ParseTreeWalker.walk&lt;span class="o"&gt;(&lt;/span&gt;ParseTreeWalker.java:28&lt;span class="o"&gt;)&lt;/span&gt;
+    at org.antlr.v4.runtime.tree.ParseTreeWalker.walk&lt;span class="o"&gt;(&lt;/span&gt;ParseTreeWalker.java:28&lt;span class="o"&gt;)&lt;/span&gt;
+    at org.antlr.v4.runtime.tree.ParseTreeWalker.walk&lt;span class="o"&gt;(&lt;/span&gt;ParseTreeWalker.java:28&lt;span class="o"&gt;)&lt;/span&gt;
+    at org.antlr.v4.runtime.tree.ParseTreeWalker.walk&lt;span class="o"&gt;(&lt;/span&gt;ParseTreeWalker.java:28&lt;span class="o"&gt;)&lt;/span&gt;
+    at org.antlr.v4.runtime.tree.ParseTreeWalker.walk&lt;span class="o"&gt;(&lt;/span&gt;ParseTreeWalker.java:28&lt;span class="o"&gt;)&lt;/span&gt;
+    at org.antlr.v4.runtime.tree.ParseTreeWalker.walk&lt;span class="o"&gt;(&lt;/span&gt;ParseTreeWalker.java:28&lt;span class="o"&gt;)&lt;/span&gt;
+    at org.antlr.v4.runtime.tree.ParseTreeWalker.walk&lt;span class="o"&gt;(&lt;/span&gt;ParseTreeWalker.java:28&lt;span class="o"&gt;)&lt;/span&gt;
+    at org.antlr.v4.runtime.tree.ParseTreeWalker.walk&lt;span class="o"&gt;(&lt;/span&gt;ParseTreeWalker.java:28&lt;span class="o"&gt;)&lt;/span&gt;
+    at io.debezium.antlr.AntlrDdlParser.parse&lt;span class="o"&gt;(&lt;/span&gt;AntlrDdlParser.java:85&lt;span class="o"&gt;)&lt;/span&gt;
+    at io.debezium.connector.mysql.MySqlSchema.applyDdl&lt;span class="o"&gt;(&lt;/span&gt;MySqlSchema.java:307&lt;span class="o"&gt;)&lt;/span&gt;
+    at io.debezium.connector.mysql.BinlogReader.handleQueryEvent&lt;span class="o"&gt;(&lt;/span&gt;BinlogReader.java:694&lt;span class="o"&gt;)&lt;/span&gt;
+    at io.debezium.connector.mysql.BinlogReader.handleEvent&lt;span class="o"&gt;(&lt;/span&gt;BinlogReader.java:492&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;很明显是一个日期格式解析的错误,但是会是什么日期呢,根据错误日志,往回翻了下日志,找到了相联系的上次条出错日志&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;2019&lt;/span&gt;-07-19 &lt;span class="m"&gt;09&lt;/span&gt;:38:05,247&lt;span class="o"&gt;]&lt;/span&gt; ERROR Error during binlog processing. Last offset &lt;span class="nv"&gt;stored&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;&lt;span class="nv"&gt;ts_sec&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1562746455&lt;/span&gt;, &lt;span class="nv"&gt;file&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;mariadb-bin.000018, &lt;span class="nv"&gt;pos&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;58777691&lt;/span&gt;, &lt;span class="nv"&gt;row&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;, &lt;span class="nv"&gt;server_id&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;, &lt;span class="nv"&gt;event&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;6&lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt;, binlog reader near &lt;span class="nv"&gt;position&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; mariadb-bin.000018/67582355 &lt;span class="o"&gt;(&lt;/span&gt;io.debezium.connector.mysql.BinlogReader:1054&lt;span class="o"&gt;)[&lt;/span&gt;&lt;span class="m"&gt;2019&lt;/span&gt;-07-19 &lt;span class="m"&gt;09&lt;/span&gt;:38:05,247&lt;span class="o"&gt;]&lt;/span&gt; TRACE Received event: Event&lt;span class="o"&gt;{&lt;/span&gt;&lt;span class="nv"&gt;header&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;EventHeaderV4&lt;span class="o"&gt;{&lt;/span&gt;&lt;span class="nv"&gt;timestamp&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1562642991000&lt;/span&gt;, &lt;span class="nv"&gt;eventType&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;QUERY, &lt;span class="nv"&gt;serverId&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;, &lt;span class="nv"&gt;headerLength&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;19&lt;/span&gt;, &lt;span class="nv"&gt;dataLength&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;356&lt;/span&gt;, &lt;span class="nv"&gt;nextPosition&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;95707350&lt;/span&gt;, &lt;span class="nv"&gt;flags&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;8&lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt;, &lt;span class="nv"&gt;data&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;QueryEventData&lt;span class="o"&gt;{&lt;/span&gt;&lt;span class="nv"&gt;threadId&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;, &lt;span class="nv"&gt;executionTime&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;,errorCode&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;, &lt;span class="nv"&gt;database&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;&amp;#39;&lt;/span&gt;, &lt;span class="nv"&gt;sql&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="err"&gt;&amp;#39;&lt;/span&gt;&lt;span class="c1"&gt;# Dummy event replacing event type 160 that slave cannot handle.&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;上面的日志给出了具体出错的binlog所在的文件和位置.dump出具体的binlog内容,查看&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# 开始位置必须是我们日志中的位置,结束位置根据你期望看到的日志大小,增加一个值.这里我增加了2000&lt;/span&gt;
+mysqlbinlog --start-position&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;67582355&amp;quot;&lt;/span&gt; --stop-position&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;67584355&amp;quot;&lt;/span&gt; /opt/data/mariadb-bin.000018
+
+&lt;span class="c1"&gt;#bin log 内容如下&lt;/span&gt;
+
+root@mariadb-1-598c45cfb9-kf6rt:/var/log/mysql# mysqlbinlog --start-position&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;67582355&amp;quot;&lt;/span&gt; --stop-position&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;67585355&amp;quot;&lt;/span&gt; /var/log/mysql/mariadb-bin.000018
+/*!50530 SET @@SESSION.PSEUDO_SLAVE_MODE&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;*/&lt;span class="p"&gt;;&lt;/span&gt;
+/*!40019 SET @@session.max_insert_delayed_threads&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;*/&lt;span class="p"&gt;;&lt;/span&gt;
+/*!50003 SET @OLD_COMPLETION_TYPE&lt;span class="o"&gt;=&lt;/span&gt;@@COMPLETION_TYPE,COMPLETION_TYPE&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;*/&lt;span class="p"&gt;;&lt;/span&gt;
+DELIMITER /*!*/&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="c1"&gt;# at 4&lt;/span&gt;
+&lt;span class="c1"&gt;#190709  3:31:18 server id 1  end_log_pos 256 CRC32 0x9f4535ee  Start: binlog v 4, server v 10.3.10-MariaDB-1:10.3.10+maria~bionic-log created 190709  3:31:18&lt;/span&gt;
+BINLOG &lt;span class="s1"&gt;&amp;#39;&lt;/span&gt;
+&lt;span class="s1"&gt;hgokXQ8BAAAA/AAAAAABAAAAAAQAMTAuMy4xMC1NYXJpYURCLTE6MTAuMy4xMCttYXJpYX5iaW9u&lt;/span&gt;
+&lt;span class="s1"&gt;aWMtbG9nAAAAAAAAAAAAAAAAEzgNAAgAEgAEBAQEEgAA5AAEGggAAAAICAgCAAAACgoKAAAAAAAA&lt;/span&gt;
+&lt;span class="s1"&gt;AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&lt;/span&gt;
+&lt;span class="s1"&gt;AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&lt;/span&gt;
+&lt;span class="s1"&gt;AAAAAAAAAAAEEwQADQgICAoKCgHuNUWf&lt;/span&gt;
+&lt;span class="s1"&gt;&amp;#39;&lt;/span&gt;/*!*/&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="c1"&gt;# at 67582355&lt;/span&gt;
+&lt;span class="c1"&gt;#190710  8:52:12 server id 1  end_log_pos 67584614 CRC32 0x0cc5dedc     Query   thread_id=2003941       exec_time=0     error_code=0&lt;/span&gt;
+use &lt;span class="sb"&gt;`&lt;/span&gt;fact_contract&lt;span class="sb"&gt;`&lt;/span&gt;/*!*/&lt;span class="p"&gt;;&lt;/span&gt;
+SET &lt;span class="nv"&gt;TIMESTAMP&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1562748732&lt;/span&gt;/*!*/&lt;span class="p"&gt;;&lt;/span&gt;
+SET @@session.pseudo_thread_id&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;2003941&lt;/span&gt;/*!*/&lt;span class="p"&gt;;&lt;/span&gt;
+SET @@session.foreign_key_checks&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;, @@session.sql_auto_is_null&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;, @@session.unique_checks&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;, @@session.autocommit&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;, @@session.check_constraint_checks&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;/*!*/&lt;span class="p"&gt;;&lt;/span&gt;
+SET @@session.sql_mode&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1411383304&lt;/span&gt;/*!*/&lt;span class="p"&gt;;&lt;/span&gt;
+SET @@session.auto_increment_increment&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;, @@session.auto_increment_offset&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;/*!*/&lt;span class="p"&gt;;&lt;/span&gt;
+/*!&lt;span class="se"&gt;\C&lt;/span&gt; utf8mb4 *//*!*/&lt;span class="p"&gt;;&lt;/span&gt;
+SET @@session.character_set_client&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;45&lt;/span&gt;,@@session.collation_connection&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;45&lt;/span&gt;,@@session.collation_server&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;8&lt;/span&gt;/*!*/&lt;span class="p"&gt;;&lt;/span&gt;
+SET @@session.lc_time_names&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;/*!*/&lt;span class="p"&gt;;&lt;/span&gt;
+SET @@session.collation_database&lt;span class="o"&gt;=&lt;/span&gt;DEFAULT/*!*/&lt;span class="p"&gt;;&lt;/span&gt;
+CREATE TABLE &lt;span class="sb"&gt;`&lt;/span&gt;instance&lt;span class="sb"&gt;`&lt;/span&gt;  &lt;span class="o"&gt;(&lt;/span&gt;
+  &lt;span class="sb"&gt;`&lt;/span&gt;id&lt;span class="sb"&gt;`&lt;/span&gt; varchar&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;32&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT &lt;span class="s1"&gt;&amp;#39;主键ID&amp;#39;&lt;/span&gt;,
+  &lt;span class="sb"&gt;`&lt;/span&gt;name&lt;span class="sb"&gt;`&lt;/span&gt; varchar&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;255&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT &lt;span class="s1"&gt;&amp;#39;合同名称&amp;#39;&lt;/span&gt;,
+  &lt;span class="sb"&gt;`&lt;/span&gt;templateId&lt;span class="sb"&gt;`&lt;/span&gt; varchar&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;32&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT &lt;span class="s1"&gt;&amp;#39;合同模板ID&amp;#39;&lt;/span&gt;,
+  &lt;span class="sb"&gt;`&lt;/span&gt;contractNo&lt;span class="sb"&gt;`&lt;/span&gt; varchar&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;64&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT &lt;span class="s1"&gt;&amp;#39;合同编号&amp;#39;&lt;/span&gt;,
+  &lt;span class="sb"&gt;`&lt;/span&gt;docNo&lt;span class="sb"&gt;`&lt;/span&gt; varchar&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;64&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT &lt;span class="s1"&gt;&amp;#39;单据编号&amp;#39;&lt;/span&gt;,
+  &lt;span class="sb"&gt;`&lt;/span&gt;docType&lt;span class="sb"&gt;`&lt;/span&gt; varchar&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;32&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT &lt;span class="s1"&gt;&amp;#39;单据类型（\&amp;quot;0 订单\n1 结算票\n2 发票\n3 付款承诺\n4 其他\&amp;quot;）&amp;#39;&lt;/span&gt;,
+  &lt;span class="sb"&gt;`&lt;/span&gt;ccy&lt;span class="sb"&gt;`&lt;/span&gt; varchar&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;32&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT &lt;span class="s1"&gt;&amp;#39;币种\r\n&amp;#39;&lt;/span&gt;,
+  &lt;span class="sb"&gt;`&lt;/span&gt;parAmt&lt;span class="sb"&gt;`&lt;/span&gt; varchar&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;24&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT &lt;span class="s1"&gt;&amp;#39;票面金额\r\n&amp;#39;&lt;/span&gt;,
+  &lt;span class="sb"&gt;`&lt;/span&gt;accountReceiveAmt&lt;span class="sb"&gt;`&lt;/span&gt; varchar&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;24&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT &lt;span class="s1"&gt;&amp;#39;应收账款金额\r\n&amp;#39;&lt;/span&gt;,
+  &lt;span class="sb"&gt;`&lt;/span&gt;accountBegDate&lt;span class="sb"&gt;`&lt;/span&gt; datetime&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; NULL DEFAULT NULL COMMENT &lt;span class="s1"&gt;&amp;#39;账款起始日\r\n&amp;#39;&lt;/span&gt;,
+  &lt;span class="sb"&gt;`&lt;/span&gt;accountEndDate&lt;span class="sb"&gt;`&lt;/span&gt; datetime&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; NULL DEFAULT NULL COMMENT &lt;span class="s1"&gt;&amp;#39;账款到期日\r\n&amp;#39;&lt;/span&gt;,
+  &lt;span class="sb"&gt;`&lt;/span&gt;payTerm&lt;span class="sb"&gt;`&lt;/span&gt; varchar&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;32&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT &lt;span class="s1"&gt;&amp;#39;付款条件\r\n&amp;#39;&lt;/span&gt;,
+  &lt;span class="sb"&gt;`&lt;/span&gt;draftDate&lt;span class="sb"&gt;`&lt;/span&gt; datetime&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; NULL DEFAULT NULL COMMENT &lt;span class="s1"&gt;&amp;#39;发票日\r\n&amp;#39;&lt;/span&gt;,
+  &lt;span class="sb"&gt;`&lt;/span&gt;inspectionDate&lt;span class="sb"&gt;`&lt;/span&gt; datetime&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; NULL DEFAULT NULL COMMENT &lt;span class="s1"&gt;&amp;#39;验货日\r\n&amp;#39;&lt;/span&gt;,
+  &lt;span class="sb"&gt;`&lt;/span&gt;payDays&lt;span class="sb"&gt;`&lt;/span&gt; varchar&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;24&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT &lt;span class="s1"&gt;&amp;#39;付款天数\r\n&amp;#39;&lt;/span&gt;,
+  &lt;span class="sb"&gt;`&lt;/span&gt;createdBy&lt;span class="sb"&gt;`&lt;/span&gt; varchar&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;64&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT &lt;span class="s1"&gt;&amp;#39;记录创建人账号ID&amp;#39;&lt;/span&gt;,
+  &lt;span class="sb"&gt;`&lt;/span&gt;createdAt&lt;span class="sb"&gt;`&lt;/span&gt; datetime&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; NULL DEFAULT current_timestamp&lt;span class="o"&gt;()&lt;/span&gt; COMMENT &lt;span class="s1"&gt;&amp;#39;记录创建时间&amp;#39;&lt;/span&gt;,
+  &lt;span class="sb"&gt;`&lt;/span&gt;modifiedBy&lt;span class="sb"&gt;`&lt;/span&gt; varchar&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;64&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT &lt;span class="s1"&gt;&amp;#39;记录修改人账号ID&amp;#39;&lt;/span&gt;,
+  &lt;span class="sb"&gt;`&lt;/span&gt;modifiedAt&lt;span class="sb"&gt;`&lt;/span&gt; datetime&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; NULL DEFAULT NULL COMMENT &lt;span class="s1"&gt;&amp;#39;记录修改时间&amp;#39;&lt;/span&gt;,
+  PRIMARY KEY &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="sb"&gt;`&lt;/span&gt;id&lt;span class="sb"&gt;`&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; USING BTREE
+&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="nv"&gt;ENGINE&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; InnoDB CHARACTER &lt;span class="nv"&gt;SET&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; utf8 &lt;span class="nv"&gt;COLLATE&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; utf8_general_ci &lt;span class="nv"&gt;COMMENT&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;合同实例表&amp;#39;&lt;/span&gt; &lt;span class="nv"&gt;ROW_FORMAT&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; Dynamic
+/*!*/&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="c1"&gt;# at 67584614&lt;/span&gt;
+&lt;span class="c1"&gt;#190710  8:52:12 server id 1  end_log_pos 67584656 CRC32 0x8b622d76     GTID 0-1-1455487 ddl&lt;/span&gt;
+/*!100101 SET @@session.skip_parallel_replication&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;*//*!*/&lt;span class="p"&gt;;&lt;/span&gt;
+/*!100001 SET @@session.gtid_domain_id&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;*//*!*/&lt;span class="p"&gt;;&lt;/span&gt;
+/*!100001 SET @@session.server_id&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;*//*!*/&lt;span class="p"&gt;;&lt;/span&gt;
+/*!100001 SET @@session.gtid_seq_no&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1455487&lt;/span&gt;*//*!*/&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="c1"&gt;# at 67584656&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;可以看到是一个数据库创建语句,里面有字段&lt;code&gt;datetime(0)&lt;/code&gt;, 之前一直创建表的时候,使用的&lt;code&gt;datetime&lt;/code&gt;的时候, 都是直接使用,没有使用过&lt;code&gt;datetime(0)&lt;/code&gt;这种写法. 使用上面的SQL语句执行,发现可以创建成功,同时CDC报错.验证了之前的CDC的错误.&lt;/p&gt;
+&lt;p&gt;寻找相关资料,发现Mysql中支持这种写法,&lt;a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-type-overview.html"&gt;相关链接&lt;/a&gt;.括号里面的值表示时间的秒后面保留的微秒的精度,取值范围是0-6,如果为0的话,可以默认不写.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;#&lt;/span&gt; &lt;span class="k"&gt;create&lt;/span&gt; &lt;span class="k"&gt;table&lt;/span&gt;
+&lt;span class="n"&gt;mysql&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="k"&gt;CREATE&lt;/span&gt; &lt;span class="k"&gt;TABLE&lt;/span&gt; &lt;span class="n"&gt;t1&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;t&lt;/span&gt; &lt;span class="n"&gt;TIME&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;dt&lt;/span&gt; &lt;span class="n"&gt;DATETIME&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;&lt;span class="n"&gt;dt1&lt;/span&gt; &lt;span class="n"&gt;DATETIME&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;&lt;span class="n"&gt;dt2&lt;/span&gt; &lt;span class="n"&gt;DATETIME&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;dt3&lt;/span&gt; &lt;span class="n"&gt;DATETIME&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;dt4&lt;/span&gt; &lt;span class="n"&gt;DATETIME&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;dt5&lt;/span&gt; &lt;span class="n"&gt;DATETIME&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;dt6&lt;/span&gt; &lt;span class="n"&gt;DATETIME&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;6&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
+
+&lt;span class="n"&gt;mysql&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="k"&gt;desc&lt;/span&gt; &lt;span class="n"&gt;t1&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="c1"&gt;-------+-------------+------+-----+---------+-------+&lt;/span&gt;
+&lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;Field&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="k"&gt;Type&lt;/span&gt;        &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="k"&gt;Null&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="k"&gt;Key&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="k"&gt;Default&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;Extra&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt;
+&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="c1"&gt;-------+-------------+------+-----+---------+-------+&lt;/span&gt;
+&lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;t&lt;/span&gt;     &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;time&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;     &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;YES&lt;/span&gt;  &lt;span class="o"&gt;|&lt;/span&gt;     &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="k"&gt;NULL&lt;/span&gt;    &lt;span class="o"&gt;|&lt;/span&gt;       &lt;span class="o"&gt;|&lt;/span&gt;
+&lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;dt&lt;/span&gt;    &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;datetime&lt;/span&gt;    &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;YES&lt;/span&gt;  &lt;span class="o"&gt;|&lt;/span&gt;     &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="k"&gt;NULL&lt;/span&gt;    &lt;span class="o"&gt;|&lt;/span&gt;       &lt;span class="o"&gt;|&lt;/span&gt;
+&lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;dt1&lt;/span&gt;   &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;datetime&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;YES&lt;/span&gt;  &lt;span class="o"&gt;|&lt;/span&gt;     &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="k"&gt;NULL&lt;/span&gt;    &lt;span class="o"&gt;|&lt;/span&gt;       &lt;span class="o"&gt;|&lt;/span&gt;
+&lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;dt2&lt;/span&gt;   &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;datetime&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;YES&lt;/span&gt;  &lt;span class="o"&gt;|&lt;/span&gt;     &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="k"&gt;NULL&lt;/span&gt;    &lt;span class="o"&gt;|&lt;/span&gt;       &lt;span class="o"&gt;|&lt;/span&gt;
+&lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;dt3&lt;/span&gt;   &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;datetime&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;YES&lt;/span&gt;  &lt;span class="o"&gt;|&lt;/span&gt;     &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="k"&gt;NULL&lt;/span&gt;    &lt;span class="o"&gt;|&lt;/span&gt;       &lt;span class="o"&gt;|&lt;/span&gt;
+&lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;dt4&lt;/span&gt;   &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;datetime&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;YES&lt;/span&gt;  &lt;span class="o"&gt;|&lt;/span&gt;     &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="k"&gt;NULL&lt;/span&gt;    &lt;span class="o"&gt;|&lt;/span&gt;       &lt;span class="o"&gt;|&lt;/span&gt;
+&lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;dt5&lt;/span&gt;   &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;datetime&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;YES&lt;/span&gt;  &lt;span class="o"&gt;|&lt;/span&gt;     &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="k"&gt;NULL&lt;/span&gt;    &lt;span class="o"&gt;|&lt;/span&gt;       &lt;span class="o"&gt;|&lt;/span&gt;
+&lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;dt6&lt;/span&gt;   &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;datetime&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;6&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;YES&lt;/span&gt;  &lt;span class="o"&gt;|&lt;/span&gt;     &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="k"&gt;NULL&lt;/span&gt;    &lt;span class="o"&gt;|&lt;/span&gt;       &lt;span class="o"&gt;|&lt;/span&gt;
+&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="c1"&gt;-------+-------------+------+-----+---------+-------+&lt;/span&gt;
+&lt;span class="mi"&gt;8&lt;/span&gt; &lt;span class="k"&gt;rows&lt;/span&gt; &lt;span class="k"&gt;in&lt;/span&gt; &lt;span class="k"&gt;set&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;05&lt;/span&gt; &lt;span class="n"&gt;sec&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;mysql&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="k"&gt;select&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="k"&gt;from&lt;/span&gt; &lt;span class="n"&gt;t1&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="c1"&gt;--------------+---------------------+-----------------------+------------------------+-------------------------+--------------------------+---------------------------+----------------------------+&lt;/span&gt;
+&lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;t&lt;/span&gt;            &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;dt&lt;/span&gt;                  &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;dt1&lt;/span&gt;                   &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;dt2&lt;/span&gt;                    &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;dt3&lt;/span&gt;                     &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;dt4&lt;/span&gt;                      &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;dt5&lt;/span&gt;                       &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;dt6&lt;/span&gt;                        &lt;span class="o"&gt;|&lt;/span&gt;
+&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="c1"&gt;--------------+---------------------+-----------------------+------------------------+-------------------------+--------------------------+---------------------------+----------------------------+&lt;/span&gt;
+&lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="mi"&gt;14&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;18&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;44&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;000&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="mi"&gt;2019&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;07&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;19&lt;/span&gt; &lt;span class="mi"&gt;14&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;18&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;46&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="mi"&gt;2019&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;07&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;19&lt;/span&gt; &lt;span class="mi"&gt;14&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;18&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;49&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="mi"&gt;2019&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;07&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;19&lt;/span&gt; &lt;span class="mi"&gt;14&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;18&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;51&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;00&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="mi"&gt;2019&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;07&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;19&lt;/span&gt; &lt;span class="mi"&gt;14&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;18&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;52&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;000&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="mi"&gt;2019&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;07&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;19&lt;/span&gt; &lt;span class="mi"&gt;14&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;18&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;54&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;0000&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="mi"&gt;2019&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;07&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;19&lt;/span&gt; &lt;span class="mi"&gt;14&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;18&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;57&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;00000&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="mi"&gt;2019&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;07&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;19&lt;/span&gt; &lt;span class="mi"&gt;14&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;19&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;00&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;000000&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt;
+&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="c1"&gt;--------------+---------------------+-----------------------+------------------------+-------------------------+--------------------------+---------------------------+----------------------------+&lt;/span&gt;
+&lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="k"&gt;rows&lt;/span&gt; &lt;span class="k"&gt;in&lt;/span&gt; &lt;span class="k"&gt;set&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;04&lt;/span&gt; &lt;span class="n"&gt;sec&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;既然Mysql支持,那就是Debezium解析的时候,逻辑不严谨报错了.查看Debezium的代码.我们当前使用的Debezium的版本是v0.94.Final.&lt;/p&gt;
+&lt;p&gt;追踪代码,发现在Debeziume的代码中,MySqlDefaultValuePreConverter类中,会对默认值进行转换,当为时间类型的时候,使用了JDK中的DateTimeFormatterBuilder,该类在format的时候,可以指定保留的微秒的位数.具体代码如下:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kd"&gt;private&lt;/span&gt; &lt;span class="n"&gt;DateTimeFormatter&lt;/span&gt; &lt;span class="nf"&gt;timestampFormat&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;length&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="kd"&gt;final&lt;/span&gt; &lt;span class="n"&gt;DateTimeFormatterBuilder&lt;/span&gt; &lt;span class="n"&gt;dtf&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;DateTimeFormatterBuilder&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt;
+                &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;appendPattern&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;yyyy-MM-dd HH:mm:ss&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;length&lt;/span&gt; &lt;span class="o"&gt;!=-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+            &lt;span class="n"&gt;dtf&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;appendFraction&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ChronoField&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;MICRO_OF_SECOND&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;length&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+        &lt;span class="o"&gt;}&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;dtf&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;toFormatter&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;我们给datetime(0)的时候,该方法中的length值为0,而次方法中只进行length不等于-1的判断,所以会执行appendFraction方法&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="n"&gt;DateTimeFormatterBuilder&lt;/span&gt; &lt;span class="nf"&gt;appendFraction&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;
+            &lt;span class="n"&gt;TemporalField&lt;/span&gt; &lt;span class="n"&gt;field&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;minWidth&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;maxWidth&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;boolean&lt;/span&gt; &lt;span class="n"&gt;decimalPoint&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;appendInternal&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;FractionPrinterParser&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;field&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;minWidth&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;maxWidth&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;decimalPoint&lt;/span&gt;&lt;span class="o"&gt;));&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+
+&lt;span class="n"&gt;FractionPrinterParser&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;TemporalField&lt;/span&gt; &lt;span class="n"&gt;field&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;minWidth&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;maxWidth&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;boolean&lt;/span&gt; &lt;span class="n"&gt;decimalPoint&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+            &lt;span class="n"&gt;Objects&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;requireNonNull&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;field&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;field&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+            &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;field&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;range&lt;/span&gt;&lt;span class="o"&gt;().&lt;/span&gt;&lt;span class="na"&gt;isFixed&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="kc"&gt;false&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+                &lt;span class="k"&gt;throw&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;IllegalArgumentException&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Field must have a fixed set of values: &amp;quot;&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;field&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+            &lt;span class="o"&gt;}&lt;/span&gt;
+            &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;minWidth&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="o"&gt;||&lt;/span&gt; &lt;span class="n"&gt;minWidth&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+                &lt;span class="k"&gt;throw&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;IllegalArgumentException&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Minimum width must be from 0 to 9 inclusive but was &amp;quot;&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;minWidth&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+            &lt;span class="o"&gt;}&lt;/span&gt;
+            &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;maxWidth&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="o"&gt;||&lt;/span&gt; &lt;span class="n"&gt;maxWidth&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+                &lt;span class="k"&gt;throw&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;IllegalArgumentException&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Maximum width must be from 1 to 9 inclusive but was &amp;quot;&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;maxWidth&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+            &lt;span class="o"&gt;}&lt;/span&gt;
+            &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;maxWidth&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;minWidth&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+                &lt;span class="k"&gt;throw&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;IllegalArgumentException&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Maximum width must exceed or equal the minimum width but &amp;quot;&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt;
+                        &lt;span class="n"&gt;maxWidth&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="s"&gt;&amp;quot; &amp;lt; &amp;quot;&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;minWidth&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+            &lt;span class="o"&gt;}&lt;/span&gt;
+            &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;field&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;field&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+            &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;minWidth&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;minWidth&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+            &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;maxWidth&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;maxWidth&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+            &lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;decimalPoint&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;decimalPoint&lt;/span&gt;&lt;span class="o"&gt;;&lt;/span&gt;
+        &lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;该方法在length &amp;lt; 1 的时候会报错,从而导致connector悬起来了.发现在Debezium在后面的版本中,即v0.9.5.Final中已经修复了该问题,修复代码如下:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kd"&gt;private&lt;/span&gt; &lt;span class="n"&gt;DateTimeFormatter&lt;/span&gt; &lt;span class="nf"&gt;timestampFormat&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;length&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+        &lt;span class="kd"&gt;final&lt;/span&gt; &lt;span class="n"&gt;DateTimeFormatterBuilder&lt;/span&gt; &lt;span class="n"&gt;dtf&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;DateTimeFormatterBuilder&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt;
+                &lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;appendPattern&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;yyyy-MM-dd HH:mm:ss&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;length&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+            &lt;span class="n"&gt;dtf&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;appendFraction&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ChronoField&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;MICRO_OF_SECOND&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;length&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+        &lt;span class="o"&gt;}&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;dtf&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;toFormatter&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+    &lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;所以在v0.9.5.Final及以后的版本,应该不会出现该问题.&lt;/p&gt;
+&lt;h2&gt;参考&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://dev.mysql.com/doc/refman/8.0/en/date-and-time-type-overview.html"&gt;https://dev.mysql.com/doc/refman/8.0/en/date-and-time-type-overview.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://dev.mysql.com/doc/refman/8.0/en/timestamp-initialization.html"&gt;https://dev.mysql.com/doc/refman/8.0/en/timestamp-initialization.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/debezium/debezium/"&gt;https://github.com/debezium/debezium/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://debezium.io/docs/connectors/mysql/#enabling-gtids-optional"&gt;https://debezium.io/docs/connectors/mysql/#enabling-gtids-optional&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><category term="database"></category><category term="debezium"></category></entry><entry><title>Subllime工具</title><link href="xixuebin.github.io/2019-06-28-100218-ch.html" rel="alternate"></link><published>2019-06-28T10:02:18+08:00</published><updated>2019-06-28T10:02:18+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-06-28:xixuebin.github.io/2019-06-28-100218-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
 
 &lt;h2&gt;批量删除空白行&lt;/h2&gt;
 &lt;p&gt;CTRL+H打开replace功能，勾选上左侧的regular expression，并填写
@@ -1204,10 +1622,123 @@ For details see https://www.knime.org/knime-spark-executor  &lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;index文件按照书序记录了Mariadb/Mysql使用的所有binlog文件，管理binlog文件。&lt;/li&gt;
 &lt;/ul&gt;
+&lt;h2&gt;binlog操作&lt;/h2&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# 查看binlog&lt;/span&gt;
+mysql&amp;gt; show binary logs&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="c1"&gt;# 查看binlog事件&lt;/span&gt;
+mysql&amp;gt; show binary events&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;binlog配置&lt;/h2&gt;
+&lt;p&gt;binlog的配置在mysql的配置文件中,默认的配置文件是&lt;code&gt;/etc/my.cnf&lt;/code&gt;.相关配置项&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nv"&gt;expire_logs_days&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="m"&gt;5&lt;/span&gt; &lt;span class="c1"&gt;#配置定情清理&lt;/span&gt;
+log-bin&lt;span class="o"&gt;=&lt;/span&gt;/var/mysql/mysql-bin &lt;span class="c1"&gt;# bin log日志路径&lt;/span&gt;
+&lt;span class="nv"&gt;binlog_format&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;ROW
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;修改完成之后必须重启,才能生效&lt;/p&gt;
+&lt;h2&gt;binlog常用命令&lt;/h2&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;#0 查看日志开启状态 show variables like &amp;#39;log_%&amp;#39;;&lt;/span&gt;
+mysql&amp;gt; show variables like &lt;span class="s1"&gt;&amp;#39;log_%&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
++-------------------------------------------------------------------------------------------------------------------------------------+
+&lt;span class="p"&gt;|&lt;/span&gt; Variable_name                   &lt;span class="p"&gt;|&lt;/span&gt; Value                                                                                             &lt;span class="p"&gt;|&lt;/span&gt;
++-------------------------------------------------------------------------------------------------------------------------------------+
+&lt;span class="p"&gt;|&lt;/span&gt; log_bin                         &lt;span class="p"&gt;|&lt;/span&gt; ON                                                                                                &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; log_bin_basename                &lt;span class="p"&gt;|&lt;/span&gt; /var/log/mysql/mariadb-bin                                                                        &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; log_bin_compress                &lt;span class="p"&gt;|&lt;/span&gt; OFF                                                                                               &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; log_bin_compress_min_len        &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="m"&gt;256&lt;/span&gt;                                                                                               &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; log_bin_index                   &lt;span class="p"&gt;|&lt;/span&gt; /var/log/mysql/mariadb-bin.index                                                                  &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; log_bin_trust_function_creators &lt;span class="p"&gt;|&lt;/span&gt; OFF                                                                                               &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; log_disabled_statements         &lt;span class="p"&gt;|&lt;/span&gt; sp                                                                                                &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; log_error                       &lt;span class="p"&gt;|&lt;/span&gt;                                                                                                   &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; log_output                      &lt;span class="p"&gt;|&lt;/span&gt; FILE                                                                                              &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; log_queries_not_using_indexes   &lt;span class="p"&gt;|&lt;/span&gt; OFF                                                                                               &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; log_slave_updates               &lt;span class="p"&gt;|&lt;/span&gt; OFF                                                                                               &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; log_slow_admin_statements       &lt;span class="p"&gt;|&lt;/span&gt; ON                                                                                                &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; log_slow_disabled_statements    &lt;span class="p"&gt;|&lt;/span&gt; sp                                                                                                &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; log_slow_filter                 &lt;span class="p"&gt;|&lt;/span&gt; admin,filesort,filesort_on_disk,filesort_priority_queue,...,query_cache_miss,tmp_table            &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; log_slow_rate_limit             &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="m"&gt;1&lt;/span&gt;                                                                                                 &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; log_slow_slave_statements       &lt;span class="p"&gt;|&lt;/span&gt; ON                                                                                                &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; log_slow_verbosity              &lt;span class="p"&gt;|&lt;/span&gt;                                                                                                   &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; log_tc_size                     &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="m"&gt;24576&lt;/span&gt;                                                                                             &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; log_warnings                    &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="m"&gt;2&lt;/span&gt;                                                                                                 &lt;span class="p"&gt;|&lt;/span&gt;
++-------------------------------------------------------------------------------------------------------------------------------------+
+&lt;span class="m"&gt;19&lt;/span&gt; rows in &lt;span class="nb"&gt;set&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.05 sec&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="c1"&gt;# 查看所有日志&lt;/span&gt;
+mysql&amp;gt; show master logs&lt;span class="p"&gt;;&lt;/span&gt;
++--------------------+-----------+
+&lt;span class="p"&gt;|&lt;/span&gt; Log_name           &lt;span class="p"&gt;|&lt;/span&gt; File_size &lt;span class="p"&gt;|&lt;/span&gt;
++--------------------+-----------+
+&lt;span class="p"&gt;|&lt;/span&gt; mariadb-bin.000017 &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="m"&gt;104858004&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; mariadb-bin.000018 &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="m"&gt;105248607&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; mariadb-bin.000019 &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="m"&gt;105317664&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; mariadb-bin.000020 &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="m"&gt;105143468&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; mariadb-bin.000021 &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="m"&gt;104857727&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; mariadb-bin.000022 &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="m"&gt;104915425&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; mariadb-bin.000023 &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="m"&gt;94849361&lt;/span&gt;  &lt;span class="p"&gt;|&lt;/span&gt;
++--------------------+-----------+
+&lt;span class="m"&gt;7&lt;/span&gt; rows in &lt;span class="nb"&gt;set&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.09 sec&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="c1"&gt;#查看最新一个binlog日志的编号名称，及其最后一个操作事件结束点 show master status;&lt;/span&gt;
+mysql&amp;gt; show master status&lt;span class="p"&gt;;&lt;/span&gt;
++--------------------+----------+--------------+------------------+
+&lt;span class="p"&gt;|&lt;/span&gt; File               &lt;span class="p"&gt;|&lt;/span&gt; Position &lt;span class="p"&gt;|&lt;/span&gt; Binlog_Do_DB &lt;span class="p"&gt;|&lt;/span&gt; Binlog_Ignore_DB &lt;span class="p"&gt;|&lt;/span&gt;
++--------------------+----------+--------------+------------------+
+&lt;span class="p"&gt;|&lt;/span&gt; mariadb-bin.000023 &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="m"&gt;94861723&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;              &lt;span class="p"&gt;|&lt;/span&gt;                  &lt;span class="p"&gt;|&lt;/span&gt;
++--------------------+----------+--------------+------------------+
+&lt;span class="m"&gt;1&lt;/span&gt; rows in &lt;span class="nb"&gt;set&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;.05 sec&lt;span class="o"&gt;)&lt;/span&gt;
+
+&lt;span class="c1"&gt;# 刷新log日志，立刻产生一个新编号的binlog日志文件，跟重启一个效果 flush logs;&lt;/span&gt;
+&lt;span class="c1"&gt;# 清空所有binlog日志 reset master;&lt;/span&gt;
+
+&lt;span class="c1"&gt;# 查看指定binlog文件的内容(show binlog events in &amp;#39;binname.xxxxx&amp;#39;)#&lt;/span&gt;
+mysql&amp;gt; show binlog events in &lt;span class="s1"&gt;&amp;#39;mariadb-bin.000023&amp;#39;&lt;/span&gt; limit &lt;span class="m"&gt;4&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
++--------------------+-----+-------------------+-----------+-------------+-----------------------------------------------------------------------+
+&lt;span class="p"&gt;|&lt;/span&gt; Log_name           &lt;span class="p"&gt;|&lt;/span&gt; Pos &lt;span class="p"&gt;|&lt;/span&gt; Event_type        &lt;span class="p"&gt;|&lt;/span&gt; Server_id &lt;span class="p"&gt;|&lt;/span&gt; End_log_pos &lt;span class="p"&gt;|&lt;/span&gt; Info                                                                  &lt;span class="p"&gt;|&lt;/span&gt;
++--------------------+-----+-------------------+-----------+-------------+-----------------------------------------------------------------------+
+&lt;span class="p"&gt;|&lt;/span&gt; mariadb-bin.000023 &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="m"&gt;4&lt;/span&gt;   &lt;span class="p"&gt;|&lt;/span&gt; Format_desc       &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="m"&gt;1&lt;/span&gt;         &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="m"&gt;256&lt;/span&gt;         &lt;span class="p"&gt;|&lt;/span&gt; Server ver: &lt;span class="m"&gt;10&lt;/span&gt;.3.10-MariaDB-1:10.3.10+maria~bionic-log, Binlog ver: &lt;span class="m"&gt;4&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; mariadb-bin.000023 &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="m"&gt;256&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; Gtid_list         &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="m"&gt;1&lt;/span&gt;         &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="m"&gt;299&lt;/span&gt;         &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;-1-1650762&lt;span class="o"&gt;]&lt;/span&gt;                                                         &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; mariadb-bin.000023 &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="m"&gt;299&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; Binlog_checkpoint &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="m"&gt;1&lt;/span&gt;         &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="m"&gt;344&lt;/span&gt;         &lt;span class="p"&gt;|&lt;/span&gt; mariadb-bin.000022                                                    &lt;span class="p"&gt;|&lt;/span&gt;
+&lt;span class="p"&gt;|&lt;/span&gt; mariadb-bin.000023 &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="m"&gt;344&lt;/span&gt; &lt;span class="p"&gt;|&lt;/span&gt; Gtid              &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="m"&gt;1&lt;/span&gt;         &lt;span class="p"&gt;|&lt;/span&gt; &lt;span class="m"&gt;386&lt;/span&gt;         &lt;span class="p"&gt;|&lt;/span&gt; BEGIN GTID &lt;span class="m"&gt;0&lt;/span&gt;-1-1650763                                                &lt;span class="p"&gt;|&lt;/span&gt;
++--------------------+-----+-------------------+-----------+-------------+-----------------------------------------------------------------------+
+
+&lt;span class="c1"&gt;# 获取指定位置binlog的内容(show binlog events from)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Mysqlbinlog方式提取binlog&lt;/h2&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;#a、提取指定的binlog日志&lt;/span&gt;
+&lt;span class="c1"&gt;# mysqlbinlog /opt/data/APP01bin.000001&lt;/span&gt;
+&lt;span class="c1"&gt;# mysqlbinlog /opt/data/APP01bin.000001|grep insert&lt;/span&gt;
+/*!40019 SET @@session.max_insert_delayed_threads&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;0&lt;/span&gt;*/&lt;span class="p"&gt;;&lt;/span&gt;
+insert into tb values&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;2&lt;/span&gt;,&lt;span class="s1"&gt;&amp;#39;jack&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;span class="c1"&gt;#b、提取指定position位置的binlog日志&lt;/span&gt;
+mysqlbinlog --start-position&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;120&amp;quot;&lt;/span&gt; --stop-position&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;332&amp;quot;&lt;/span&gt; /opt/data/APP01bin.000001
+&lt;span class="c1"&gt;#c、提取指定position位置的binlog日志并输出到压缩文件&lt;/span&gt;
+mysqlbinlog --start-position&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;120&amp;quot;&lt;/span&gt; --stop-position&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;332&amp;quot;&lt;/span&gt; /opt/data/APP01bin.000001 &lt;span class="p"&gt;|&lt;/span&gt;gzip &amp;gt;extra_01.sql.gz
+&lt;span class="c1"&gt;#d、提取指定position位置的binlog日志导入数据库&lt;/span&gt;
+mysqlbinlog --start-position&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;120&amp;quot;&lt;/span&gt; --stop-position&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;332&amp;quot;&lt;/span&gt; /opt/data/APP01bin.000001 &lt;span class="p"&gt;|&lt;/span&gt; mysql -uroot -p
+&lt;span class="c1"&gt;#e、提取指定开始时间的binlog并输出到日志文件&lt;/span&gt;
+mysqlbinlog --start-datetime&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;2014-12-15 20:15:23&amp;quot;&lt;/span&gt; /opt/data/APP01bin.000002 --result-file&lt;span class="o"&gt;=&lt;/span&gt;extra02.sql
+&lt;span class="c1"&gt;#f、提取指定位置的多个binlog日志文件&lt;/span&gt;
+mysqlbinlog --start-position&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;120&amp;quot;&lt;/span&gt; --stop-position&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;332&amp;quot;&lt;/span&gt; /opt/data/APP01bin.000001 /opt/data/APP01bin.000002&lt;span class="p"&gt;|&lt;/span&gt;more
+&lt;span class="c1"&gt;#g、提取指定数据库binlog并转换字符集到UTF8&lt;/span&gt;
+mysqlbinlog --database&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;test&lt;/span&gt; --set-charset&lt;span class="o"&gt;=&lt;/span&gt;utf8 /opt/data/APP01bin.000001 /opt/data/APP01bin.000002 &amp;gt;test.sql
+&lt;span class="c1"&gt;#h、远程提取日志，指定结束时间 &lt;/span&gt;
+mysqlbinlog -urobin -p -h192.168.1.116 -P3306 --stop-datetime&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;2014-12-15 20:30:23&amp;quot;&lt;/span&gt; --read-from-remote-server mysql-bin.000033 &lt;span class="p"&gt;|&lt;/span&gt;more
+&lt;span class="c1"&gt;#i、远程提取使用row格式的binlog日志并输出到本地文件&lt;/span&gt;
+mysqlbinlog -urobin -p -P3606 -h192.168.1.177 --read-from-remote-server -vv inst3606bin.000005 &amp;gt;row.sql
+&lt;/pre&gt;&lt;/div&gt;
+
+
 &lt;h2&gt;参考&lt;/h2&gt;
 &lt;ul&gt;
+&lt;li&gt;&lt;a href="https://blog.51cto.com/6226001001/1672159"&gt;https://blog.51cto.com/6226001001/1672159&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href="https://mariadb.com/kb/en/library/binary-log/"&gt;https://mariadb.com/kb/en/library/binary-log/&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href="https://www.cnblogs.com/skymyyang/p/7798670.html"&gt;https://www.cnblogs.com/skymyyang/p/7798670.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://blog.csdn.net/leshami/article/details/41962243"&gt;https://blog.csdn.net/leshami/article/details/41962243&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.linuxidc.com/Linux/2018-01/150149.htm"&gt;https://www.linuxidc.com/Linux/2018-01/150149.htm&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;</content><category term="database"></category><category term="binlog"></category><category term="mysql"></category></entry><entry><title>Debezium介绍和使用</title><link href="xixuebin.github.io/2019-05-30-141229-ch.html" rel="alternate"></link><published>2019-05-30T14:12:29+08:00</published><updated>2019-05-30T14:12:29+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-05-30:xixuebin.github.io/2019-05-30-141229-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
 
 &lt;h1&gt;介绍&lt;/h1&gt;

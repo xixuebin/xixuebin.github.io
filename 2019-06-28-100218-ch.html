@@ -6,8 +6,8 @@
         <meta name="author" content="kevin.xi" />
         <meta name="copyright" content="kevin.xi" />
 
-<meta name="keywords" content="bigdata, kylo, bigdata, " />
-        <title>Kylo的安装  · 寒玉 Blog
+<meta name="keywords" content="sublime, 工具, " />
+        <title>Subllime工具  · 寒玉 Blog
 </title>
         <!-- <link href="http://cdn-images.mailchimp.com/embedcode/slim-081711.css" rel="stylesheet" type="text/css"> -->
         <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
@@ -53,91 +53,28 @@
 <article>
 <div class="row-fluid">
     <header class="page_header span10 offset2">
-    <h1><a href="/2019-04-10-142510-ch.html"> Kylo的安装  </a></h1>
+    <h1><a href="/2019-06-28-100218-ch.html"> Subllime工具  </a></h1>
     </header>
 </div>
 
 <div class="row-fluid">
         <div class="span8 offset2 article-content">
 
-            <hr>
-<!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets -->
+            <!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets -->
 
-<h1>Kylo介绍</h1>
-<p>Kylo是一个基于Apache Hadoop和Apache Spark构建的功能丰富的数据湖平台.它提供了完整的数据湖解决方案,支持自动发数据摄取,数据准备和数据发现.它集成了有关元数据的捕获,安全和数据质量的最佳实践,包含和许多用Apache Spark和Apache hive进行数据湖操作的例子.</p>
-<p>另外Kylo还提供了灵活的数据处理框架(基于Apache NIFI),用于构建批处理或者流处理管道模板,以及在不影响数据治理要求的情况下实现自动服务功能.Kylo有一个集成的元数据服务器,目前与Mysql和Postgres等数据库兼容.此外Kylo可以与Apache Ranger或Sentry以及CDH Navigator或Ambari集成，以进行集群监控。</p>
-<p>Kylo的Web应用程序层提供面向业务用户的功能，包括数据分析师，数据管理员，数据科学家和IT运营人员。它利用Apache NiFi作为其调度程序和编排引擎，为设计具有200个处理器（数据连接器和转换）的新类型管道提供集成框架。</p>
-<h1>安装</h1>
-<h2>Prerequisites</h2>
-<ul>
-<li>Install MySQL (password: hadoop)</li>
-</ul>
-<div class="highlight"><pre><span></span>apt-get install mysql-server OR apt-get install mariadb-server <span class="o">(</span>recommand<span class="o">)</span>
-</pre></div>
-
-
-<ul>
-<li>Ensure that “/opt/” has root privileges.</li>
-<li>Download Java8 and extract to /opt/java8.</li>
-</ul>
-<div class="highlight"><pre><span></span>tar -xvf jdk-8u92-linux-x64.tar.gz
-mv jdk1.8.0_92 java8
-</pre></div>
-
-
-<ul>
-<li>Download Scala and extract data into /opt/scala2.</li>
-</ul>
-<div class="highlight"><pre><span></span>tar -xvf scala-2.12.2.tgz
-mv scala-2.12.2 scala2
-<span class="c1">#wget https://downloads.lightbend.com/scala/2.12.2/scala-2.12.2.tgz -P /opt/</span>
-</pre></div>
-
-
-<ul>
-<li>Download Spark2 and extract data into /opt/spark2</li>
-</ul>
-<div class="highlight"><pre><span></span><span class="c1">#wget http://d3kbcqa49mib13.cloudfront.net/spark-2.1.0-bin-hadoop2.7.tgz -P /opt/</span>
-tar -xvf spark-2.1.0-bin-hadoop2.7.tgz
-mv spark-2.1.0-bin-hadoop2.7 spark2
-</pre></div>
-
-
-<ul>
-<li>Download Maven3 using binary and extract data into /opt/maven3</li>
-</ul>
-<div class="highlight"><pre><span></span><span class="c1"># wget http://mirror.fibergrid.in/apache/maven/maven-3/3.5.0/binaries/apache-maven-3.5.0-bin.tar.gz -P /opt/</span>
-tar -xvf apache-maven-3.5.0-bin.tar.gz
-mv apache-maven-3.5.0 maven3
-</pre></div>
-
-
-<ul>
-<li>Set environment variables in ~/.bashrc &amp; “/etc/profile (for all users)” file.</li>
-</ul>
-<div class="highlight"><pre><span></span><span class="nv">JAVA_HOME</span><span class="o">=</span>/opt/java8
-<span class="nv">JRE_HOME</span><span class="o">=</span>/opt/java8/jre
-<span class="nv">SCALA_HOME</span><span class="o">=</span>/opt/scala2
-<span class="nv">SPARK_HOME</span><span class="o">=</span>/opt/spark2
-<span class="nv">MAVEN_HOME</span><span class="o">=</span>/opt/maven3
-<span class="nv">M2_HOME</span><span class="o">=</span>/opt/maven3
-<span class="nv">PATH</span><span class="o">=</span><span class="nv">$PATH</span>:<span class="nv">$JAVA_HOME</span>/bin:<span class="nv">$JRE_HOME</span>/bin:<span class="nv">$MAVEN_HOME</span>/bin$:<span class="nv">$M2_HOME</span>/bin:<span class="nv">$SCALA_HOME</span>/bin:<span class="nv">$SPARK_HOME</span>/bin
-</pre></div>
-
-
-<h2>Test Configuration</h2>
-<h2>参考</h2>
-<ul>
-<li><a href="http://www.treselle.com/blog/kylo-setup-for-data-lake-management/">Kylo的安装</a></li>
-</ul>
+<h2>批量删除空白行</h2>
+<p>CTRL+H打开replace功能，勾选上左侧的regular expression，并填写
+find what栏 : \s+$  （正则表达式）
+replace with栏 : （这行留空
+接着点replace all即可</p>
             <aside>
             <hr/>
             <nav>
             <ul class="articles_timeline">
  
-                <li class="previous_article">« <a href="/2019-04-03-170411-ch.html" title="Previous: Aws Athena Add Column">Aws Athena Add Column</a></li>
+                <li class="previous_article">« <a href="/2019-06-21-115455-ch.html" title="Previous: knime官方node梳理">knime官方node梳理</a></li>
  
-                <li class="next_article"><a href="/2019-04-28-093340-ch.html" title="Next: Java线程池原理及简单介绍">Java线程池原理及简单介绍</a> »</li>
+                <li class="next_article"><a href="/2019-07-19-151913-ch.html" title="Next: Debezium趟坑记录">Debezium趟坑记录</a> »</li>
             </ul>
             </nav>
             </aside>
@@ -146,15 +83,12 @@ mv apache-maven-3.5.0 maven3
         <div class="span2" style="float:right;font-size:0.9em;">
  
             <h4>Published</h4>
-            <time pubdate="pubdate" datetime="2019-04-10T14:25:10+08:00"> 4 10, 2019</time>
+            <time pubdate="pubdate" datetime="2019-06-28T10:02:18+08:00"> 6 28, 2019</time>
             <h4>Category</h4>
-            <a class="category-link" href="/categories.html#bigdata-ref">bigdata</a> 
+            <a class="category-link" href="/categories.html#工具-ref">工具</a> 
             <h4>Tags</h4>
             <ul class="list-of-tags tags-in-article"> 
-                <li><a href="/tags.html#bigdata-ref">bigdata
-                    <span>12</span>
-</a></li>
-                <li><a href="/tags.html#kylo-ref">kylo
+                <li><a href="/tags.html#sublime-ref">sublime
                     <span>1</span>
 </a></li>
             </ul>

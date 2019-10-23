@@ -1,5 +1,218 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>寒玉 Blog - bigdata</title><link href="xixuebin.github.io/" rel="alternate"></link><link href="xixuebin.github.io/feeds/bigdata.atom.xml" rel="self"></link><id>xixuebin.github.io/</id><updated>2019-06-21T11:54:55+08:00</updated><entry><title>knime官方node梳理</title><link href="xixuebin.github.io/2019-06-21-115455-ch.html" rel="alternate"></link><published>2019-06-21T11:54:55+08:00</published><updated>2019-06-21T11:54:55+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-06-21:xixuebin.github.io/2019-06-21-115455-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>寒玉 Blog - bigdata</title><link href="xixuebin.github.io/" rel="alternate"></link><link href="xixuebin.github.io/feeds/bigdata.atom.xml" rel="self"></link><id>xixuebin.github.io/</id><updated>2019-10-12T17:53:29+08:00</updated><entry><title>Siddhi梳理</title><link href="xixuebin.github.io/2019-10-12-175329-ch.html" rel="alternate"></link><published>2019-10-12T17:53:29+08:00</published><updated>2019-10-12T17:53:29+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-10-12:xixuebin.github.io/2019-10-12-175329-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
+
+&lt;h2&gt;介绍&lt;/h2&gt;
+&lt;p&gt;&lt;em&gt;Siddhi CEP&lt;/em&gt; 是一个开源的,轻量级,易使用的Complex Event Processing Engine(ecp).具有自己的DSL.丰富的模式匹配功能和可扩展性.
+官网地址&lt;a href="https://siddhi.io/"&gt;https://siddhi.io/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;架构&lt;/p&gt;
+&lt;p&gt;&lt;img alt="2019-10-12-18-44-14" src="http://xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/images/b4b2d7aa76a27bd84ebda0d5710c5281.png"&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img alt="2019-10-12-18-45-35" src="http://xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/images/3137a440a32c635a8546fbcce94cb2ed.png"&gt;&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;名称&lt;/th&gt;
+&lt;th&gt;描述&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;Stream&lt;/td&gt;
+&lt;td&gt;A logical series of events ordered in time with a uniquely identifiable name, and a defined set of typed attributes defining its schema.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Event&lt;/td&gt;
+&lt;td&gt;An event is a single event object associated with a stream. All events of a stream contains a timestamp and an identical set of typed attributes based on the schema of the stream they belong to.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Table&lt;/td&gt;
+&lt;td&gt;A structured representation of data stored with a defined schema. Stored data can be backed by In-Memory, or external data stores such as RDBMS, MongoDB, etc. The tables can be accessed and manipulated at runtime.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Named-Window&lt;/td&gt;
+&lt;td&gt;A structured representation of data stored with a defined schema and eviction policy. Window data is stored In-Memory and automatically cleared by the named-window constrain. Other siddhi elements can only query the values in windows at runtime but they cannot modify them.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Named-Aggregation&lt;/td&gt;
+&lt;td&gt;A structured representation of data that's incrementally aggregated and stored with a defined schema and aggregation granularity such as seconds, minutes, hours, etc. Aggregation data is stored both In-Memory and in external data stores such as RDBMS. Other siddhi elements can only query the values in windows at runtime but they cannot modify them.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Query&lt;/td&gt;
+&lt;td&gt;A logical construct that processes events in streaming manner by by consuming data from one or more streams, tables, windows and aggregations, and publishes output events into a stream, table or a window.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Source&lt;/td&gt;
+&lt;td&gt;A construct that consumes data from external sources (such as TCP, Kafka, HTTP, etc) with various event formats such as XML, JSON, binary, etc, convert then to Siddhi events, and passes into streams for processing.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Sink&lt;/td&gt;
+&lt;td&gt;A construct that consumes events arriving at a stream, maps them to a predefined data format (such as XML, JSON, binary, etc), and publishes them to external endpoints (such as E-mail, TCP, Kafka, HTTP, etc).&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Input Handler&lt;/td&gt;
+&lt;td&gt;A mechanism to programmatically inject events into streams.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Stream/Query Callback&lt;/td&gt;
+&lt;td&gt;A mechanism to programmatically consume output events from streams or queries.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Partition&lt;/td&gt;
+&lt;td&gt;A logical container that isolates the processing of queries based on the partition keys derived from the events.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;Inner Stream&lt;/td&gt;
+&lt;td&gt;A positionable stream that connects portioned queries with each other within the partition.&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2&gt;组件&lt;/h2&gt;
+&lt;h3&gt;siddhi-running&lt;/h3&gt;
+&lt;p&gt;siddhi的主应用程序,负责规则的调度,运行&lt;/p&gt;
+&lt;h3&gt;siddhi-tooling&lt;/h3&gt;
+&lt;p&gt;siddhi的规则编辑器,完成规则的编辑,测试和发布&lt;/p&gt;
+&lt;h2&gt;部署&lt;/h2&gt;
+&lt;h3&gt;部署前提条件&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Memory - 128 MB (最小), 500 MB (建议), higher memory might be needed based on in-memory data stored for processing&lt;/li&gt;
+&lt;li&gt;Cores - 2 cores (建议), use lower number of cores after testing Siddhi Apps for performance&lt;/li&gt;
+&lt;li&gt;JDK - 8 or 11&lt;/li&gt;
+&lt;li&gt;To build Siddhi from the Source distribution, it is necessary that you have JDK version 8 or 11 and Maven 3.0.4 or later&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;部署Siddhi-runner&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;wget https://github.com/siddhi-io/distribution/releases/download/v5.1.0/siddhi-runner-5.1.0.zip
+mv siddhi-runner-5.1.0.zip /opt/siddhi
+unzip siddhi-runner-5.1.0.zip
+./siddhi-runner-5.1.0/bin/runner.sh //启动runner
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;部署Siddhi-tooling&lt;/h3&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;wget https://github.com/siddhi-io/distribution/releases/download/v5.1.0/siddhi-tooling-5.1.0.zip
+mv siddhi-tooling-5.1.0.zip /opt/siddhi
+unzip siddhi-tooling-5.1.0.zip
+./siddhi-tooling-5.1.0/bin/tooling.s //启动tooling
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;tooling启动之后,访问地址&lt;a href="htt://localhost:9390/editor#"&gt;htt://localhost:9390/editor#&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;主页如下:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="2019-10-12-18-51-47" src="http://xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/images/9de3a123f4eb93f7854e40064f5cfce6.png"&gt;&lt;/p&gt;
+&lt;p&gt;流程可视化界面&lt;/p&gt;
+&lt;p&gt;&lt;img alt="2019-10-12-18-52-30" src="http://xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/images/fb0e8b427f3c0405c780b92a22855f69.png"&gt;&lt;/p&gt;
+&lt;h2&gt;扩展&lt;/h2&gt;
+&lt;p&gt;siddhi有许多扩展可以使用,用于扩展它的消息处理形式和扩展.扩展列表&lt;a href="https://siddhi.io/en/v5.1/docs/extensions/"&gt;https://siddhi.io/en/v5.1/docs/extensions/&lt;/a&gt;.&lt;/p&gt;
+&lt;h3&gt;siddhi-io-kafka&lt;/h3&gt;
+&lt;p&gt;siddhi-io-kafka可以帮助siddhi从kafka收取消息,并将处理的结果发送回kafka topic. &lt;a href="https://siddhi-io.github.io/siddhi-io-kafka/"&gt;地址&lt;/a&gt;.&lt;/p&gt;
+&lt;h4&gt;安装siddhi-io-kafka&lt;/h4&gt;
+&lt;p&gt;该扩展的安装需要,需要一些kafka的jar包.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;kafka_2.11-*.jar
+kafka-clients-*.jar
+metrics-core-*.jar
+scala-library-2.11.*.jar
+scala-parser-combinators_2.11.*.jar &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="k"&gt;if&lt;/span&gt; exists&lt;span class="o"&gt;)&lt;/span&gt;
+zkclient-*.jar
+zookeeper-*.jar
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;siddhi的扩展jar包会放到根目录下的jars和bundles目录下.&lt;/p&gt;
+&lt;p&gt;转化jar文件为osgi的bundle jar .操作过程如下&lt;/p&gt;
+&lt;p&gt;创建目录source,放置kafka的相关jar文件到该目录下.创建一个destination目录.运行命令:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;{&lt;/span&gt;WSO2SPHome&lt;span class="o"&gt;}&lt;/span&gt;/bin/jartobundle.sh  &lt;span class="nb"&gt;source&lt;/span&gt; destination
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;添加destination目录下的jar文件到siddhi的bundles目录下,添加source目录下的jar文件到siddhi的jar文件夹下,重启siddhi,完成组件安装&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;备注&lt;/em&gt;
+因为siddhi中本身是安装有siddhi-io-kafka插件的,我们所做的工作其实就是添加kafka的链接类库&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="n"&gt;App&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;HelloKafkaApp&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="n"&gt;App&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="n"&gt;description&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;Description of the plan&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="c1"&gt;-- define stream siddhiStream1 (symbol string, price double, volume long);&lt;/span&gt;
+
+&lt;span class="c1"&gt;-- @sink(type=&amp;#39;kafka&amp;#39;, bootstrap.servers=&amp;#39;localhost:6667&amp;#39;,topic=&amp;#39;siddhi_sink_kafka&amp;#39;,is.binary.message=&amp;#39;True&amp;#39; )&lt;/span&gt;
+
+&lt;span class="c1"&gt;-- @sink(type=&amp;#39;kafka&amp;#39; , bootstrap.servers=&amp;#39;localhost:6667&amp;#39;,topic=&amp;#39;siddhi_sink_kafka&amp;#39;,is.binary.message=&amp;#39;True&amp;#39;)&lt;/span&gt;
+&lt;span class="c1"&gt;-- define stream outputStream (symbol string, price double, volume long);&lt;/span&gt;
+&lt;span class="c1"&gt;-- @sink(type=&amp;#39;log&amp;#39;, prefix=&amp;#39;LOGGER&amp;#39;)&lt;/span&gt;
+&lt;span class="c1"&gt;-- @sink(type=&amp;#39;kafka&amp;#39; , bootstrap.servers=&amp;#39;localhost:6667&amp;#39;,topic=&amp;#39;siddhi_sink_kafka&amp;#39;,is.binary.message=&amp;#39;True&amp;#39;, @map(type=&amp;#39;json&amp;#39;) )&lt;/span&gt;
+&lt;span class="c1"&gt;-- @sink(type=&amp;#39;log&amp;#39;, prefix=&amp;#39;LOGGER&amp;#39;)&lt;/span&gt;
+&lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="n"&gt;sink&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;type&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;kafka&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;bootstrap&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;servers&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="ss"&gt;&amp;quot;localhost:6667&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;topic&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="ss"&gt;&amp;quot;siddhi_sink_kafka&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;is&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nb"&gt;binary&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;message&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="ss"&gt;&amp;quot;True&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="k"&gt;map&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;type&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;json&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;span class="n"&gt;define&lt;/span&gt; &lt;span class="n"&gt;stream&lt;/span&gt; &lt;span class="n"&gt;OutputStream1&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;price&lt;/span&gt; &lt;span class="n"&gt;double&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+&lt;span class="c1"&gt;-- Please refer to https://siddhi.io/en/v5.1/docs/quick-start/ on getting started with Siddhi editor.&lt;/span&gt;
+&lt;span class="c1"&gt;-- , enclosing.element=&amp;#39;$&amp;#39;, @attributes(price=&amp;quot;price&amp;quot;)&lt;/span&gt;
+&lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="k"&gt;source&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;type&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;kafka&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;bootstrap&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;servers&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="ss"&gt;&amp;quot;localhost:6667&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;topic&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;list&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="ss"&gt;&amp;quot;siddhi_kafka&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;group&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="ss"&gt;&amp;quot;siddhi_group&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;threading&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="k"&gt;option&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="ss"&gt;&amp;quot;single.thread&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="k"&gt;map&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;type&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;json&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;span class="n"&gt;define&lt;/span&gt; &lt;span class="n"&gt;stream&lt;/span&gt; &lt;span class="n"&gt;siddhiStream1&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;price&lt;/span&gt; &lt;span class="n"&gt;double&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+&lt;span class="c1"&gt;-- -- define stream OutputStream(symbol string, price double, volume long);&lt;/span&gt;
+
+&lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="n"&gt;info&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;query1&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;from&lt;/span&gt; &lt;span class="n"&gt;siddhiStream1&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;price&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;20&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="k"&gt;select&lt;/span&gt; &lt;span class="n"&gt;price&lt;/span&gt;
+&lt;span class="k"&gt;insert&lt;/span&gt; &lt;span class="k"&gt;into&lt;/span&gt; &lt;span class="n"&gt;OutputStream1&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;siddhi-store-rdbms&lt;/h3&gt;
+&lt;p&gt;siddhi-store-rdbms插件可以帮助siddhi将事件持久化并从数据库中(如mysql,ms-sql,postgresql,h2和oracle中检索事件).&lt;a href="https://github.com/siddhi-io/siddhi-store-rdbms"&gt;地址&lt;/a&gt;&lt;/p&gt;
+&lt;h4&gt;安装siddhi-store-rdbms&lt;/h4&gt;
+&lt;p&gt;改组建的安装,只需要copy相关的jdbc connector jar到siddhi中即可.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="n"&gt;App&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;&amp;quot;SquidAlertRule&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="n"&gt;App&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="n"&gt;description&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;&amp;quot;Description of the plan&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="c1"&gt;-- Please refer to https://siddhi.io/en/v5.1/docs/quick-start/ on getting started with Siddhi editor.&lt;/span&gt;
+
+
+&lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="k"&gt;source&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;type&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;kafka&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;bootstrap&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;servers&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="ss"&gt;&amp;quot;localhost:6667&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;topic&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;list&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="ss"&gt;&amp;quot;siddhi_squid_kafka&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;group&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;id&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="ss"&gt;&amp;quot;siddhi_group&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;threading&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="k"&gt;option&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="ss"&gt;&amp;quot;single.thread&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="k"&gt;map&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;type&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;json&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;span class="n"&gt;define&lt;/span&gt; &lt;span class="n"&gt;stream&lt;/span&gt; &lt;span class="n"&gt;SquidDataStream&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;domain&lt;/span&gt; &lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+&lt;span class="c1"&gt;-- @store(type=&amp;quot;rdbms&amp;quot;, jdbc.url=&amp;quot;jdbc:mysql://localhost:3306/hotel&amp;quot;,&lt;/span&gt;
+&lt;span class="c1"&gt;--       username=&amp;quot;siddhi&amp;quot;, password=&amp;quot;123&amp;quot;,&lt;/span&gt;
+&lt;span class="c1"&gt;--       jdbc.driver.name=&amp;quot;com.mysql.jdbc.Driver&amp;quot;,&lt;/span&gt;
+&lt;span class="c1"&gt;--       @cache(size=&amp;quot;1000&amp;quot;, retention.period=&amp;quot;5 min&amp;quot;, purge.interval=&amp;quot;1 min&amp;quot;))&lt;/span&gt;
+&lt;span class="c1"&gt;-- define table BlackDomainTable (username string, salary double);&lt;/span&gt;
+
+
+&lt;span class="c1"&gt;-- @store(type=&amp;#39;rdbms&amp;#39; , jdbc.url=&amp;#39;jdbc:mariadb://localhost:30939/siddhi&amp;#39;,username=&amp;#39;root&amp;#39;,password=&amp;#39;******&amp;#39;,jdbc.driver.name=&amp;#39;org.mariadb.jdbc.Driver&amp;#39;,table.name=&amp;#39;blackDomain&amp;#39;)&lt;/span&gt;
+&lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="n"&gt;store&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;type&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;rdbms&amp;#39;&lt;/span&gt; &lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;jdbc&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;url&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;jdbc:mysql://localhost:3306/siddhi&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;username&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;root&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;password&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;******&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;jdbc&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;driver&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;com.mysql.cj.jdbc.Driver&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="k"&gt;table&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;blackDomain&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;define&lt;/span&gt; &lt;span class="k"&gt;table&lt;/span&gt; &lt;span class="n"&gt;blackDomain&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;domain&lt;/span&gt; &lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+
+&lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="n"&gt;sink&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;type&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;kafka&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;bootstrap&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;servers&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="ss"&gt;&amp;quot;localhost:6667&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;topic&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="ss"&gt;&amp;quot;siddhi_squid_sink_kafka&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;is&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nb"&gt;binary&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;message&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="ss"&gt;&amp;quot;True&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="k"&gt;map&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;type&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;json&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;span class="n"&gt;define&lt;/span&gt; &lt;span class="n"&gt;stream&lt;/span&gt; &lt;span class="n"&gt;SquidSinkDataStream&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;domain&lt;/span&gt; &lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;is_alert&lt;/span&gt; &lt;span class="n"&gt;bool&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+&lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="n"&gt;info&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;QueryBlack&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;from&lt;/span&gt; &lt;span class="n"&gt;SquidDataStream&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;blackDomain&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="k"&gt;domain&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="k"&gt;domain&lt;/span&gt; &lt;span class="k"&gt;in&lt;/span&gt; &lt;span class="n"&gt;blackDomain&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="k"&gt;select&lt;/span&gt; &lt;span class="k"&gt;domain&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="k"&gt;True&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;is_alert&lt;/span&gt;
+&lt;span class="k"&gt;insert&lt;/span&gt; &lt;span class="k"&gt;into&lt;/span&gt; &lt;span class="n"&gt;SquidSinkDataStream&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="n"&gt;info&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;QueryNotBlack&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;from&lt;/span&gt; &lt;span class="n"&gt;SquidDataStream&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt; &lt;span class="k"&gt;not&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;blackDomain&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="k"&gt;domain&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="k"&gt;domain&lt;/span&gt; &lt;span class="k"&gt;in&lt;/span&gt; &lt;span class="n"&gt;blackDomain&lt;/span&gt;&lt;span class="p"&gt;)]&lt;/span&gt;
+&lt;span class="k"&gt;select&lt;/span&gt; &lt;span class="k"&gt;domain&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;False&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;is_alert&lt;/span&gt;
+&lt;span class="k"&gt;insert&lt;/span&gt; &lt;span class="k"&gt;into&lt;/span&gt; &lt;span class="n"&gt;SquidSinkDataStream&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;Rule Editor&lt;/h2&gt;
+&lt;p&gt;Rule Editor是一个可视化的规则编辑器,该编辑器可以实现规则的编辑,管理,消息模拟和应用部署.&lt;/p&gt;
+&lt;p&gt;界面如下:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="2019-10-14-10-18-12" src="http://xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/images/5e62c5b9912aaf0e252e813783ac6095.png"&gt;&lt;/p&gt;
+&lt;h2&gt;Rule 部署&lt;/h2&gt;
+&lt;p&gt;在完成规则书写完之后,我们可以直接部署.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;点击菜单上的deploy&lt;/li&gt;
+&lt;li&gt;添加服务器,默认用户名可以不填&lt;/li&gt;
+&lt;li&gt;选择要部署的siddhi脚本和要部署到的服务器,点击deploy进行部署&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img alt="2019-10-14-10-19-59" src="http://xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/images/d2b1ecf8ac5eafaa7c3205fbd54ef380.png"&gt;&lt;/p&gt;
+&lt;h2&gt;参考&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://siddhi.io/en/v5.1"&gt;https://siddhi.io/en/v5.1&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://medium.com/siddhi-io/https-medium-com-niruhan-apache-kafka-integration-for-siddhi-part1-e9dd8d4955aa"&gt;Introduction to Apache Kafka Integration for Siddhi&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/siddhi-io/siddhi/"&gt;https://github.com/siddhi-io/siddhi/&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><category term="bigdata"></category><category term="siddhi"></category></entry><entry><title>knime官方node梳理</title><link href="xixuebin.github.io/2019-06-21-115455-ch.html" rel="alternate"></link><published>2019-06-21T11:54:55+08:00</published><updated>2019-06-21T11:54:55+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-06-21:xixuebin.github.io/2019-06-21-115455-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
 
 &lt;ul&gt;
 &lt;li&gt;&lt;a href="#Knime%E5%AE%98%E6%96%B9Nodes"&gt;Knime官方Nodes&lt;/a&gt;&lt;ul&gt;
