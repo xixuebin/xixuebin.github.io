@@ -7,7 +7,7 @@
         <meta name="copyright" content="kevin.xi" />
 
 <meta name="keywords" content="java, ava, " />
-        <title>Java线程池原理及简单介绍  · 寒玉 Blog
+        <title>Java reflections  · 寒玉 Blog
 </title>
         <!-- <link href="http://cdn-images.mailchimp.com/embedcode/slim-081711.css" rel="stylesheet" type="text/css"> -->
         <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
@@ -53,7 +53,7 @@
 <article>
 <div class="row-fluid">
     <header class="page_header span10 offset2">
-    <h1><a href="/2019-04-28-093340-ch.html"> Java线程池原理及简单介绍  </a></h1>
+    <h1><a href="/2019-12-02-094440-ch.html"> Java reflections  </a></h1>
     </header>
 </div>
 
@@ -61,41 +61,61 @@
         <div class="span8 offset2 article-content">
 
             <hr>
-<!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets -->
-
-<h1>线程池简介</h1>
-<p>多线程技术主要解决处理器单元内多个线程执行的问题，它可以显著减少处理器单元的闲置时间，增加处理器单元的吞吐能力。
-    假设一个服务器完成一项任务所需时间为：T1 创建线程时间，T2 在线程中执行任务的时间，T3 销毁线程时间。
-    如果：T1 + T3 远大于 T2，则可以采用线程池，以提高服务器性能。
-                一个线程池包括以下四个基本组成部分：
-                1、线程池管理器（ThreadPool）：用于创建并管理线程池，包括 创建线程池，销毁线程池，添加新任务；
-                2、工作线程（PoolWorker）：线程池中线程，在没有任务时处于等待状态，可以循环的执行任务；
-                3、任务接口（Task）：每个任务必须实现的接口，以供工作线程调度任务的执行，它主要规定了任务的入口，任务执行完后的收尾工作，任务的执行状态等；
-                4、任务队列（taskQueue）：用于存放没有处理的任务。提供一种缓冲机制。
-线程池技术正是关注如何缩短或调整T1,T3时间的技术，从而提高服务器程序性能的。它把T1，T3分别安排在服务器程序的启动和结束的时间段或者一些空闲的时间段，这样在服务器程序处理客户请求时，不会有T1，T3的开销了。</p>
-<h2>继承体系</h2>
-<h2>原理分析</h2>
-<h3>核心参数分析</h3>
-<h3>线程创建规则</h3>
-<h3>资源回收</h3>
-<h3>排队策略</h3>
-<h3>拒绝策略</h3>
-<h3>提交任务</h3>
-<h3>关闭线程池</h3>
-<h2>几种线程池</h2>
-<h1>重要操作</h1>
-<h1>参考</h1>
+<blockquote>
+<p>Reflections 通过扫描 classpath，索引元数据，允许在运行时查询这些元数据，也可以保存收集项目中多个模块的元数据信息。</p>
+</blockquote>
+<p>使用 Reflections 可以查询以下元数据信息：</p>
 <ul>
-<li><a href="https://cloud.tencent.com/developer/article/1109643">Java线程池原理分析</a></li>
+<li>获得某个类型的所有子类型</li>
+<li>获得标记了某个注解的所有类型／成员变量，支持注解参数匹配</li>
+<li>使用正则表达式获得所有匹配的资源文件</li>
+<li>获得所有特定签名（包括参数，参数注解，返回值）的方法</li>
 </ul>
+<p>Reflections 依赖 Google 的 Guava 库和 Javassist 库。</p>
+<p>项目导入:</p>
+<div class="highlight"><pre><span></span><span class="nt">&lt;dependency&gt;</span>
+    <span class="nt">&lt;groupId&gt;</span>org.reflections<span class="nt">&lt;/groupId&gt;</span>
+    <span class="nt">&lt;artifactId&gt;</span>reflections<span class="nt">&lt;/artifactId&gt;</span>
+    <span class="nt">&lt;version&gt;</span>0.9.10<span class="nt">&lt;/version&gt;</span>
+<span class="nt">&lt;/dependency&gt;</span>
+</pre></div>
+
+
+<p>常用类:</p>
+<ul>
+<li>ClasspathHelper</li>
+</ul>
+<div class="highlight"><pre><span></span><span class="kd">public</span> <span class="kd">class</span> <span class="nc">TestReflect</span> <span class="o">{</span>
+
+ <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="o">{</span>
+  <span class="n">URL</span> <span class="n">url</span> <span class="o">=</span> <span class="n">ClasspathHelper</span><span class="o">.</span><span class="na">forClass</span><span class="o">(</span><span class="n">TestReflect</span><span class="o">.</span><span class="na">class</span><span class="o">);</span>
+
+  <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">url</span><span class="o">.</span><span class="na">getFile</span><span class="o">());</span>
+
+  <span class="n">Set</span><span class="o">&lt;</span><span class="n">URL</span><span class="o">&gt;</span> <span class="n">urlSet</span> <span class="o">=</span> <span class="n">ClasspathHelper</span><span class="o">.</span><span class="na">forPackage</span><span class="o">(</span><span class="s">&quot;com\\.kevin\\.reflection\\.test&quot;</span><span class="o">);</span>
+
+  <span class="k">for</span> <span class="o">(</span><span class="n">URL</span> <span class="n">u</span><span class="o">:</span> <span class="n">urlSet</span> <span class="o">)</span> <span class="o">{</span>
+   <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">u</span><span class="o">);</span>
+   <span class="o">}</span>
+
+   <span class="n">urlSet</span> <span class="o">=</span> <span class="n">ClasspathHelper</span><span class="o">.</span><span class="na">forResource</span><span class="o">(</span><span class="s">&quot;\\&quot;</span><span class="o">);</span>
+
+   <span class="k">for</span> <span class="o">(</span><span class="n">URL</span> <span class="n">u</span><span class="o">:</span> <span class="n">urlSet</span> <span class="o">)</span> <span class="o">{</span>
+   <span class="n">System</span><span class="o">.</span><span class="na">out</span><span class="o">.</span><span class="na">println</span><span class="o">(</span><span class="n">u</span><span class="o">);</span>
+ <span class="o">}</span>
+ <span class="o">}</span>
+
+<span class="o">}</span>
+</pre></div>
+
+
+<p>通过上面的测试代码可以看出ClasspathHelper这个类提供的上面的三个方法是获取资源的路径。</p>
             <aside>
             <hr/>
             <nav>
             <ul class="articles_timeline">
  
-                <li class="previous_article">« <a href="/2019-04-10-142510-ch.html" title="Previous: Kylo的安装">Kylo的安装</a></li>
- 
-                <li class="next_article"><a href="/2019-05-28-100323-ch.html" title="Next: 使用python链接stompy">使用python链接stompy</a> »</li>
+                <li class="previous_article">« <a href="/2019-10-30-165148-ch.html" title="Previous: 重置KafkaConnectOffset">重置KafkaConnectOffset</a></li>
             </ul>
             </nav>
             </aside>
@@ -104,7 +124,7 @@
         <div class="span2" style="float:right;font-size:0.9em;">
  
             <h4>Published</h4>
-            <time pubdate="pubdate" datetime="2019-04-28T09:33:40+08:00"> 4 28, 2019</time>
+            <time pubdate="pubdate" datetime="2019-12-02T09:44:40+08:00">12 2, 2019</time>
             <h4>Category</h4>
             <a class="category-link" href="/categories.html#ava-ref">ava</a> 
             <h4>Tags</h4>

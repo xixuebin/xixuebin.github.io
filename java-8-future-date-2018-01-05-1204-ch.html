@@ -139,9 +139,9 @@
 
 <span class="kd">public</span> <span class="kd">class</span> <span class="nc">Application</span> <span class="o">{</span>  
     <span class="kd">public</span> <span class="kd">static</span> <span class="kt">void</span> <span class="nf">main</span><span class="o">(</span><span class="n">String</span><span class="o">[]</span> <span class="n">args</span><span class="o">)</span> <span class="kd">throws</span> <span class="n">Exception</span> <span class="o">{</span>  
-        <span class="n">FutureTask</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">futureTask</span> <span class="o">=</span>   
+        <span class="n">FutureTask</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">futureTask</span> <span class="o">=</span>
                 <span class="k">new</span> <span class="n">FutureTask</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;(</span><span class="k">new</span> <span class="n">RealData</span><span class="o">(</span><span class="s">&quot;name&quot;</span><span class="o">));</span>  
-        <span class="n">ExecutorService</span> <span class="n">executor</span> <span class="o">=</span>   
+        <span class="n">ExecutorService</span> <span class="n">executor</span> <span class="o">=</span>
                 <span class="n">Executors</span><span class="o">.</span><span class="na">newFixedThreadPool</span><span class="o">(</span><span class="mi">1</span><span class="o">);</span> <span class="c1">//使用线程池  </span>
         <span class="c1">//执行FutureTask，相当于上例中的client.request(&quot;name&quot;)发送请求  </span>
         <span class="n">executor</span><span class="o">.</span><span class="na">submit</span><span class="o">(</span><span class="n">futureTask</span><span class="o">);</span>  
@@ -159,24 +159,24 @@
 <h3>Future设置线程执行时间</h3>
 <p>在Java中，如果需要设定代码执行的最长时间，即超时，可以用Java线程池ExecutorService类配合Future接口来实现。 </p>
 <p>Future接口提供方法来检测任务是否被执行完，等待任务执行完获得结果，也可以设置任务执行的超时时间。这个设置超时的方法就是实现Java程序执行超时的关键。</p>
-<div class="highlight"><pre><span></span><span class="n">ExecutorService</span> <span class="n">executor</span> <span class="o">=</span> <span class="n">Executors</span><span class="o">.</span><span class="na">newSingleThreadExecutor</span><span class="o">();</span>   
-<span class="n">FutureTask</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">future</span> <span class="o">=</span>   
-       <span class="k">new</span> <span class="n">FutureTask</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;(</span><span class="k">new</span> <span class="n">Callable</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;()</span> <span class="o">{</span><span class="c1">//使用Callable接口作为构造参数   </span>
-         <span class="kd">public</span> <span class="n">String</span> <span class="nf">call</span><span class="o">()</span> <span class="o">{</span>   
-           <span class="c1">//真正的任务在这里执行，这里的返回值类型为String，可以为任意类型   </span>
-       <span class="o">}});</span>   
-<span class="n">executor</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">future</span><span class="o">);</span>   
-<span class="c1">//在这里可以做别的任何事情   </span>
-<span class="k">try</span> <span class="o">{</span>   
-    <span class="n">result</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="mi">5000</span><span class="o">,</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="na">MILLISECONDS</span><span class="o">);</span> <span class="c1">//取得结果，同时设置超时执行时间为5秒。同样可以用future.get()，不设置执行超时时间取得结果   </span>
-<span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">InterruptedException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>   
-    <span class="n">futureTask</span><span class="o">.</span><span class="na">cancel</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>   
-<span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">ExecutionException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>   
-    <span class="n">futureTask</span><span class="o">.</span><span class="na">cancel</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>   
-<span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">TimeoutException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>   
-    <span class="n">futureTask</span><span class="o">.</span><span class="na">cancel</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>   
-<span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>   
-    <span class="n">executor</span><span class="o">.</span><span class="na">shutdown</span><span class="o">();</span>   
+<div class="highlight"><pre><span></span><span class="n">ExecutorService</span> <span class="n">executor</span> <span class="o">=</span> <span class="n">Executors</span><span class="o">.</span><span class="na">newSingleThreadExecutor</span><span class="o">();</span>
+<span class="n">FutureTask</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;</span> <span class="n">future</span> <span class="o">=</span>
+       <span class="k">new</span> <span class="n">FutureTask</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;(</span><span class="k">new</span> <span class="n">Callable</span><span class="o">&lt;</span><span class="n">String</span><span class="o">&gt;()</span> <span class="o">{</span><span class="c1">//使用Callable接口作为构造参数</span>
+         <span class="kd">public</span> <span class="n">String</span> <span class="nf">call</span><span class="o">()</span> <span class="o">{</span>
+           <span class="c1">//真正的任务在这里执行，这里的返回值类型为String，可以为任意类型</span>
+       <span class="o">}});</span>
+<span class="n">executor</span><span class="o">.</span><span class="na">execute</span><span class="o">(</span><span class="n">future</span><span class="o">);</span>
+<span class="c1">//在这里可以做别的任何事情</span>
+<span class="k">try</span> <span class="o">{</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">future</span><span class="o">.</span><span class="na">get</span><span class="o">(</span><span class="mi">5000</span><span class="o">,</span> <span class="n">TimeUnit</span><span class="o">.</span><span class="na">MILLISECONDS</span><span class="o">);</span> <span class="c1">//取得结果，同时设置超时执行时间为5秒。同样可以用future.get()，不设置执行超时时间取得结果</span>
+<span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">InterruptedException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">futureTask</span><span class="o">.</span><span class="na">cancel</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+<span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">ExecutionException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">futureTask</span><span class="o">.</span><span class="na">cancel</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+<span class="o">}</span> <span class="k">catch</span> <span class="o">(</span><span class="n">TimeoutException</span> <span class="n">e</span><span class="o">)</span> <span class="o">{</span>
+    <span class="n">futureTask</span><span class="o">.</span><span class="na">cancel</span><span class="o">(</span><span class="kc">true</span><span class="o">);</span>
+<span class="o">}</span> <span class="k">finally</span> <span class="o">{</span>
+    <span class="n">executor</span><span class="o">.</span><span class="na">shutdown</span><span class="o">();</span>
 <span class="o">}</span>  
 </pre></div>
 
@@ -211,7 +211,7 @@
             <h4>Tags</h4>
             <ul class="list-of-tags tags-in-article"> 
                 <li><a href="/tags.html#java-ref">java
-                    <span>14</span>
+                    <span>15</span>
 </a></li>
                 <li><a href="/tags.html#jvm-ref">jvm
                     <span>9</span>

@@ -6,8 +6,8 @@
         <meta name="author" content="kevin.xi" />
         <meta name="copyright" content="kevin.xi" />
 
-<meta name="keywords" content="java, ava, " />
-        <title>Java线程池原理及简单介绍  · 寒玉 Blog
+<meta name="keywords" content="database, database,kafka,cdc, " />
+        <title>重置KafkaConnectOffset  · 寒玉 Blog
 </title>
         <!-- <link href="http://cdn-images.mailchimp.com/embedcode/slim-081711.css" rel="stylesheet" type="text/css"> -->
         <link href="//netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet">
@@ -53,49 +53,32 @@
 <article>
 <div class="row-fluid">
     <header class="page_header span10 offset2">
-    <h1><a href="/2019-04-28-093340-ch.html"> Java线程池原理及简单介绍  </a></h1>
+    <h1><a href="/2019-10-30-165148-ch.html"> 重置KafkaConnectOffset  </a></h1>
     </header>
 </div>
 
 <div class="row-fluid">
         <div class="span8 offset2 article-content">
 
-            <hr>
-<!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets -->
+            <!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets -->
 
-<h1>线程池简介</h1>
-<p>多线程技术主要解决处理器单元内多个线程执行的问题，它可以显著减少处理器单元的闲置时间，增加处理器单元的吞吐能力。
-    假设一个服务器完成一项任务所需时间为：T1 创建线程时间，T2 在线程中执行任务的时间，T3 销毁线程时间。
-    如果：T1 + T3 远大于 T2，则可以采用线程池，以提高服务器性能。
-                一个线程池包括以下四个基本组成部分：
-                1、线程池管理器（ThreadPool）：用于创建并管理线程池，包括 创建线程池，销毁线程池，添加新任务；
-                2、工作线程（PoolWorker）：线程池中线程，在没有任务时处于等待状态，可以循环的执行任务；
-                3、任务接口（Task）：每个任务必须实现的接口，以供工作线程调度任务的执行，它主要规定了任务的入口，任务执行完后的收尾工作，任务的执行状态等；
-                4、任务队列（taskQueue）：用于存放没有处理的任务。提供一种缓冲机制。
-线程池技术正是关注如何缩短或调整T1,T3时间的技术，从而提高服务器程序性能的。它把T1，T3分别安排在服务器程序的启动和结束的时间段或者一些空闲的时间段，这样在服务器程序处理客户请求时，不会有T1，T3的开销了。</p>
-<h2>继承体系</h2>
-<h2>原理分析</h2>
-<h3>核心参数分析</h3>
-<h3>线程创建规则</h3>
-<h3>资源回收</h3>
-<h3>排队策略</h3>
-<h3>拒绝策略</h3>
-<h3>提交任务</h3>
-<h3>关闭线程池</h3>
-<h2>几种线程池</h2>
-<h1>重要操作</h1>
-<h1>参考</h1>
+<h2>参考</h2>
 <ul>
-<li><a href="https://cloud.tencent.com/developer/article/1109643">Java线程池原理分析</a></li>
+<li><a href="https://rmoff.net/2019/08/15/reset-kafka-connect-source-connector-offsets/">https://rmoff.net/2019/08/15/reset-kafka-connect-source-connector-offsets/</a></li>
+<li><a href="https://www.cnblogs.com/xdao/p/10674848.html">kafka调试工具kafkacat的使用</a></li>
+<li><a href="https://www.confluent.io/hub/">https://www.confluent.io/hub/</a></li>
+<li><a href="https://rmoff.net/2019/05/02/reading-kafka-connect-offsets-via-the-rest-proxy/">https://rmoff.net/2019/05/02/reading-kafka-connect-offsets-via-the-rest-proxy/</a></li>
+<li><a href="https://docs.confluent.io/current/app-development/kafkacat-usage.html">https://docs.confluent.io/current/app-development/kafkacat-usage.html</a></li>
+<li><a href="https://www.cnblogs.com/3gods/p/7406147.html">Kafka Connect Details 详解</a></li>
 </ul>
             <aside>
             <hr/>
             <nav>
             <ul class="articles_timeline">
  
-                <li class="previous_article">« <a href="/2019-04-10-142510-ch.html" title="Previous: Kylo的安装">Kylo的安装</a></li>
+                <li class="previous_article">« <a href="/2019-10-18-100322-ch.html" title="Previous: Debezium常见错误及处理">Debezium常见错误及处理</a></li>
  
-                <li class="next_article"><a href="/2019-05-28-100323-ch.html" title="Next: 使用python链接stompy">使用python链接stompy</a> »</li>
+                <li class="next_article"><a href="/2019-12-02-094440-ch.html" title="Next: Java reflections">Java reflections</a> »</li>
             </ul>
             </nav>
             </aside>
@@ -104,13 +87,13 @@
         <div class="span2" style="float:right;font-size:0.9em;">
  
             <h4>Published</h4>
-            <time pubdate="pubdate" datetime="2019-04-28T09:33:40+08:00"> 4 28, 2019</time>
+            <time pubdate="pubdate" datetime="2019-10-30T16:51:48+08:00">10 30, 2019</time>
             <h4>Category</h4>
-            <a class="category-link" href="/categories.html#ava-ref">ava</a> 
+            <a class="category-link" href="/categories.html#database,kafka,cdc-ref">database,kafka,cdc</a> 
             <h4>Tags</h4>
             <ul class="list-of-tags tags-in-article"> 
-                <li><a href="/tags.html#java-ref">java
-                    <span>15</span>
+                <li><a href="/tags.html#database-ref">database
+                    <span>4</span>
 </a></li>
             </ul>
 
