@@ -34,8 +34,7 @@ date -v-1y +&lt;span class="s2"&gt;&amp;quot;%y%m%d&amp;quot;&lt;/span&gt;    &l
 &lt;h1&gt;参考&lt;/h1&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a href="https://gist.github.com/nrollr/3f57fc15ded7dddddcc4e82fe137b58e"&gt;MySQL_macOS_Sierra&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;</content><category term="工具"></category><category term="Mac"></category></entry><entry><title>Linux命令行工具</title><link href="xixuebin.github.io/2019-03-31-180919-ch.html" rel="alternate"></link><published>2019-03-31T18:09:19+08:00</published><updated>2019-03-31T18:09:19+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-03-31:xixuebin.github.io/2019-03-31-180919-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;hr&gt;
-&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
+&lt;/ul&gt;</content><category term="工具"></category><category term="Mac"></category></entry><entry><title>Linux命令行工具</title><link href="xixuebin.github.io/2019-03-31-180919-ch.html" rel="alternate"></link><published>2019-03-31T18:09:19+08:00</published><updated>2019-03-31T18:09:19+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-03-31:xixuebin.github.io/2019-03-31-180919-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
 
 &lt;h1&gt;Linux 命令行工具&lt;/h1&gt;
 &lt;h2&gt;ceho&lt;/h2&gt;

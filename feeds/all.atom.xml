@@ -1,5 +1,299 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>寒玉 Blog</title><link href="xixuebin.github.io/" rel="alternate"></link><link href="xixuebin.github.io/feeds/all.atom.xml" rel="self"></link><id>xixuebin.github.io/</id><updated>2019-10-12T17:53:29+08:00</updated><entry><title>Siddhi梳理</title><link href="xixuebin.github.io/2019-10-12-175329-ch.html" rel="alternate"></link><published>2019-10-12T17:53:29+08:00</published><updated>2019-10-12T17:53:29+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-10-12:xixuebin.github.io/2019-10-12-175329-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>寒玉 Blog</title><link href="xixuebin.github.io/" rel="alternate"></link><link href="xixuebin.github.io/feeds/all.atom.xml" rel="self"></link><id>xixuebin.github.io/</id><updated>2020-01-05T22:10:47+08:00</updated><entry><title>数据中台介绍</title><link href="xixuebin.github.io/2020-01-05-221047-ch.html" rel="alternate"></link><published>2020-01-05T22:10:47+08:00</published><updated>2020-01-05T22:10:47+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2020-01-05:xixuebin.github.io/2020-01-05-221047-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
+
+&lt;h1&gt;数据中台介绍&lt;/h1&gt;
+&lt;h2&gt;什么是数据中台&lt;/h2&gt;
+&lt;p&gt;数据中台是一套可持续"让企业的数据用起来"的机制,是一种战略选择和组织形式,是依据企业特有的业务模式和组织架构,通过有形的产品和实时方法论支撑,构建的一套持续不断吧数据变成资产并服务于业务的机制.&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;数据来自于业务,并反哺业务,不断循环迭代,实现数据可见,可用,可运营.&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;h2&gt;数据中台的核心能力&lt;/h2&gt;
+&lt;p&gt;数据中台必须要具备&lt;code&gt;数据汇聚整合&lt;/code&gt;,&lt;code&gt;数据提纯加工&lt;/code&gt;,&lt;code&gt;数据服务可视化&lt;/code&gt;,&lt;code&gt;数据价值变现&lt;/code&gt;4个核心能力.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;汇聚整合&lt;/li&gt;
+&lt;li&gt;提纯加工&lt;/li&gt;
+&lt;li&gt;服务可视化&lt;/li&gt;
+&lt;li&gt;价值变现&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;数据中台实现的5个关键步骤&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;理现状&lt;/li&gt;
+&lt;li&gt;立架构&lt;/li&gt;
+&lt;li&gt;建资产&lt;/li&gt;
+&lt;li&gt;用数据&lt;/li&gt;
+&lt;li&gt;做运营&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;中台实现必须要的模块&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;数据汇聚&lt;/li&gt;
+&lt;li&gt;数据开发&lt;/li&gt;
+&lt;li&gt;数据体系&lt;/li&gt;
+&lt;li&gt;数据资产管理&lt;/li&gt;
+&lt;li&gt;数据服务体系&lt;/li&gt;
+&lt;li&gt;运营体系和管理体系&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;数据汇集方法&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;线上行为数据采集&lt;/li&gt;
+&lt;li&gt;客户端埋点&lt;ul&gt;
+&lt;li&gt;全埋点&lt;/li&gt;
+&lt;li&gt;可视化埋点&lt;/li&gt;
+&lt;li&gt;代码埋点&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;服务端埋点&lt;/li&gt;
+&lt;li&gt;线下行为数据采集&lt;/li&gt;
+&lt;li&gt;互联网数据采集&lt;/li&gt;
+&lt;li&gt;内部数据汇聚&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;数据交换产品&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;数据源管理&lt;/li&gt;
+&lt;li&gt;关系型数据库 Oracle, MySQL, SQLServer, Greenplum等&lt;/li&gt;
+&lt;li&gt;NSQL存储 HBase, Redis, Elasticsearch, Cassandra, MongoDB, Neo4j等&lt;/li&gt;
+&lt;li&gt;网络及MQ Kafka, HTTP&lt;/li&gt;
+&lt;li&gt;文件系统 HDFS, FTP, OSS, CSV, TEXT, Excel&lt;/li&gt;
+&lt;li&gt;大数据相关 Hive, Impala, Kudu, ELK&lt;/li&gt;
+&lt;li&gt;离线数据交换&lt;/li&gt;
+&lt;li&gt;读取插件&lt;/li&gt;
+&lt;li&gt;写入插件&lt;/li&gt;
+&lt;li&gt;核心交换模块&lt;/li&gt;
+&lt;li&gt;实时数据交换&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;TODO&lt;/h2&gt;</content><category term="中台"></category></entry><entry><title>Java reflections</title><link href="xixuebin.github.io/2019-12-02-094440-ch.html" rel="alternate"></link><published>2019-12-02T09:44:40+08:00</published><updated>2019-12-02T09:44:40+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-12-02:xixuebin.github.io/2019-12-02-094440-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;hr&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Reflections 通过扫描 classpath，索引元数据，允许在运行时查询这些元数据，也可以保存收集项目中多个模块的元数据信息。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;使用 Reflections 可以查询以下元数据信息：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;获得某个类型的所有子类型&lt;/li&gt;
+&lt;li&gt;获得标记了某个注解的所有类型／成员变量，支持注解参数匹配&lt;/li&gt;
+&lt;li&gt;使用正则表达式获得所有匹配的资源文件&lt;/li&gt;
+&lt;li&gt;获得所有特定签名（包括参数，参数注解，返回值）的方法&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Reflections 依赖 Google 的 Guava 库和 Javassist 库。&lt;/p&gt;
+&lt;p&gt;项目导入:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nt"&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;org.reflections&lt;span class="nt"&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;reflections&lt;span class="nt"&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;lt;version&amp;gt;&lt;/span&gt;0.9.10&lt;span class="nt"&gt;&amp;lt;/version&amp;gt;&lt;/span&gt;
+&lt;span class="nt"&gt;&amp;lt;/dependency&amp;gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;常用类:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;ClasspathHelper&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;TestReflect&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+
+ &lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;static&lt;/span&gt; &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;main&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;[]&lt;/span&gt; &lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+  &lt;span class="n"&gt;URL&lt;/span&gt; &lt;span class="n"&gt;url&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ClasspathHelper&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;forClass&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;TestReflect&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;class&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+
+  &lt;span class="n"&gt;System&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;out&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;println&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;url&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getFile&lt;/span&gt;&lt;span class="o"&gt;());&lt;/span&gt;
+
+  &lt;span class="n"&gt;Set&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;URL&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;urlSet&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ClasspathHelper&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;forPackage&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;com\\.kevin\\.reflection\\.test&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+
+  &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;URL&lt;/span&gt; &lt;span class="n"&gt;u&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;urlSet&lt;/span&gt; &lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+   &lt;span class="n"&gt;System&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;out&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;println&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;u&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+   &lt;span class="o"&gt;}&lt;/span&gt;
+
+   &lt;span class="n"&gt;urlSet&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ClasspathHelper&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;forResource&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;\\&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+
+   &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;URL&lt;/span&gt; &lt;span class="n"&gt;u&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;urlSet&lt;/span&gt; &lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+   &lt;span class="n"&gt;System&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;out&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;println&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;u&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+ &lt;span class="o"&gt;}&lt;/span&gt;
+ &lt;span class="o"&gt;}&lt;/span&gt;
+
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;通过上面的测试代码可以看出ClasspathHelper这个类提供的上面的三个方法是获取资源的路径。&lt;/p&gt;</content><category term="java"></category></entry><entry><title>重置KafkaConnectOffset</title><link href="xixuebin.github.io/2019-10-30-165148-ch.html" rel="alternate"></link><published>2019-10-30T16:51:48+08:00</published><updated>2019-10-30T16:51:48+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-10-30:xixuebin.github.io/2019-10-30-165148-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
+
+&lt;h2&gt;参考&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://rmoff.net/2019/08/15/reset-kafka-connect-source-connector-offsets/"&gt;https://rmoff.net/2019/08/15/reset-kafka-connect-source-connector-offsets/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.cnblogs.com/xdao/p/10674848.html"&gt;kafka调试工具kafkacat的使用&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.confluent.io/hub/"&gt;https://www.confluent.io/hub/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://rmoff.net/2019/05/02/reading-kafka-connect-offsets-via-the-rest-proxy/"&gt;https://rmoff.net/2019/05/02/reading-kafka-connect-offsets-via-the-rest-proxy/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://docs.confluent.io/current/app-development/kafkacat-usage.html"&gt;https://docs.confluent.io/current/app-development/kafkacat-usage.html&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://www.cnblogs.com/3gods/p/7406147.html"&gt;Kafka Connect Details 详解&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><category term="database"></category></entry><entry><title>Debezium常见错误及处理</title><link href="xixuebin.github.io/2019-10-18-100322-ch.html" rel="alternate"></link><published>2019-10-18T10:03:22+08:00</published><updated>2019-10-18T10:03:22+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-10-18:xixuebin.github.io/2019-10-18-100322-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
+
+&lt;h2&gt;mysql bin log 相关参数说明&lt;/h2&gt;
+&lt;h3&gt;binlog-do-db&lt;/h3&gt;
+&lt;p&gt;如果配置了该参数,则mysql只记录该数据库的相关操作到binlog中,没有配置的数据库则不记录&lt;/p&gt;
+&lt;h3&gt;binlog_error_action&lt;/h3&gt;
+&lt;p&gt;从MySQL 5.6.22版本开始，引入了一个新参数binlog_error_action (5.6.20及21版本叫做binlogging_impossible_mode)，若设置为ABORT_SERVER，则在发生binlog写入错误时直接让实例退出，避免引发更大的错误；若设置为IGNORE_ERROR，则忽略本次写入失败，同时禁止Binlog记录，需要重启才能让binlog再次开启。为了主备数据的强一致性，通常应该将binlog_error_action设置为ABORT_SERVER，这样在打开文件、rotate新文件、从IO Cache写binlog到文件出现磁盘错误时，都会退出实例。&lt;/p&gt;
+&lt;h3&gt;sync_binlog&lt;/h3&gt;
+&lt;p&gt;MySQL提供一个sync_binlog参数来控制数据库的binlog刷到磁盘上去。&lt;/p&gt;
+&lt;p&gt;默认，sync_binlog=0，表示MySQL不控制binlog的刷新，由文件系统自己控制它的缓存的刷新。这时候的性能是最好的，但是风险也是最大的。因为一旦系统Crash，在binlog_cache中的所有binlog信息都会被丢失。&lt;/p&gt;
+&lt;p&gt;如果sync_binlog&amp;gt;0，表示每sync_binlog次事务提交，MySQL调用文件系统的刷新操作将缓存刷下去。最安全的就是sync_binlog=1了，表示每次事务提交，MySQL都会把binlog刷下去，是最安全但是性能损耗最大的设置。这样的话，在数据库所在的主机操作系统损坏或者突然掉电的情况下，系统才有可能丢失1个事务的数据。但是binlog虽然是顺序IO，但是设置sync_binlog=1，多个事务同时提交，同样很大的影响MySQL和IO性能。虽然可以通过group commit的补丁缓解，但是刷新的频率过高对IO的影响也非常大。对于高并发事务的系统来说，“sync_binlog”设置为0和设置为1的系统写入性能差距可能高达5倍甚至更多。&lt;/p&gt;
+&lt;p&gt;所以很多MySQL DBA设置的sync_binlog并不是最安全的1，而是100或者是0。这样牺牲一定的一致性，可以获得更高的并发和性能。&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;从以往经验和相关测试来看，对于高并发事务的系统来说，“sync_binlog”设置为0和设置为1的系统写入性能差距可能高达5倍甚至更多。&lt;/em&gt;&lt;/p&gt;
+&lt;h3&gt;binlog_row_image&lt;/h3&gt;
+&lt;p&gt;MySQL 5.7以后binlog的格式默认就是ROW了，同时引入了新的参数binlog_row_image，这个参数默认值是FULL，其还有一个值是minimal。&lt;/p&gt;
+&lt;p&gt;FULL记录每一行的变更，minimal只记录影响后的行。下面简单的测试一下大家就明白了。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;mysql&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="k"&gt;show&lt;/span&gt; &lt;span class="n"&gt;variables&lt;/span&gt; &lt;span class="k"&gt;like&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;%row_im%&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="c1"&gt;------------------+-------+&lt;/span&gt;
+&lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;Variable_name&lt;/span&gt;    &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;Value&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt;
+&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="c1"&gt;------------------+-------+&lt;/span&gt;
+&lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;binlog_row_image&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="k"&gt;FULL&lt;/span&gt;  &lt;span class="o"&gt;|&lt;/span&gt;
+&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="c1"&gt;------------------+-------+&lt;/span&gt;
+&lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="k"&gt;row&lt;/span&gt; &lt;span class="k"&gt;in&lt;/span&gt; &lt;span class="k"&gt;set&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;01&lt;/span&gt; &lt;span class="n"&gt;sec&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;mysql&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="k"&gt;update&lt;/span&gt; &lt;span class="n"&gt;t2&lt;/span&gt; &lt;span class="k"&gt;set&lt;/span&gt; &lt;span class="n"&gt;uid&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;99&lt;/span&gt; &lt;span class="k"&gt;where&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;yayundeng&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="n"&gt;Query&lt;/span&gt; &lt;span class="n"&gt;OK&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="k"&gt;row&lt;/span&gt; &lt;span class="n"&gt;affected&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;03&lt;/span&gt; &lt;span class="n"&gt;sec&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;Rows&lt;/span&gt; &lt;span class="n"&gt;matched&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;  &lt;span class="n"&gt;Changed&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;  &lt;span class="n"&gt;Warnings&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;
+
+&lt;span class="n"&gt;mysql&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;解析binlog&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;root&lt;/span&gt;&lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="n"&gt;yayundeng&lt;/span&gt; &lt;span class="mi"&gt;3306&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;#&lt;/span&gt; &lt;span class="n"&gt;mysqlbinlog&lt;/span&gt; &lt;span class="c1"&gt;--no-defaults -v -v --base64-output=DECODE-ROWS mysql-bin.000010 | tail -n 20&lt;/span&gt;
+&lt;span class="o"&gt;#&lt;/span&gt;&lt;span class="mi"&gt;161210&lt;/span&gt; &lt;span class="mi"&gt;11&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;02&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;32&lt;/span&gt; &lt;span class="n"&gt;server&lt;/span&gt; &lt;span class="n"&gt;id&lt;/span&gt; &lt;span class="mi"&gt;152&lt;/span&gt;  &lt;span class="n"&gt;end_log_pos&lt;/span&gt; &lt;span class="mi"&gt;2043&lt;/span&gt; &lt;span class="n"&gt;CRC32&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="n"&gt;x3ce8a225&lt;/span&gt;       &lt;span class="n"&gt;Update_rows&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="k"&gt;table&lt;/span&gt; &lt;span class="n"&gt;id&lt;/span&gt; &lt;span class="mi"&gt;110&lt;/span&gt; &lt;span class="n"&gt;flags&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;STMT_END_F&lt;/span&gt;
+&lt;span class="o"&gt;###&lt;/span&gt; &lt;span class="k"&gt;UPDATE&lt;/span&gt; &lt;span class="o"&gt;`&lt;/span&gt;&lt;span class="n"&gt;test&lt;/span&gt;&lt;span class="o"&gt;`&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="o"&gt;`&lt;/span&gt;&lt;span class="n"&gt;t2&lt;/span&gt;&lt;span class="o"&gt;`&lt;/span&gt;
+&lt;span class="o"&gt;###&lt;/span&gt; &lt;span class="k"&gt;WHERE&lt;/span&gt;
+&lt;span class="o"&gt;###&lt;/span&gt;   &lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="cm"&gt;/* INT meta=0 nullable=0 is_null=0 */&lt;/span&gt;
+&lt;span class="o"&gt;###&lt;/span&gt;   &lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;gz&amp;#39;&lt;/span&gt; &lt;span class="cm"&gt;/* STRING(20) meta=65044 nullable=1 is_null=0 */&lt;/span&gt;
+&lt;span class="o"&gt;###&lt;/span&gt;   &lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;yayundeng&amp;#39;&lt;/span&gt; &lt;span class="cm"&gt;/* STRING(20) meta=65044 nullable=1 is_null=0 */&lt;/span&gt;
+&lt;span class="o"&gt;###&lt;/span&gt;   &lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="cm"&gt;/* INT meta=0 nullable=1 is_null=0 */&lt;/span&gt;
+&lt;span class="o"&gt;###&lt;/span&gt; &lt;span class="k"&gt;SET&lt;/span&gt;
+&lt;span class="o"&gt;###&lt;/span&gt;   &lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="cm"&gt;/* INT meta=0 nullable=0 is_null=0 */&lt;/span&gt;
+&lt;span class="o"&gt;###&lt;/span&gt;   &lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;gz&amp;#39;&lt;/span&gt; &lt;span class="cm"&gt;/* STRING(20) meta=65044 nullable=1 is_null=0 */&lt;/span&gt;
+&lt;span class="o"&gt;###&lt;/span&gt;   &lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;yayundeng&amp;#39;&lt;/span&gt; &lt;span class="cm"&gt;/* STRING(20) meta=65044 nullable=1 is_null=0 */&lt;/span&gt;
+&lt;span class="o"&gt;###&lt;/span&gt;   &lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;99&lt;/span&gt; &lt;span class="cm"&gt;/* INT meta=0 nullable=1 is_null=0 */&lt;/span&gt;
+&lt;span class="o"&gt;#&lt;/span&gt; &lt;span class="k"&gt;at&lt;/span&gt; &lt;span class="mi"&gt;2043&lt;/span&gt;
+&lt;span class="o"&gt;#&lt;/span&gt;&lt;span class="mi"&gt;161210&lt;/span&gt; &lt;span class="mi"&gt;11&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;02&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;32&lt;/span&gt; &lt;span class="n"&gt;server&lt;/span&gt; &lt;span class="n"&gt;id&lt;/span&gt; &lt;span class="mi"&gt;152&lt;/span&gt;  &lt;span class="n"&gt;end_log_pos&lt;/span&gt; &lt;span class="mi"&gt;2074&lt;/span&gt; &lt;span class="n"&gt;CRC32&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="n"&gt;x93619126&lt;/span&gt;       &lt;span class="n"&gt;Xid&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;49&lt;/span&gt;
+&lt;span class="k"&gt;COMMIT&lt;/span&gt;&lt;span class="cm"&gt;/*!*/&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="k"&gt;SET&lt;/span&gt; &lt;span class="o"&gt;@@&lt;/span&gt;&lt;span class="k"&gt;SESSION&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;GTID_NEXT&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;AUTOMATIC&amp;#39;&lt;/span&gt; &lt;span class="cm"&gt;/* added by mysqlbinlog */&lt;/span&gt; &lt;span class="cm"&gt;/*!*/&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="k"&gt;DELIMITER&lt;/span&gt; &lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="o"&gt;#&lt;/span&gt; &lt;span class="k"&gt;End&lt;/span&gt; &lt;span class="k"&gt;of&lt;/span&gt; &lt;span class="n"&gt;log&lt;/span&gt; &lt;span class="n"&gt;file&lt;/span&gt;
+&lt;span class="cm"&gt;/*!50003 SET COMPLETION_TYPE=@OLD_COMPLETION_TYPE*/&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="cm"&gt;/*!50530 SET @@SESSION.PSEUDO_SLAVE_MODE=0*/&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;root&lt;/span&gt;&lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="n"&gt;yayundeng&lt;/span&gt; &lt;span class="mi"&gt;3306&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;#&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;cdc 参数说明&lt;/h2&gt;
+&lt;h3&gt;database.history.store.only.monitored.tables.ddl&lt;/h3&gt;
+&lt;p&gt;布尔值，指定连接器是否应记录所有DDL语句，或者（如果为true）仅记录与Debezium（通过筛选器配置）监视的表相关的语句。安全默认值为false。应小心使用此功能，因为更改筛选器时可能需要缺少数据。&lt;/p&gt;
+&lt;h2&gt;错误一&lt;/h2&gt;
+&lt;p&gt;错误描述&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;org.apache.kafka.connect.errors.ConnectException
+    at io.debezium.connector.mysql.AbstractReader.wrap&lt;span class="o"&gt;(&lt;/span&gt;AbstractReader.java:230&lt;span class="o"&gt;)&lt;/span&gt;
+    at io.debezium.connector.mysql.AbstractReader.failed&lt;span class="o"&gt;(&lt;/span&gt;AbstractReader.java:197&lt;span class="o"&gt;)&lt;/span&gt;
+    at io.debezium.connector.mysql.BinlogReader&lt;span class="nv"&gt;$ReaderThreadLifecycleListener&lt;/span&gt;.onCommunicationFailure&lt;span class="o"&gt;(&lt;/span&gt;BinlogReader.java:1018&lt;span class="o"&gt;)&lt;/span&gt;
+    at com.github.shyiko.mysql.binlog.BinaryLogClient.listenForEventPackets&lt;span class="o"&gt;(&lt;/span&gt;BinaryLogClient.java:950&lt;span class="o"&gt;)&lt;/span&gt;
+    at com.github.shyiko.mysql.binlog.BinaryLogClient.connect&lt;span class="o"&gt;(&lt;/span&gt;BinaryLogClient.java:580&lt;span class="o"&gt;)&lt;/span&gt;
+    at com.github.shyiko.mysql.binlog.BinaryLogClient&lt;span class="nv"&gt;$7&lt;/span&gt;.run&lt;span class="o"&gt;(&lt;/span&gt;BinaryLogClient.java:825&lt;span class="o"&gt;)&lt;/span&gt;
+    at java.lang.Thread.run&lt;span class="o"&gt;(&lt;/span&gt;Thread.java:745&lt;span class="o"&gt;)&lt;/span&gt;
+Caused by: java.io.EOFException
+    at com.github.shyiko.mysql.binlog.io.ByteArrayInputStream.read&lt;span class="o"&gt;(&lt;/span&gt;ByteArrayInputStream.java:190&lt;span class="o"&gt;)&lt;/span&gt;
+    at com.github.shyiko.mysql.binlog.io.ByteArrayInputStream.readInteger&lt;span class="o"&gt;(&lt;/span&gt;ByteArrayInputStream.java:46&lt;span class="o"&gt;)&lt;/span&gt;
+    at com.github.shyiko.mysql.binlog.event.deserialization.EventHeaderV4Deserializer.deserialize&lt;span class="o"&gt;(&lt;/span&gt;EventHeaderV4Deserializer.java:35&lt;span class="o"&gt;)&lt;/span&gt;
+    at com.github.shyiko.mysql.binlog.event.deserialization.EventHeaderV4Deserializer.deserialize&lt;span class="o"&gt;(&lt;/span&gt;EventHeaderV4Deserializer.java:27&lt;span class="o"&gt;)&lt;/span&gt;
+    at com.github.shyiko.mysql.binlog.event.deserialization.EventDeserializer.nextEvent&lt;span class="o"&gt;(&lt;/span&gt;EventDeserializer.java:212&lt;span class="o"&gt;)&lt;/span&gt;
+    at io.debezium.connector.mysql.BinlogReader&lt;span class="nv"&gt;$1&lt;/span&gt;.nextEvent&lt;span class="o"&gt;(&lt;/span&gt;BinlogReader.java:224&lt;span class="o"&gt;)&lt;/span&gt;
+    at com.github.shyiko.mysql.binlog.BinaryLogClient.listenForEventPackets&lt;span class="o"&gt;(&lt;/span&gt;BinaryLogClient.java:922&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;一般该错误是在CDC connector所连接的数据库宕机或者重启的情况下出现的.且在重启完成之后,不会自动变为running状态.&lt;/p&gt;
+&lt;h3&gt;解决办法&lt;/h3&gt;
+&lt;p&gt;重启该connector即可恢复正常.&lt;/p&gt;
+&lt;h2&gt;错误二&lt;/h2&gt;
+&lt;p&gt;错误描述&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;org.apache.kafka.connect.errors.ConnectException: could not find next log&lt;span class="p"&gt;;&lt;/span&gt; the first event &lt;span class="s1"&gt;&amp;#39;binlog.000030&amp;#39;&lt;/span&gt; at &lt;span class="m"&gt;155&lt;/span&gt;, the last event &lt;span class="nb"&gt;read&lt;/span&gt; from &lt;span class="s1"&gt;&amp;#39;./binlog.000030&amp;#39;&lt;/span&gt; at &lt;span class="m"&gt;124&lt;/span&gt;, the last byte &lt;span class="nb"&gt;read&lt;/span&gt; from &lt;span class="s1"&gt;&amp;#39;./binlog.000030&amp;#39;&lt;/span&gt; at &lt;span class="m"&gt;155&lt;/span&gt;. Error code: &lt;span class="m"&gt;1236&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; SQLSTATE: HY000.
+    at io.debezium.connector.mysql.AbstractReader.wrap&lt;span class="o"&gt;(&lt;/span&gt;AbstractReader.java:230&lt;span class="o"&gt;)&lt;/span&gt;
+    at io.debezium.connector.mysql.AbstractReader.failed&lt;span class="o"&gt;(&lt;/span&gt;AbstractReader.java:197&lt;span class="o"&gt;)&lt;/span&gt;
+    at io.debezium.connector.mysql.BinlogReader&lt;span class="nv"&gt;$ReaderThreadLifecycleListener&lt;/span&gt;.onCommunicationFailure&lt;span class="o"&gt;(&lt;/span&gt;BinlogReader.java:1018&lt;span class="o"&gt;)&lt;/span&gt;
+    at com.github.shyiko.mysql.binlog.BinaryLogClient.listenForEventPackets&lt;span class="o"&gt;(&lt;/span&gt;BinaryLogClient.java:950&lt;span class="o"&gt;)&lt;/span&gt;
+    at com.github.shyiko.mysql.binlog.BinaryLogClient.connect&lt;span class="o"&gt;(&lt;/span&gt;BinaryLogClient.java:580&lt;span class="o"&gt;)&lt;/span&gt;
+    at com.github.shyiko.mysql.binlog.BinaryLogClient&lt;span class="nv"&gt;$7&lt;/span&gt;.run&lt;span class="o"&gt;(&lt;/span&gt;BinaryLogClient.java:825&lt;span class="o"&gt;)&lt;/span&gt;
+    at java.lang.Thread.run&lt;span class="o"&gt;(&lt;/span&gt;Thread.java:745&lt;span class="o"&gt;)&lt;/span&gt;
+Caused by: com.github.shyiko.mysql.binlog.network.ServerException: could not find next log&lt;span class="p"&gt;;&lt;/span&gt; the first event &lt;span class="s1"&gt;&amp;#39;binlog.000030&amp;#39;&lt;/span&gt; at &lt;span class="m"&gt;155&lt;/span&gt;, the last event &lt;span class="nb"&gt;read&lt;/span&gt; from &lt;span class="s1"&gt;&amp;#39;./binlog.000030&amp;#39;&lt;/span&gt; at &lt;span class="m"&gt;124&lt;/span&gt;, the last byte &lt;span class="nb"&gt;read&lt;/span&gt; from &lt;span class="s1"&gt;&amp;#39;./binlog.000030&amp;#39;&lt;/span&gt; at &lt;span class="m"&gt;155&lt;/span&gt;.
+    at com.github.shyiko.mysql.binlog.BinaryLogClient.listenForEventPackets&lt;span class="o"&gt;(&lt;/span&gt;BinaryLogClient.java:914&lt;span class="o"&gt;)&lt;/span&gt;
+    ... &lt;span class="m"&gt;3&lt;/span&gt; more
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;改错误的出现,因为执行了一次&lt;code&gt;reset master&lt;/code&gt;,清除了mysql的binlog日志,日志文件从新的000001开始了,导致cdc不能找到binlog文件.&lt;/p&gt;
+&lt;h3&gt;解决办法&lt;/h3&gt;
+&lt;p&gt;重启该connector即可恢复正常.&lt;/p&gt;
+&lt;h2&gt;错误三&lt;/h2&gt;
+&lt;p&gt;错误描述&lt;/p&gt;
+&lt;p&gt;CDC的主域名可以访问通,但是获取不了connectors,即&lt;a href="http://localhost:8083/"&gt;http://localhost:8083/&lt;/a&gt;可以正常返回,但是&lt;a href="http://localhost:8083/connectors"&gt;http://localhost:8083/connectors&lt;/a&gt;请求超时.&lt;/p&gt;
+&lt;h3&gt;解决办法&lt;/h3&gt;
+&lt;p&gt;该问题一般是CDC连接kafka失败.请价差kafka状态.连接上kafka之后,改问题会自动恢复&lt;/p&gt;
+&lt;h2&gt;错误四&lt;/h2&gt;
+&lt;p&gt;错误描述&lt;/p&gt;
+&lt;p&gt;CDC connector状态正常,kafka状态也这很正常,binlog会产生日志,但是kafka收不到消息.&lt;/p&gt;
+&lt;h3&gt;解决办法&lt;/h3&gt;
+&lt;p&gt;各类错误一般是connector的配置错误,请检查connector的注册信息.包括&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;table.whitelist选项的表名称前是否携带数据库信息.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;错误五&lt;/h2&gt;
+&lt;p&gt;错误描述&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;org.apache.kafka.connect.errors.ConnectException: Could not open log file Error code: &lt;span class="m"&gt;1236&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; SQLSTATE: HY000.
+    at io.debezium.connector.mysql.AbstractReader.wrap&lt;span class="o"&gt;(&lt;/span&gt;AbstractReader.java:230&lt;span class="o"&gt;)&lt;/span&gt;
+    at io.debezium.connector.mysql.AbstractReader.failed&lt;span class="o"&gt;(&lt;/span&gt;AbstractReader.java:197&lt;span class="o"&gt;)&lt;/span&gt;
+    at io.debezium.connector.mysql.BinlogReader&lt;span class="nv"&gt;$ReaderThreadLifecycleListener&lt;/span&gt;.onCommunicationFailure&lt;span class="o"&gt;(&lt;/span&gt;BinlogReader.java:1018&lt;span class="o"&gt;)&lt;/span&gt;
+    at com.github.shyiko.mysql.binlog.BinaryLogClient.listenForEventPackets&lt;span class="o"&gt;(&lt;/span&gt;BinaryLogClient.java:950&lt;span class="o"&gt;)&lt;/span&gt;
+    at com.github.shyiko.mysql.binlog.BinaryLogClient.connect&lt;span class="o"&gt;(&lt;/span&gt;BinaryLogClient.java:580&lt;span class="o"&gt;)&lt;/span&gt;
+    at com.github.shyiko.mysql.binlog.BinaryLogClient&lt;span class="nv"&gt;$7&lt;/span&gt;.run&lt;span class="o"&gt;(&lt;/span&gt;BinaryLogClient.java:825&lt;span class="o"&gt;)&lt;/span&gt;
+    at java.lang.Thread.run&lt;span class="o"&gt;(&lt;/span&gt;Thread.java:745&lt;span class="o"&gt;)&lt;/span&gt;
+Caused by: com.github.shyiko.mysql.binlog.network.ServerException: Could not open log file
+    at com.github.shyiko.mysql.binlog.BinaryLogClient.listenForEventPackets&lt;span class="o"&gt;(&lt;/span&gt;BinaryLogClient.java:914&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;该错误一般是由于当前正在使用的binlog文件丢失,或者由于目中原因不能写入造成的.&lt;/p&gt;
+&lt;h3&gt;解决办法&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;运行命令&lt;code&gt;show master logs;&lt;/code&gt;,查看最新的binlog文件名.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;P&lt;img alt="2019-10-18-16-19-21" src="http://xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/images/67242febe1cece2c50ece0c17ed27205.png"&gt;&lt;/p&gt;
+&lt;p&gt;运行命名&lt;code&gt;show binlog events in 'binlog.000003';&lt;/code&gt;,查看最新binlog中的事件.&lt;/p&gt;
+&lt;p&gt;P&lt;img alt="2019-10-18-16-20-32" src="http://xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/images/def104c7d681600dcd40b62344b41efb.png"&gt;&lt;/p&gt;
+&lt;p&gt;如果显示如图所示,则证明文件已经丢失.请查看日志文件.再找回日志文件后重启connector.&lt;/p&gt;
+&lt;h2&gt;错误六&lt;/h2&gt;
+&lt;p&gt;错误描述&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;org.apache.kafka.connect.errors.ConnectException: The connector is trying to &lt;span class="nb"&gt;read&lt;/span&gt; binlog starting at binlog file &lt;span class="s1"&gt;&amp;#39;mariadb-bin.000003&amp;#39;&lt;/span&gt;, &lt;span class="nv"&gt;pos&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;63317395&lt;/span&gt;, skipping &lt;span class="m"&gt;0&lt;/span&gt; events plus &lt;span class="m"&gt;1&lt;/span&gt; rows, but this is no longer available on the server. Reconfigure the connector to use a snapshot when needed.
+    at io.debezium.connector.mysql.MySqlConnectorTask.start&lt;span class="o"&gt;(&lt;/span&gt;MySqlConnectorTask.java:127&lt;span class="o"&gt;)&lt;/span&gt;
+    at io.debezium.connector.common.BaseSourceTask.start&lt;span class="o"&gt;(&lt;/span&gt;BaseSourceTask.java:49&lt;span class="o"&gt;)&lt;/span&gt;
+    at org.apache.kafka.connect.runtime.WorkerSourceTask.execute&lt;span class="o"&gt;(&lt;/span&gt;WorkerSourceTask.java:198&lt;span class="o"&gt;)&lt;/span&gt;
+    at org.apache.kafka.connect.runtime.WorkerTask.doRun&lt;span class="o"&gt;(&lt;/span&gt;WorkerTask.java:175&lt;span class="o"&gt;)&lt;/span&gt;
+    at org.apache.kafka.connect.runtime.WorkerTask.run&lt;span class="o"&gt;(&lt;/span&gt;WorkerTask.java:219&lt;span class="o"&gt;)&lt;/span&gt;
+    at java.util.concurrent.Executors&lt;span class="nv"&gt;$RunnableAdapter&lt;/span&gt;.call&lt;span class="o"&gt;(&lt;/span&gt;Executors.java:511&lt;span class="o"&gt;)&lt;/span&gt;
+    at java.util.concurrent.FutureTask.run&lt;span class="o"&gt;(&lt;/span&gt;FutureTask.java:266&lt;span class="o"&gt;)&lt;/span&gt;
+    at java.util.concurrent.ThreadPoolExecutor.runWorker&lt;span class="o"&gt;(&lt;/span&gt;ThreadPoolExecutor.java:1149&lt;span class="o"&gt;)&lt;/span&gt;
+    at java.util.concurrent.ThreadPoolExecutor&lt;span class="nv"&gt;$Worker&lt;/span&gt;.run&lt;span class="o"&gt;(&lt;/span&gt;ThreadPoolExecutor.java:624&lt;span class="o"&gt;)&lt;/span&gt;
+    at java.lang.Thread.run&lt;span class="o"&gt;(&lt;/span&gt;Thread.java:748&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;该错误是connector所要寻找的binlog已经不在了,无法读取.有可能是因为过期导致的.&lt;/p&gt;
+&lt;h3&gt;解决办法&lt;/h3&gt;
+&lt;p&gt;更新connector,snapshot.mode参数使用when_needed参数.&lt;/p&gt;
+&lt;h2&gt;错误七&lt;/h2&gt;
+&lt;p&gt;在注册connector的时候,返回400错误,错误信息如下:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;{&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;error_code&amp;quot;&lt;/span&gt;:400,&lt;span class="s2"&gt;&amp;quot;message&amp;quot;&lt;/span&gt;:&lt;span class="s2"&gt;&amp;quot;Connector configuration is invalid and contains the following 1 error(s):\nUnable to connect: Communications link failure\n\nThe last packet sent successfully to the server was 0 milliseconds ago. The driver has not received any packets from the server.\nYou can also find the above list of errors at the endpoint `/{connectorType}/config/validate`&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;该错误一般是由于我们注册的时候,填写的mysql的配置信息有问题,导致connector连接不上mysql数据库导致的.&lt;/p&gt;
+&lt;h3&gt;解决办法&lt;/h3&gt;
+&lt;p&gt;检查注册信息中的connector配置,特别是mysql链接相关的配置后,重新注册&lt;/p&gt;
+&lt;h2&gt;参考&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://www.percona.com/blog/2014/10/08/mysql-replication-got-fatal-error-1236-causes-and-cures/"&gt;https://www.percona.com/blog/2014/10/08/mysql-replication-got-fatal-error-1236-causes-and-cures/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/zendesk/maxwell/issues/1083"&gt;https://github.com/zendesk/maxwell/issues/1083&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://gitter.im/debezium/dev/archives/2019/05/07"&gt;https://gitter.im/debezium/dev/archives/2019/05/07&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><category term="database"></category><category term="CDC"></category></entry><entry><title>Siddhi梳理</title><link href="xixuebin.github.io/2019-10-12-175329-ch.html" rel="alternate"></link><published>2019-10-12T17:53:29+08:00</published><updated>2019-10-12T17:53:29+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-10-12:xixuebin.github.io/2019-10-12-175329-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
 
 &lt;h2&gt;介绍&lt;/h2&gt;
 &lt;p&gt;&lt;em&gt;Siddhi CEP&lt;/em&gt; 是一个开源的,轻量级,易使用的Complex Event Processing Engine(ecp).具有自己的DSL.丰富的模式匹配功能和可扩展性.
@@ -2621,15 +2915,67 @@ STOMP的客户端和服务器之间的通信是通过MESSAGE帧、RECEIPT帧或E
 &lt;p&gt;多线程技术主要解决处理器单元内多个线程执行的问题，它可以显著减少处理器单元的闲置时间，增加处理器单元的吞吐能力。
     假设一个服务器完成一项任务所需时间为：T1 创建线程时间，T2 在线程中执行任务的时间，T3 销毁线程时间。
     如果：T1 + T3 远大于 T2，则可以采用线程池，以提高服务器性能。
-                一个线程池包括以下四个基本组成部分：
-                1、线程池管理器（ThreadPool）：用于创建并管理线程池，包括 创建线程池，销毁线程池，添加新任务；
-                2、工作线程（PoolWorker）：线程池中线程，在没有任务时处于等待状态，可以循环的执行任务；
-                3、任务接口（Task）：每个任务必须实现的接口，以供工作线程调度任务的执行，它主要规定了任务的入口，任务执行完后的收尾工作，任务的执行状态等；
-                4、任务队列（taskQueue）：用于存放没有处理的任务。提供一种缓冲机制。
-线程池技术正是关注如何缩短或调整T1,T3时间的技术，从而提高服务器程序性能的。它把T1，T3分别安排在服务器程序的启动和结束的时间段或者一些空闲的时间段，这样在服务器程序处理客户请求时，不会有T1，T3的开销了。&lt;/p&gt;
+    一个线程池包括以下四个基本组成部分：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;1. 线程池管理器（ThreadPool）：用于创建并管理线程池，包括 创建线程池，销毁线程池，添加新任务；
+2. 工作线程（PoolWorker）：线程池中线程，在没有任务时处于等待状态，可以循环的执行任务；
+3. 任务接口（Task）：每个任务必须实现的接口，以供工作线程调度任务的执行，它主要规定了任务的入口，任务执行完后的收尾工作，任务的执行状态等
+4. 任务队列（taskQueue）：用于存放没有处理的任务。提供一种缓冲机制。
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;线程池技术正是关注如何缩短或调整T1,T3时间的技术，从而提高服务器程序性能的。它把T1，T3分别安排在服务器程序的启动和结束的时间段或者一些空闲的时间段，这样在服务器程序处理客户请求时，不会有T1，T3的开销了。&lt;/p&gt;
 &lt;h2&gt;继承体系&lt;/h2&gt;
+&lt;p&gt;线程池所涉及到的类和接口并不是很多,其集成体系也比较简单,相关继承关系如下:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="2019-12-31-10-09-30" src="http://xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/images/e75122991f0f8a4360faa8a3b3b6102a.png"&gt;&lt;/p&gt;
+&lt;p&gt;如上图,最顶层的接口Executor仅仅声明了一个方法executor.ExecutorService接口在其父类接口的基础上,声明了包含但不限于&lt;code&gt;shutdown&lt;/code&gt;,&lt;code&gt;submit&lt;/code&gt;,&lt;code&gt;invokeAll&lt;/code&gt;,&lt;code&gt;invokeAny&lt;/code&gt;等方法.至于ScheduledExecutorService接口,则是声明了一些和定时任务相关的方法.比如&lt;code&gt;schedule&lt;/code&gt;和&lt;code&gt;scheduleAtFixedRate&lt;/code&gt;.线程池的核心实现是在&lt;code&gt;ThreadPoolExecutor&lt;/code&gt;类中.我们使用&lt;code&gt;Executors&lt;/code&gt;调用&lt;code&gt;newFixThreadPool&lt;/code&gt;,&lt;code&gt;newSingleThreadExecutor&lt;/code&gt;和&lt;code&gt;newCacheedThreadPool&lt;/code&gt;等方法创建的线程池均是&lt;code&gt;ThreadPoolExecutor&lt;/code&gt;类型.&lt;/p&gt;
 &lt;h2&gt;原理分析&lt;/h2&gt;
 &lt;h3&gt;核心参数分析&lt;/h3&gt;
+&lt;p&gt;线程池的核心实现即&lt;code&gt;ThreadPoolExecutor&lt;/code&gt;类.该类包含了几个核心的属性,这些属性可在构造方法进行初始化.在介绍核心属性前,可以先看看&lt;code&gt;ThreadPoolExecutor&lt;/code&gt;的构造方法,如下:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="nf"&gt;ThreadPoolExecutor&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;corePoolSize&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+                          &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;maximumPoolSize&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+                          &lt;span class="kt"&gt;long&lt;/span&gt; &lt;span class="n"&gt;keepAliveTime&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+                          &lt;span class="n"&gt;TimeUnit&lt;/span&gt; &lt;span class="n"&gt;unit&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+                          &lt;span class="n"&gt;BlockingQueue&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Runnable&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;workQueue&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+                          &lt;span class="n"&gt;ThreadFactory&lt;/span&gt; &lt;span class="n"&gt;threadFactory&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+                          &lt;span class="n"&gt;RejectedExecutionHandler&lt;/span&gt; &lt;span class="n"&gt;handler&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;构造方法的参数即核心参数，这里我用一个表格来简要说明一下各个参数的意义。如下：&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th align="left"&gt;参数&lt;/th&gt;
+&lt;th align="left"&gt;说明&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td align="left"&gt;!corePoolSize&lt;/td&gt;
+&lt;td align="left"&gt;核心线程数。当线程数小于该值时，线程池会优先创建新线程来执行新任务&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align="left"&gt;maximumPoolSize&lt;/td&gt;
+&lt;td align="left"&gt;线程池所能维护的最大线程数&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align="left"&gt;keepAliveTime&lt;/td&gt;
+&lt;td align="left"&gt;空闲线程的存活时间&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align="left"&gt;workQueue&lt;/td&gt;
+&lt;td align="left"&gt;任务队列，用于缓存未执行的任务&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align="left"&gt;threadFactory&lt;/td&gt;
+&lt;td align="left"&gt;线程工厂。可通过工厂为新建的线程设置更有意义的名字&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align="left"&gt;handler&lt;/td&gt;
+&lt;td align="left"&gt;拒绝策略。当线程池和任务队列均处于饱和状态时，使用拒绝策略处理新任务。默认是 AbortPolicy，即直接抛出异常&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
 &lt;h3&gt;线程创建规则&lt;/h3&gt;
 &lt;h3&gt;资源回收&lt;/h3&gt;
 &lt;h3&gt;排队策略&lt;/h3&gt;
@@ -2637,8 +2983,8 @@ STOMP的客户端和服务器之间的通信是通过MESSAGE帧、RECEIPT帧或E
 &lt;h3&gt;提交任务&lt;/h3&gt;
 &lt;h3&gt;关闭线程池&lt;/h3&gt;
 &lt;h2&gt;几种线程池&lt;/h2&gt;
-&lt;h1&gt;重要操作&lt;/h1&gt;
-&lt;h1&gt;参考&lt;/h1&gt;
+&lt;h2&gt;重要操作&lt;/h2&gt;
+&lt;h2&gt;参考&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a href="https://cloud.tencent.com/developer/article/1109643"&gt;Java线程池原理分析&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;</content><category term="java"></category></entry><entry><title>Kylo的安装</title><link href="xixuebin.github.io/2019-04-10-142510-ch.html" rel="alternate"></link><published>2019-04-10T14:25:10+08:00</published><updated>2019-04-10T14:25:10+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-04-10:xixuebin.github.io/2019-04-10-142510-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;hr&gt;
@@ -2911,12 +3257,14 @@ mv apache-maven-3.5.0 maven3
 &lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
 
 &lt;h1&gt;Internal Repository&lt;/h1&gt;
+&lt;blockquote&gt;
 &lt;p&gt;Internal Repository是指在局域网内部构建的repository,它跟central repository的区别仅仅在于url指向的是一个内网网址.&lt;/p&gt;
-&lt;h1&gt;mirror&lt;/h1&gt;
+&lt;/blockquote&gt;
+&lt;h2&gt;mirror&lt;/h2&gt;
 &lt;p&gt;mirror相当于一个代理,它会拦截去指定的远程仓库下载构建的请求,然后从自己这里找出构件回送给客户端。配置mirror的目的一般是出于网速考虑&lt;/p&gt;
 &lt;p&gt;关于maven如何查找pom.xml里dependencies里配置的插件，暂且不考虑本地仓库的存在maven会根据最终的repository集合里依次查找，如果查到了就从该仓库下载，并且停止对后续repository的查找。所以可以看出用户在pom.xml里配置repository时，repository的顺序还是挺重要的。&lt;/p&gt;
 &lt;p&gt;mirror是配置在maven的settings.xml文件中&lt;/p&gt;
-&lt;h2&gt;mirror的定义&lt;/h2&gt;
+&lt;h3&gt;mirror的定义&lt;/h3&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nt"&gt;&amp;lt;mirrors&amp;gt;&lt;/span&gt;  
     &lt;span class="nt"&gt;&amp;lt;mirror&amp;gt;&lt;/span&gt;  
         &lt;span class="nt"&gt;&amp;lt;id&amp;gt;&lt;/span&gt;planetmirror.com&lt;span class="nt"&gt;&amp;lt;/id&amp;gt;&lt;/span&gt;  
@@ -2931,7 +3279,7 @@ mv apache-maven-3.5.0 maven3
 &lt;p&gt;id, name是该镜像的唯一定义符。id用来区分不同的mirror元素.
 url是该镜像的URL。构建系统会优先考虑使用该URL，而非使用默认的服务器URL。
 mirrorOf是被镜像的服务器的id。例如，如果我们要设置了一个Maven中央仓库&lt;a href="http://repo1.maven.org/maven2"&gt;http://repo1.maven.org/maven2&lt;/a&gt;的镜像，就需要将该元素设置成central。这必须和中央仓库的id central完全一致.&lt;/p&gt;
-&lt;h2&gt;repository的定义&lt;/h2&gt;
+&lt;h3&gt;repository的定义&lt;/h3&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nt"&gt;&amp;lt;repositories&amp;gt;&lt;/span&gt;  
     &lt;span class="nt"&gt;&amp;lt;repository&amp;gt;&lt;/span&gt;  
         &lt;span class="nt"&gt;&amp;lt;id&amp;gt;&lt;/span&gt;offical&lt;span class="nt"&gt;&amp;lt;/id&amp;gt;&lt;/span&gt;  
@@ -2953,7 +3301,7 @@ mirrorOf是被镜像的服务器的id。例如，如果我们要设置了一个M
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;h1&gt;参考&lt;/h1&gt;
+&lt;h2&gt;参考&lt;/h2&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a href="https://blog.csdn.net/u011768325/article/details/49735397"&gt;https://blog.csdn.net/u011768325/article/details/49735397&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;</content><category term="集成工具"></category><category term="maven"></category></entry><entry><title>使用DruidAPI dump Druid数据</title><link href="xixuebin.github.io/2019-04-01-092732-ch.html" rel="alternate"></link><published>2019-04-01T09:27:32+08:00</published><updated>2019-04-01T09:27:32+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-04-01:xixuebin.github.io/2019-04-01-092732-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;hr&gt;
@@ -3477,8 +3825,7 @@ date -v-1y +&lt;span class="s2"&gt;&amp;quot;%y%m%d&amp;quot;&lt;/span&gt;    &l
 &lt;h1&gt;参考&lt;/h1&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a href="https://gist.github.com/nrollr/3f57fc15ded7dddddcc4e82fe137b58e"&gt;MySQL_macOS_Sierra&lt;/a&gt;&lt;/li&gt;
-&lt;/ul&gt;</content><category term="工具"></category><category term="Mac"></category></entry><entry><title>Linux命令行工具</title><link href="xixuebin.github.io/2019-03-31-180919-ch.html" rel="alternate"></link><published>2019-03-31T18:09:19+08:00</published><updated>2019-03-31T18:09:19+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-03-31:xixuebin.github.io/2019-03-31-180919-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;hr&gt;
-&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
+&lt;/ul&gt;</content><category term="工具"></category><category term="Mac"></category></entry><entry><title>Linux命令行工具</title><link href="xixuebin.github.io/2019-03-31-180919-ch.html" rel="alternate"></link><published>2019-03-31T18:09:19+08:00</published><updated>2019-03-31T18:09:19+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-03-31:xixuebin.github.io/2019-03-31-180919-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
 
 &lt;h1&gt;Linux 命令行工具&lt;/h1&gt;
 &lt;h2&gt;ceho&lt;/h2&gt;
@@ -4842,7 +5189,7 @@ sudo service rsyslog restart
 &lt;h2&gt;Spring加载&lt;/h2&gt;
 &lt;p&gt;Spring配置文件在加载时，设置“固定名+变量名”的方式进行加载，如下：&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c"&gt;&amp;lt;!-- 读取配置文件 --&amp;gt;&lt;/span&gt;
-&lt;span class="nt"&gt;&amp;lt;context:property-placeholder&lt;/span&gt; &lt;span class="na"&gt;location=&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;classpath:config_${config_env}.properties&amp;quot;&lt;/span&gt; &lt;span class="na"&gt;ignore-unresolvable=&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;true&amp;quot;&lt;/span&gt;  &lt;span class="nt"&gt;/&amp;gt;&lt;/span&gt; 
+&lt;span class="nt"&gt;&amp;lt;context:property-placeholder&lt;/span&gt; &lt;span class="na"&gt;location=&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;classpath:config_${config_env}.properties&amp;quot;&lt;/span&gt; &lt;span class="na"&gt;ignore-unresolvable=&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;true&amp;quot;&lt;/span&gt;  &lt;span class="nt"&gt;/&amp;gt;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -7497,9 +7844,9 @@ G1 is planned as the long term replacement for the Concurrent Mark-Sweep Collect
 
 &lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Application&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;  
     &lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;static&lt;/span&gt; &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;main&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;[]&lt;/span&gt; &lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="kd"&gt;throws&lt;/span&gt; &lt;span class="n"&gt;Exception&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;  
-        &lt;span class="n"&gt;FutureTask&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;futureTask&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;   
+        &lt;span class="n"&gt;FutureTask&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;futureTask&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;
                 &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;FutureTask&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;(&lt;/span&gt;&lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;RealData&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;name&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;));&lt;/span&gt;  
-        &lt;span class="n"&gt;ExecutorService&lt;/span&gt; &lt;span class="n"&gt;executor&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;   
+        &lt;span class="n"&gt;ExecutorService&lt;/span&gt; &lt;span class="n"&gt;executor&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;
                 &lt;span class="n"&gt;Executors&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;newFixedThreadPool&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;//使用线程池  &lt;/span&gt;
         &lt;span class="c1"&gt;//执行FutureTask，相当于上例中的client.request(&amp;quot;name&amp;quot;)发送请求  &lt;/span&gt;
         &lt;span class="n"&gt;executor&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;submit&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;futureTask&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;  
@@ -7517,24 +7864,24 @@ G1 is planned as the long term replacement for the Concurrent Mark-Sweep Collect
 &lt;h3&gt;Future设置线程执行时间&lt;/h3&gt;
 &lt;p&gt;在Java中，如果需要设定代码执行的最长时间，即超时，可以用Java线程池ExecutorService类配合Future接口来实现。 &lt;/p&gt;
 &lt;p&gt;Future接口提供方法来检测任务是否被执行完，等待任务执行完获得结果，也可以设置任务执行的超时时间。这个设置超时的方法就是实现Java程序执行超时的关键。&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;ExecutorService&lt;/span&gt; &lt;span class="n"&gt;executor&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Executors&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;newSingleThreadExecutor&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;   
-&lt;span class="n"&gt;FutureTask&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;future&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;   
-       &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;FutureTask&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;(&lt;/span&gt;&lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Callable&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;()&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;&lt;span class="c1"&gt;//使用Callable接口作为构造参数   &lt;/span&gt;
-         &lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="n"&gt;String&lt;/span&gt; &lt;span class="nf"&gt;call&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;   
-           &lt;span class="c1"&gt;//真正的任务在这里执行，这里的返回值类型为String，可以为任意类型   &lt;/span&gt;
-       &lt;span class="o"&gt;}});&lt;/span&gt;   
-&lt;span class="n"&gt;executor&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;execute&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;future&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;   
-&lt;span class="c1"&gt;//在这里可以做别的任何事情   &lt;/span&gt;
-&lt;span class="k"&gt;try&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;   
-    &lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;future&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;get&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;5000&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;TimeUnit&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;MILLISECONDS&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;//取得结果，同时设置超时执行时间为5秒。同样可以用future.get()，不设置执行超时时间取得结果   &lt;/span&gt;
-&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="k"&gt;catch&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;InterruptedException&lt;/span&gt; &lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;   
-    &lt;span class="n"&gt;futureTask&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;cancel&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;   
-&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="k"&gt;catch&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ExecutionException&lt;/span&gt; &lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;   
-    &lt;span class="n"&gt;futureTask&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;cancel&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;   
-&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="k"&gt;catch&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;TimeoutException&lt;/span&gt; &lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;   
-    &lt;span class="n"&gt;futureTask&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;cancel&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;   
-&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="k"&gt;finally&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;   
-    &lt;span class="n"&gt;executor&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;shutdown&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;   
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;ExecutorService&lt;/span&gt; &lt;span class="n"&gt;executor&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Executors&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;newSingleThreadExecutor&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+&lt;span class="n"&gt;FutureTask&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;future&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;
+       &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;FutureTask&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;(&lt;/span&gt;&lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Callable&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;()&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;&lt;span class="c1"&gt;//使用Callable接口作为构造参数&lt;/span&gt;
+         &lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="n"&gt;String&lt;/span&gt; &lt;span class="nf"&gt;call&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+           &lt;span class="c1"&gt;//真正的任务在这里执行，这里的返回值类型为String，可以为任意类型&lt;/span&gt;
+       &lt;span class="o"&gt;}});&lt;/span&gt;
+&lt;span class="n"&gt;executor&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;execute&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;future&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="c1"&gt;//在这里可以做别的任何事情&lt;/span&gt;
+&lt;span class="k"&gt;try&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;future&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;get&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;5000&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;TimeUnit&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;MILLISECONDS&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;//取得结果，同时设置超时执行时间为5秒。同样可以用future.get()，不设置执行超时时间取得结果&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="k"&gt;catch&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;InterruptedException&lt;/span&gt; &lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;futureTask&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;cancel&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="k"&gt;catch&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ExecutionException&lt;/span&gt; &lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;futureTask&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;cancel&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="k"&gt;catch&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;TimeoutException&lt;/span&gt; &lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;futureTask&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;cancel&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="k"&gt;finally&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;executor&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;shutdown&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
 &lt;span class="o"&gt;}&lt;/span&gt;  
 &lt;/pre&gt;&lt;/div&gt;
 
@@ -9250,14 +9597,14 @@ batch.num.messages&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;200&
 
 &lt;ul&gt;
 &lt;li&gt;&lt;a href="#google-guice"&gt;Google Guice&lt;/a&gt;&lt;ul&gt;
-&lt;li&gt;&lt;a href="#guice%E6%A6%82%E8%BF%B0"&gt;Guice概述&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="#guice%E7%89%B9%E7%82%B9"&gt;Guice特点&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="#%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5"&gt;最佳实践&lt;/a&gt;&lt;/li&gt;
-&lt;li&gt;&lt;a href="#guice%E6%96%87%E6%A1%A3"&gt;Guice文档&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#guice%e6%a6%82%e8%bf%b0"&gt;Guice概述&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#guice%e7%89%b9%e7%82%b9"&gt;Guice特点&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#%e6%9c%80%e4%bd%b3%e5%ae%9e%e8%b7%b5"&gt;最佳实践&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#guice%e6%96%87%e6%a1%a3"&gt;Guice文档&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href="#guice-vs-spring"&gt;Guice vs Spring&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;/li&gt;
-&lt;li&gt;&lt;a href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"&gt;参考资料&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="#%e5%8f%82%e8%80%83%e8%b5%84%e6%96%99"&gt;参考资料&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
 &lt;!-- /MarkdownTOC --&gt;
 

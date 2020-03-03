@@ -1,5 +1,133 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>寒玉 Blog - java</title><link href="xixuebin.github.io/" rel="alternate"></link><link href="xixuebin.github.io/feeds/java.atom.xml" rel="self"></link><id>xixuebin.github.io/</id><updated>2018-08-30T18:27:53+08:00</updated><entry><title>Spring使用环境变量控制配置文件加载</title><link href="xixuebin.github.io/spring-env-config-2018-08-30-1827-ch.html" rel="alternate"></link><published>2018-08-30T18:27:53+08:00</published><updated>2018-08-30T18:27:53+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2018-08-30:xixuebin.github.io/spring-env-config-2018-08-30-1827-ch.html</id><summary type="html"></summary><content type="html">&lt;hr&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>寒玉 Blog - java</title><link href="xixuebin.github.io/" rel="alternate"></link><link href="xixuebin.github.io/feeds/java.atom.xml" rel="self"></link><id>xixuebin.github.io/</id><updated>2019-12-02T09:44:40+08:00</updated><entry><title>Java reflections</title><link href="xixuebin.github.io/2019-12-02-094440-ch.html" rel="alternate"></link><published>2019-12-02T09:44:40+08:00</published><updated>2019-12-02T09:44:40+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-12-02:xixuebin.github.io/2019-12-02-094440-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;hr&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Reflections 通过扫描 classpath，索引元数据，允许在运行时查询这些元数据，也可以保存收集项目中多个模块的元数据信息。&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;使用 Reflections 可以查询以下元数据信息：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;获得某个类型的所有子类型&lt;/li&gt;
+&lt;li&gt;获得标记了某个注解的所有类型／成员变量，支持注解参数匹配&lt;/li&gt;
+&lt;li&gt;使用正则表达式获得所有匹配的资源文件&lt;/li&gt;
+&lt;li&gt;获得所有特定签名（包括参数，参数注解，返回值）的方法&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Reflections 依赖 Google 的 Guava 库和 Javassist 库。&lt;/p&gt;
+&lt;p&gt;项目导入:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="nt"&gt;&amp;lt;dependency&amp;gt;&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;lt;groupId&amp;gt;&lt;/span&gt;org.reflections&lt;span class="nt"&gt;&amp;lt;/groupId&amp;gt;&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;lt;artifactId&amp;gt;&lt;/span&gt;reflections&lt;span class="nt"&gt;&amp;lt;/artifactId&amp;gt;&lt;/span&gt;
+    &lt;span class="nt"&gt;&amp;lt;version&amp;gt;&lt;/span&gt;0.9.10&lt;span class="nt"&gt;&amp;lt;/version&amp;gt;&lt;/span&gt;
+&lt;span class="nt"&gt;&amp;lt;/dependency&amp;gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;常用类:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;ClasspathHelper&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;TestReflect&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+
+ &lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;static&lt;/span&gt; &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;main&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;[]&lt;/span&gt; &lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+  &lt;span class="n"&gt;URL&lt;/span&gt; &lt;span class="n"&gt;url&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ClasspathHelper&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;forClass&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;TestReflect&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;class&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+
+  &lt;span class="n"&gt;System&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;out&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;println&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;url&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;getFile&lt;/span&gt;&lt;span class="o"&gt;());&lt;/span&gt;
+
+  &lt;span class="n"&gt;Set&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;URL&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;urlSet&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ClasspathHelper&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;forPackage&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;com\\.kevin\\.reflection\\.test&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+
+  &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;URL&lt;/span&gt; &lt;span class="n"&gt;u&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;urlSet&lt;/span&gt; &lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+   &lt;span class="n"&gt;System&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;out&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;println&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;u&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+   &lt;span class="o"&gt;}&lt;/span&gt;
+
+   &lt;span class="n"&gt;urlSet&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ClasspathHelper&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;forResource&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;\\&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+
+   &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;URL&lt;/span&gt; &lt;span class="n"&gt;u&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;urlSet&lt;/span&gt; &lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+   &lt;span class="n"&gt;System&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;out&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;println&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;u&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+ &lt;span class="o"&gt;}&lt;/span&gt;
+ &lt;span class="o"&gt;}&lt;/span&gt;
+
+&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;通过上面的测试代码可以看出ClasspathHelper这个类提供的上面的三个方法是获取资源的路径。&lt;/p&gt;</content><category term="java"></category></entry><entry><title>Java线程池原理及简单介绍</title><link href="xixuebin.github.io/2019-04-28-093340-ch.html" rel="alternate"></link><published>2019-04-28T09:33:40+08:00</published><updated>2019-04-28T09:33:40+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-04-28:xixuebin.github.io/2019-04-28-093340-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;hr&gt;
+&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
+
+&lt;h1&gt;线程池简介&lt;/h1&gt;
+&lt;p&gt;多线程技术主要解决处理器单元内多个线程执行的问题，它可以显著减少处理器单元的闲置时间，增加处理器单元的吞吐能力。
+    假设一个服务器完成一项任务所需时间为：T1 创建线程时间，T2 在线程中执行任务的时间，T3 销毁线程时间。
+    如果：T1 + T3 远大于 T2，则可以采用线程池，以提高服务器性能。
+    一个线程池包括以下四个基本组成部分：&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;1. 线程池管理器（ThreadPool）：用于创建并管理线程池，包括 创建线程池，销毁线程池，添加新任务；
+2. 工作线程（PoolWorker）：线程池中线程，在没有任务时处于等待状态，可以循环的执行任务；
+3. 任务接口（Task）：每个任务必须实现的接口，以供工作线程调度任务的执行，它主要规定了任务的入口，任务执行完后的收尾工作，任务的执行状态等
+4. 任务队列（taskQueue）：用于存放没有处理的任务。提供一种缓冲机制。
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;线程池技术正是关注如何缩短或调整T1,T3时间的技术，从而提高服务器程序性能的。它把T1，T3分别安排在服务器程序的启动和结束的时间段或者一些空闲的时间段，这样在服务器程序处理客户请求时，不会有T1，T3的开销了。&lt;/p&gt;
+&lt;h2&gt;继承体系&lt;/h2&gt;
+&lt;p&gt;线程池所涉及到的类和接口并不是很多,其集成体系也比较简单,相关继承关系如下:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="2019-12-31-10-09-30" src="http://xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/images/e75122991f0f8a4360faa8a3b3b6102a.png"&gt;&lt;/p&gt;
+&lt;p&gt;如上图,最顶层的接口Executor仅仅声明了一个方法executor.ExecutorService接口在其父类接口的基础上,声明了包含但不限于&lt;code&gt;shutdown&lt;/code&gt;,&lt;code&gt;submit&lt;/code&gt;,&lt;code&gt;invokeAll&lt;/code&gt;,&lt;code&gt;invokeAny&lt;/code&gt;等方法.至于ScheduledExecutorService接口,则是声明了一些和定时任务相关的方法.比如&lt;code&gt;schedule&lt;/code&gt;和&lt;code&gt;scheduleAtFixedRate&lt;/code&gt;.线程池的核心实现是在&lt;code&gt;ThreadPoolExecutor&lt;/code&gt;类中.我们使用&lt;code&gt;Executors&lt;/code&gt;调用&lt;code&gt;newFixThreadPool&lt;/code&gt;,&lt;code&gt;newSingleThreadExecutor&lt;/code&gt;和&lt;code&gt;newCacheedThreadPool&lt;/code&gt;等方法创建的线程池均是&lt;code&gt;ThreadPoolExecutor&lt;/code&gt;类型.&lt;/p&gt;
+&lt;h2&gt;原理分析&lt;/h2&gt;
+&lt;h3&gt;核心参数分析&lt;/h3&gt;
+&lt;p&gt;线程池的核心实现即&lt;code&gt;ThreadPoolExecutor&lt;/code&gt;类.该类包含了几个核心的属性,这些属性可在构造方法进行初始化.在介绍核心属性前,可以先看看&lt;code&gt;ThreadPoolExecutor&lt;/code&gt;的构造方法,如下:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="nf"&gt;ThreadPoolExecutor&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;corePoolSize&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+                          &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;maximumPoolSize&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+                          &lt;span class="kt"&gt;long&lt;/span&gt; &lt;span class="n"&gt;keepAliveTime&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+                          &lt;span class="n"&gt;TimeUnit&lt;/span&gt; &lt;span class="n"&gt;unit&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+                          &lt;span class="n"&gt;BlockingQueue&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Runnable&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;workQueue&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+                          &lt;span class="n"&gt;ThreadFactory&lt;/span&gt; &lt;span class="n"&gt;threadFactory&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt;
+                          &lt;span class="n"&gt;RejectedExecutionHandler&lt;/span&gt; &lt;span class="n"&gt;handler&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;构造方法的参数即核心参数，这里我用一个表格来简要说明一下各个参数的意义。如下：&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th align="left"&gt;参数&lt;/th&gt;
+&lt;th align="left"&gt;说明&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td align="left"&gt;!corePoolSize&lt;/td&gt;
+&lt;td align="left"&gt;核心线程数。当线程数小于该值时，线程池会优先创建新线程来执行新任务&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align="left"&gt;maximumPoolSize&lt;/td&gt;
+&lt;td align="left"&gt;线程池所能维护的最大线程数&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align="left"&gt;keepAliveTime&lt;/td&gt;
+&lt;td align="left"&gt;空闲线程的存活时间&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align="left"&gt;workQueue&lt;/td&gt;
+&lt;td align="left"&gt;任务队列，用于缓存未执行的任务&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align="left"&gt;threadFactory&lt;/td&gt;
+&lt;td align="left"&gt;线程工厂。可通过工厂为新建的线程设置更有意义的名字&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td align="left"&gt;handler&lt;/td&gt;
+&lt;td align="left"&gt;拒绝策略。当线程池和任务队列均处于饱和状态时，使用拒绝策略处理新任务。默认是 AbortPolicy，即直接抛出异常&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h3&gt;线程创建规则&lt;/h3&gt;
+&lt;h3&gt;资源回收&lt;/h3&gt;
+&lt;h3&gt;排队策略&lt;/h3&gt;
+&lt;h3&gt;拒绝策略&lt;/h3&gt;
+&lt;h3&gt;提交任务&lt;/h3&gt;
+&lt;h3&gt;关闭线程池&lt;/h3&gt;
+&lt;h2&gt;几种线程池&lt;/h2&gt;
+&lt;h2&gt;重要操作&lt;/h2&gt;
+&lt;h2&gt;参考&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://cloud.tencent.com/developer/article/1109643"&gt;Java线程池原理分析&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><category term="java"></category></entry><entry><title>Spring使用环境变量控制配置文件加载</title><link href="xixuebin.github.io/spring-env-config-2018-08-30-1827-ch.html" rel="alternate"></link><published>2018-08-30T18:27:53+08:00</published><updated>2018-08-30T18:27:53+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2018-08-30:xixuebin.github.io/spring-env-config-2018-08-30-1827-ch.html</id><summary type="html"></summary><content type="html">&lt;hr&gt;
 &lt;h1&gt;Spring环境变量的配置&lt;/h1&gt;
 &lt;h2&gt;环境变量&lt;/h2&gt;
 &lt;p&gt;项目中需要用到很多配置文件，不同环境的配置文件是不一样的，因此如果只用一个配置文件，势必会造成配置文件混乱，这里提供一种利用环境变量控制配置文件加载的方法.如果是linux环境，则修改tomcat的文件即可，具体为：../{tomcat_path}/bin/catalina.sh，找到&lt;code&gt;JAVA_OPTS=$JAVA_OPTS&lt;/code&gt;，加上参数即可，例如：&lt;code&gt;JAVA_OPTS="$JAVA_OPTS -Dconfig_env=test&lt;/code&gt;。&lt;/p&gt;
@@ -9,7 +137,7 @@
 &lt;h2&gt;Spring加载&lt;/h2&gt;
 &lt;p&gt;Spring配置文件在加载时，设置“固定名+变量名”的方式进行加载，如下：&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c"&gt;&amp;lt;!-- 读取配置文件 --&amp;gt;&lt;/span&gt;
-&lt;span class="nt"&gt;&amp;lt;context:property-placeholder&lt;/span&gt; &lt;span class="na"&gt;location=&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;classpath:config_${config_env}.properties&amp;quot;&lt;/span&gt; &lt;span class="na"&gt;ignore-unresolvable=&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;true&amp;quot;&lt;/span&gt;  &lt;span class="nt"&gt;/&amp;gt;&lt;/span&gt; 
+&lt;span class="nt"&gt;&amp;lt;context:property-placeholder&lt;/span&gt; &lt;span class="na"&gt;location=&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;classpath:config_${config_env}.properties&amp;quot;&lt;/span&gt; &lt;span class="na"&gt;ignore-unresolvable=&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;true&amp;quot;&lt;/span&gt;  &lt;span class="nt"&gt;/&amp;gt;&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -381,9 +509,9 @@ G1 is planned as the long term replacement for the Concurrent Mark-Sweep Collect
 
 &lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Application&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;  
     &lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="kd"&gt;static&lt;/span&gt; &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;main&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;[]&lt;/span&gt; &lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="kd"&gt;throws&lt;/span&gt; &lt;span class="n"&gt;Exception&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;  
-        &lt;span class="n"&gt;FutureTask&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;futureTask&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;   
+        &lt;span class="n"&gt;FutureTask&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;futureTask&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;
                 &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;FutureTask&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;(&lt;/span&gt;&lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;RealData&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;name&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;));&lt;/span&gt;  
-        &lt;span class="n"&gt;ExecutorService&lt;/span&gt; &lt;span class="n"&gt;executor&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;   
+        &lt;span class="n"&gt;ExecutorService&lt;/span&gt; &lt;span class="n"&gt;executor&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;
                 &lt;span class="n"&gt;Executors&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;newFixedThreadPool&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;//使用线程池  &lt;/span&gt;
         &lt;span class="c1"&gt;//执行FutureTask，相当于上例中的client.request(&amp;quot;name&amp;quot;)发送请求  &lt;/span&gt;
         &lt;span class="n"&gt;executor&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;submit&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;futureTask&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;  
@@ -401,24 +529,24 @@ G1 is planned as the long term replacement for the Concurrent Mark-Sweep Collect
 &lt;h3&gt;Future设置线程执行时间&lt;/h3&gt;
 &lt;p&gt;在Java中，如果需要设定代码执行的最长时间，即超时，可以用Java线程池ExecutorService类配合Future接口来实现。 &lt;/p&gt;
 &lt;p&gt;Future接口提供方法来检测任务是否被执行完，等待任务执行完获得结果，也可以设置任务执行的超时时间。这个设置超时的方法就是实现Java程序执行超时的关键。&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;ExecutorService&lt;/span&gt; &lt;span class="n"&gt;executor&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Executors&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;newSingleThreadExecutor&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;   
-&lt;span class="n"&gt;FutureTask&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;future&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;   
-       &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;FutureTask&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;(&lt;/span&gt;&lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Callable&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;()&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;&lt;span class="c1"&gt;//使用Callable接口作为构造参数   &lt;/span&gt;
-         &lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="n"&gt;String&lt;/span&gt; &lt;span class="nf"&gt;call&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;   
-           &lt;span class="c1"&gt;//真正的任务在这里执行，这里的返回值类型为String，可以为任意类型   &lt;/span&gt;
-       &lt;span class="o"&gt;}});&lt;/span&gt;   
-&lt;span class="n"&gt;executor&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;execute&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;future&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;   
-&lt;span class="c1"&gt;//在这里可以做别的任何事情   &lt;/span&gt;
-&lt;span class="k"&gt;try&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;   
-    &lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;future&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;get&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;5000&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;TimeUnit&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;MILLISECONDS&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;//取得结果，同时设置超时执行时间为5秒。同样可以用future.get()，不设置执行超时时间取得结果   &lt;/span&gt;
-&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="k"&gt;catch&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;InterruptedException&lt;/span&gt; &lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;   
-    &lt;span class="n"&gt;futureTask&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;cancel&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;   
-&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="k"&gt;catch&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ExecutionException&lt;/span&gt; &lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;   
-    &lt;span class="n"&gt;futureTask&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;cancel&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;   
-&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="k"&gt;catch&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;TimeoutException&lt;/span&gt; &lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;   
-    &lt;span class="n"&gt;futureTask&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;cancel&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;   
-&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="k"&gt;finally&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;   
-    &lt;span class="n"&gt;executor&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;shutdown&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;   
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;ExecutorService&lt;/span&gt; &lt;span class="n"&gt;executor&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Executors&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;newSingleThreadExecutor&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
+&lt;span class="n"&gt;FutureTask&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;future&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;
+       &lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;FutureTask&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;(&lt;/span&gt;&lt;span class="k"&gt;new&lt;/span&gt; &lt;span class="n"&gt;Callable&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;String&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;()&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;&lt;span class="c1"&gt;//使用Callable接口作为构造参数&lt;/span&gt;
+         &lt;span class="kd"&gt;public&lt;/span&gt; &lt;span class="n"&gt;String&lt;/span&gt; &lt;span class="nf"&gt;call&lt;/span&gt;&lt;span class="o"&gt;()&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+           &lt;span class="c1"&gt;//真正的任务在这里执行，这里的返回值类型为String，可以为任意类型&lt;/span&gt;
+       &lt;span class="o"&gt;}});&lt;/span&gt;
+&lt;span class="n"&gt;executor&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;execute&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;future&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="c1"&gt;//在这里可以做别的任何事情&lt;/span&gt;
+&lt;span class="k"&gt;try&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;future&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;get&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;5000&lt;/span&gt;&lt;span class="o"&gt;,&lt;/span&gt; &lt;span class="n"&gt;TimeUnit&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;MILLISECONDS&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;//取得结果，同时设置超时执行时间为5秒。同样可以用future.get()，不设置执行超时时间取得结果&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="k"&gt;catch&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;InterruptedException&lt;/span&gt; &lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;futureTask&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;cancel&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="k"&gt;catch&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;ExecutionException&lt;/span&gt; &lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;futureTask&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;cancel&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="k"&gt;catch&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="n"&gt;TimeoutException&lt;/span&gt; &lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;futureTask&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;cancel&lt;/span&gt;&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="kc"&gt;true&lt;/span&gt;&lt;span class="o"&gt;);&lt;/span&gt;
+&lt;span class="o"&gt;}&lt;/span&gt; &lt;span class="k"&gt;finally&lt;/span&gt; &lt;span class="o"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;executor&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="na"&gt;shutdown&lt;/span&gt;&lt;span class="o"&gt;();&lt;/span&gt;
 &lt;span class="o"&gt;}&lt;/span&gt;  
 &lt;/pre&gt;&lt;/div&gt;
 

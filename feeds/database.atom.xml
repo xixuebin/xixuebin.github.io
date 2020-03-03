@@ -1,5 +1,179 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>寒玉 Blog - database</title><link href="xixuebin.github.io/" rel="alternate"></link><link href="xixuebin.github.io/feeds/database.atom.xml" rel="self"></link><id>xixuebin.github.io/</id><updated>2019-07-19T15:19:13+08:00</updated><entry><title>Debezium趟坑记录</title><link href="xixuebin.github.io/2019-07-19-151913-ch.html" rel="alternate"></link><published>2019-07-19T15:19:13+08:00</published><updated>2019-07-19T15:19:13+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-07-19:xixuebin.github.io/2019-07-19-151913-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>寒玉 Blog - database</title><link href="xixuebin.github.io/" rel="alternate"></link><link href="xixuebin.github.io/feeds/database.atom.xml" rel="self"></link><id>xixuebin.github.io/</id><updated>2019-10-18T10:03:22+08:00</updated><entry><title>Debezium常见错误及处理</title><link href="xixuebin.github.io/2019-10-18-100322-ch.html" rel="alternate"></link><published>2019-10-18T10:03:22+08:00</published><updated>2019-10-18T10:03:22+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-10-18:xixuebin.github.io/2019-10-18-100322-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
+
+&lt;h2&gt;mysql bin log 相关参数说明&lt;/h2&gt;
+&lt;h3&gt;binlog-do-db&lt;/h3&gt;
+&lt;p&gt;如果配置了该参数,则mysql只记录该数据库的相关操作到binlog中,没有配置的数据库则不记录&lt;/p&gt;
+&lt;h3&gt;binlog_error_action&lt;/h3&gt;
+&lt;p&gt;从MySQL 5.6.22版本开始，引入了一个新参数binlog_error_action (5.6.20及21版本叫做binlogging_impossible_mode)，若设置为ABORT_SERVER，则在发生binlog写入错误时直接让实例退出，避免引发更大的错误；若设置为IGNORE_ERROR，则忽略本次写入失败，同时禁止Binlog记录，需要重启才能让binlog再次开启。为了主备数据的强一致性，通常应该将binlog_error_action设置为ABORT_SERVER，这样在打开文件、rotate新文件、从IO Cache写binlog到文件出现磁盘错误时，都会退出实例。&lt;/p&gt;
+&lt;h3&gt;sync_binlog&lt;/h3&gt;
+&lt;p&gt;MySQL提供一个sync_binlog参数来控制数据库的binlog刷到磁盘上去。&lt;/p&gt;
+&lt;p&gt;默认，sync_binlog=0，表示MySQL不控制binlog的刷新，由文件系统自己控制它的缓存的刷新。这时候的性能是最好的，但是风险也是最大的。因为一旦系统Crash，在binlog_cache中的所有binlog信息都会被丢失。&lt;/p&gt;
+&lt;p&gt;如果sync_binlog&amp;gt;0，表示每sync_binlog次事务提交，MySQL调用文件系统的刷新操作将缓存刷下去。最安全的就是sync_binlog=1了，表示每次事务提交，MySQL都会把binlog刷下去，是最安全但是性能损耗最大的设置。这样的话，在数据库所在的主机操作系统损坏或者突然掉电的情况下，系统才有可能丢失1个事务的数据。但是binlog虽然是顺序IO，但是设置sync_binlog=1，多个事务同时提交，同样很大的影响MySQL和IO性能。虽然可以通过group commit的补丁缓解，但是刷新的频率过高对IO的影响也非常大。对于高并发事务的系统来说，“sync_binlog”设置为0和设置为1的系统写入性能差距可能高达5倍甚至更多。&lt;/p&gt;
+&lt;p&gt;所以很多MySQL DBA设置的sync_binlog并不是最安全的1，而是100或者是0。这样牺牲一定的一致性，可以获得更高的并发和性能。&lt;/p&gt;
+&lt;p&gt;&lt;em&gt;从以往经验和相关测试来看，对于高并发事务的系统来说，“sync_binlog”设置为0和设置为1的系统写入性能差距可能高达5倍甚至更多。&lt;/em&gt;&lt;/p&gt;
+&lt;h3&gt;binlog_row_image&lt;/h3&gt;
+&lt;p&gt;MySQL 5.7以后binlog的格式默认就是ROW了，同时引入了新的参数binlog_row_image，这个参数默认值是FULL，其还有一个值是minimal。&lt;/p&gt;
+&lt;p&gt;FULL记录每一行的变更，minimal只记录影响后的行。下面简单的测试一下大家就明白了。&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;mysql&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="k"&gt;show&lt;/span&gt; &lt;span class="n"&gt;variables&lt;/span&gt; &lt;span class="k"&gt;like&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;%row_im%&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="c1"&gt;------------------+-------+&lt;/span&gt;
+&lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;Variable_name&lt;/span&gt;    &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;Value&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt;
+&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="c1"&gt;------------------+-------+&lt;/span&gt;
+&lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;binlog_row_image&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="k"&gt;FULL&lt;/span&gt;  &lt;span class="o"&gt;|&lt;/span&gt;
+&lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="c1"&gt;------------------+-------+&lt;/span&gt;
+&lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="k"&gt;row&lt;/span&gt; &lt;span class="k"&gt;in&lt;/span&gt; &lt;span class="k"&gt;set&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;01&lt;/span&gt; &lt;span class="n"&gt;sec&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;mysql&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="k"&gt;update&lt;/span&gt; &lt;span class="n"&gt;t2&lt;/span&gt; &lt;span class="k"&gt;set&lt;/span&gt; &lt;span class="n"&gt;uid&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;99&lt;/span&gt; &lt;span class="k"&gt;where&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;yayundeng&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="n"&gt;Query&lt;/span&gt; &lt;span class="n"&gt;OK&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="k"&gt;row&lt;/span&gt; &lt;span class="n"&gt;affected&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;03&lt;/span&gt; &lt;span class="n"&gt;sec&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;Rows&lt;/span&gt; &lt;span class="n"&gt;matched&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;  &lt;span class="n"&gt;Changed&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;  &lt;span class="n"&gt;Warnings&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;
+
+&lt;span class="n"&gt;mysql&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;解析binlog&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;root&lt;/span&gt;&lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="n"&gt;yayundeng&lt;/span&gt; &lt;span class="mi"&gt;3306&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;#&lt;/span&gt; &lt;span class="n"&gt;mysqlbinlog&lt;/span&gt; &lt;span class="c1"&gt;--no-defaults -v -v --base64-output=DECODE-ROWS mysql-bin.000010 | tail -n 20&lt;/span&gt;
+&lt;span class="o"&gt;#&lt;/span&gt;&lt;span class="mi"&gt;161210&lt;/span&gt; &lt;span class="mi"&gt;11&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;02&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;32&lt;/span&gt; &lt;span class="n"&gt;server&lt;/span&gt; &lt;span class="n"&gt;id&lt;/span&gt; &lt;span class="mi"&gt;152&lt;/span&gt;  &lt;span class="n"&gt;end_log_pos&lt;/span&gt; &lt;span class="mi"&gt;2043&lt;/span&gt; &lt;span class="n"&gt;CRC32&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="n"&gt;x3ce8a225&lt;/span&gt;       &lt;span class="n"&gt;Update_rows&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="k"&gt;table&lt;/span&gt; &lt;span class="n"&gt;id&lt;/span&gt; &lt;span class="mi"&gt;110&lt;/span&gt; &lt;span class="n"&gt;flags&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;STMT_END_F&lt;/span&gt;
+&lt;span class="o"&gt;###&lt;/span&gt; &lt;span class="k"&gt;UPDATE&lt;/span&gt; &lt;span class="o"&gt;`&lt;/span&gt;&lt;span class="n"&gt;test&lt;/span&gt;&lt;span class="o"&gt;`&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="o"&gt;`&lt;/span&gt;&lt;span class="n"&gt;t2&lt;/span&gt;&lt;span class="o"&gt;`&lt;/span&gt;
+&lt;span class="o"&gt;###&lt;/span&gt; &lt;span class="k"&gt;WHERE&lt;/span&gt;
+&lt;span class="o"&gt;###&lt;/span&gt;   &lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="cm"&gt;/* INT meta=0 nullable=0 is_null=0 */&lt;/span&gt;
+&lt;span class="o"&gt;###&lt;/span&gt;   &lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;gz&amp;#39;&lt;/span&gt; &lt;span class="cm"&gt;/* STRING(20) meta=65044 nullable=1 is_null=0 */&lt;/span&gt;
+&lt;span class="o"&gt;###&lt;/span&gt;   &lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;yayundeng&amp;#39;&lt;/span&gt; &lt;span class="cm"&gt;/* STRING(20) meta=65044 nullable=1 is_null=0 */&lt;/span&gt;
+&lt;span class="o"&gt;###&lt;/span&gt;   &lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="cm"&gt;/* INT meta=0 nullable=1 is_null=0 */&lt;/span&gt;
+&lt;span class="o"&gt;###&lt;/span&gt; &lt;span class="k"&gt;SET&lt;/span&gt;
+&lt;span class="o"&gt;###&lt;/span&gt;   &lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="cm"&gt;/* INT meta=0 nullable=0 is_null=0 */&lt;/span&gt;
+&lt;span class="o"&gt;###&lt;/span&gt;   &lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;gz&amp;#39;&lt;/span&gt; &lt;span class="cm"&gt;/* STRING(20) meta=65044 nullable=1 is_null=0 */&lt;/span&gt;
+&lt;span class="o"&gt;###&lt;/span&gt;   &lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;yayundeng&amp;#39;&lt;/span&gt; &lt;span class="cm"&gt;/* STRING(20) meta=65044 nullable=1 is_null=0 */&lt;/span&gt;
+&lt;span class="o"&gt;###&lt;/span&gt;   &lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;99&lt;/span&gt; &lt;span class="cm"&gt;/* INT meta=0 nullable=1 is_null=0 */&lt;/span&gt;
+&lt;span class="o"&gt;#&lt;/span&gt; &lt;span class="k"&gt;at&lt;/span&gt; &lt;span class="mi"&gt;2043&lt;/span&gt;
+&lt;span class="o"&gt;#&lt;/span&gt;&lt;span class="mi"&gt;161210&lt;/span&gt; &lt;span class="mi"&gt;11&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;02&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;32&lt;/span&gt; &lt;span class="n"&gt;server&lt;/span&gt; &lt;span class="n"&gt;id&lt;/span&gt; &lt;span class="mi"&gt;152&lt;/span&gt;  &lt;span class="n"&gt;end_log_pos&lt;/span&gt; &lt;span class="mi"&gt;2074&lt;/span&gt; &lt;span class="n"&gt;CRC32&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="n"&gt;x93619126&lt;/span&gt;       &lt;span class="n"&gt;Xid&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;49&lt;/span&gt;
+&lt;span class="k"&gt;COMMIT&lt;/span&gt;&lt;span class="cm"&gt;/*!*/&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="k"&gt;SET&lt;/span&gt; &lt;span class="o"&gt;@@&lt;/span&gt;&lt;span class="k"&gt;SESSION&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;GTID_NEXT&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;AUTOMATIC&amp;#39;&lt;/span&gt; &lt;span class="cm"&gt;/* added by mysqlbinlog */&lt;/span&gt; &lt;span class="cm"&gt;/*!*/&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="k"&gt;DELIMITER&lt;/span&gt; &lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="o"&gt;#&lt;/span&gt; &lt;span class="k"&gt;End&lt;/span&gt; &lt;span class="k"&gt;of&lt;/span&gt; &lt;span class="n"&gt;log&lt;/span&gt; &lt;span class="n"&gt;file&lt;/span&gt;
+&lt;span class="cm"&gt;/*!50003 SET COMPLETION_TYPE=@OLD_COMPLETION_TYPE*/&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="cm"&gt;/*!50530 SET @@SESSION.PSEUDO_SLAVE_MODE=0*/&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;root&lt;/span&gt;&lt;span class="o"&gt;@&lt;/span&gt;&lt;span class="n"&gt;yayundeng&lt;/span&gt; &lt;span class="mi"&gt;3306&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;#&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;cdc 参数说明&lt;/h2&gt;
+&lt;h3&gt;database.history.store.only.monitored.tables.ddl&lt;/h3&gt;
+&lt;p&gt;布尔值，指定连接器是否应记录所有DDL语句，或者（如果为true）仅记录与Debezium（通过筛选器配置）监视的表相关的语句。安全默认值为false。应小心使用此功能，因为更改筛选器时可能需要缺少数据。&lt;/p&gt;
+&lt;h2&gt;错误一&lt;/h2&gt;
+&lt;p&gt;错误描述&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;org.apache.kafka.connect.errors.ConnectException
+    at io.debezium.connector.mysql.AbstractReader.wrap&lt;span class="o"&gt;(&lt;/span&gt;AbstractReader.java:230&lt;span class="o"&gt;)&lt;/span&gt;
+    at io.debezium.connector.mysql.AbstractReader.failed&lt;span class="o"&gt;(&lt;/span&gt;AbstractReader.java:197&lt;span class="o"&gt;)&lt;/span&gt;
+    at io.debezium.connector.mysql.BinlogReader&lt;span class="nv"&gt;$ReaderThreadLifecycleListener&lt;/span&gt;.onCommunicationFailure&lt;span class="o"&gt;(&lt;/span&gt;BinlogReader.java:1018&lt;span class="o"&gt;)&lt;/span&gt;
+    at com.github.shyiko.mysql.binlog.BinaryLogClient.listenForEventPackets&lt;span class="o"&gt;(&lt;/span&gt;BinaryLogClient.java:950&lt;span class="o"&gt;)&lt;/span&gt;
+    at com.github.shyiko.mysql.binlog.BinaryLogClient.connect&lt;span class="o"&gt;(&lt;/span&gt;BinaryLogClient.java:580&lt;span class="o"&gt;)&lt;/span&gt;
+    at com.github.shyiko.mysql.binlog.BinaryLogClient&lt;span class="nv"&gt;$7&lt;/span&gt;.run&lt;span class="o"&gt;(&lt;/span&gt;BinaryLogClient.java:825&lt;span class="o"&gt;)&lt;/span&gt;
+    at java.lang.Thread.run&lt;span class="o"&gt;(&lt;/span&gt;Thread.java:745&lt;span class="o"&gt;)&lt;/span&gt;
+Caused by: java.io.EOFException
+    at com.github.shyiko.mysql.binlog.io.ByteArrayInputStream.read&lt;span class="o"&gt;(&lt;/span&gt;ByteArrayInputStream.java:190&lt;span class="o"&gt;)&lt;/span&gt;
+    at com.github.shyiko.mysql.binlog.io.ByteArrayInputStream.readInteger&lt;span class="o"&gt;(&lt;/span&gt;ByteArrayInputStream.java:46&lt;span class="o"&gt;)&lt;/span&gt;
+    at com.github.shyiko.mysql.binlog.event.deserialization.EventHeaderV4Deserializer.deserialize&lt;span class="o"&gt;(&lt;/span&gt;EventHeaderV4Deserializer.java:35&lt;span class="o"&gt;)&lt;/span&gt;
+    at com.github.shyiko.mysql.binlog.event.deserialization.EventHeaderV4Deserializer.deserialize&lt;span class="o"&gt;(&lt;/span&gt;EventHeaderV4Deserializer.java:27&lt;span class="o"&gt;)&lt;/span&gt;
+    at com.github.shyiko.mysql.binlog.event.deserialization.EventDeserializer.nextEvent&lt;span class="o"&gt;(&lt;/span&gt;EventDeserializer.java:212&lt;span class="o"&gt;)&lt;/span&gt;
+    at io.debezium.connector.mysql.BinlogReader&lt;span class="nv"&gt;$1&lt;/span&gt;.nextEvent&lt;span class="o"&gt;(&lt;/span&gt;BinlogReader.java:224&lt;span class="o"&gt;)&lt;/span&gt;
+    at com.github.shyiko.mysql.binlog.BinaryLogClient.listenForEventPackets&lt;span class="o"&gt;(&lt;/span&gt;BinaryLogClient.java:922&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;一般该错误是在CDC connector所连接的数据库宕机或者重启的情况下出现的.且在重启完成之后,不会自动变为running状态.&lt;/p&gt;
+&lt;h3&gt;解决办法&lt;/h3&gt;
+&lt;p&gt;重启该connector即可恢复正常.&lt;/p&gt;
+&lt;h2&gt;错误二&lt;/h2&gt;
+&lt;p&gt;错误描述&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;org.apache.kafka.connect.errors.ConnectException: could not find next log&lt;span class="p"&gt;;&lt;/span&gt; the first event &lt;span class="s1"&gt;&amp;#39;binlog.000030&amp;#39;&lt;/span&gt; at &lt;span class="m"&gt;155&lt;/span&gt;, the last event &lt;span class="nb"&gt;read&lt;/span&gt; from &lt;span class="s1"&gt;&amp;#39;./binlog.000030&amp;#39;&lt;/span&gt; at &lt;span class="m"&gt;124&lt;/span&gt;, the last byte &lt;span class="nb"&gt;read&lt;/span&gt; from &lt;span class="s1"&gt;&amp;#39;./binlog.000030&amp;#39;&lt;/span&gt; at &lt;span class="m"&gt;155&lt;/span&gt;. Error code: &lt;span class="m"&gt;1236&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; SQLSTATE: HY000.
+    at io.debezium.connector.mysql.AbstractReader.wrap&lt;span class="o"&gt;(&lt;/span&gt;AbstractReader.java:230&lt;span class="o"&gt;)&lt;/span&gt;
+    at io.debezium.connector.mysql.AbstractReader.failed&lt;span class="o"&gt;(&lt;/span&gt;AbstractReader.java:197&lt;span class="o"&gt;)&lt;/span&gt;
+    at io.debezium.connector.mysql.BinlogReader&lt;span class="nv"&gt;$ReaderThreadLifecycleListener&lt;/span&gt;.onCommunicationFailure&lt;span class="o"&gt;(&lt;/span&gt;BinlogReader.java:1018&lt;span class="o"&gt;)&lt;/span&gt;
+    at com.github.shyiko.mysql.binlog.BinaryLogClient.listenForEventPackets&lt;span class="o"&gt;(&lt;/span&gt;BinaryLogClient.java:950&lt;span class="o"&gt;)&lt;/span&gt;
+    at com.github.shyiko.mysql.binlog.BinaryLogClient.connect&lt;span class="o"&gt;(&lt;/span&gt;BinaryLogClient.java:580&lt;span class="o"&gt;)&lt;/span&gt;
+    at com.github.shyiko.mysql.binlog.BinaryLogClient&lt;span class="nv"&gt;$7&lt;/span&gt;.run&lt;span class="o"&gt;(&lt;/span&gt;BinaryLogClient.java:825&lt;span class="o"&gt;)&lt;/span&gt;
+    at java.lang.Thread.run&lt;span class="o"&gt;(&lt;/span&gt;Thread.java:745&lt;span class="o"&gt;)&lt;/span&gt;
+Caused by: com.github.shyiko.mysql.binlog.network.ServerException: could not find next log&lt;span class="p"&gt;;&lt;/span&gt; the first event &lt;span class="s1"&gt;&amp;#39;binlog.000030&amp;#39;&lt;/span&gt; at &lt;span class="m"&gt;155&lt;/span&gt;, the last event &lt;span class="nb"&gt;read&lt;/span&gt; from &lt;span class="s1"&gt;&amp;#39;./binlog.000030&amp;#39;&lt;/span&gt; at &lt;span class="m"&gt;124&lt;/span&gt;, the last byte &lt;span class="nb"&gt;read&lt;/span&gt; from &lt;span class="s1"&gt;&amp;#39;./binlog.000030&amp;#39;&lt;/span&gt; at &lt;span class="m"&gt;155&lt;/span&gt;.
+    at com.github.shyiko.mysql.binlog.BinaryLogClient.listenForEventPackets&lt;span class="o"&gt;(&lt;/span&gt;BinaryLogClient.java:914&lt;span class="o"&gt;)&lt;/span&gt;
+    ... &lt;span class="m"&gt;3&lt;/span&gt; more
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;改错误的出现,因为执行了一次&lt;code&gt;reset master&lt;/code&gt;,清除了mysql的binlog日志,日志文件从新的000001开始了,导致cdc不能找到binlog文件.&lt;/p&gt;
+&lt;h3&gt;解决办法&lt;/h3&gt;
+&lt;p&gt;重启该connector即可恢复正常.&lt;/p&gt;
+&lt;h2&gt;错误三&lt;/h2&gt;
+&lt;p&gt;错误描述&lt;/p&gt;
+&lt;p&gt;CDC的主域名可以访问通,但是获取不了connectors,即&lt;a href="http://localhost:8083/"&gt;http://localhost:8083/&lt;/a&gt;可以正常返回,但是&lt;a href="http://localhost:8083/connectors"&gt;http://localhost:8083/connectors&lt;/a&gt;请求超时.&lt;/p&gt;
+&lt;h3&gt;解决办法&lt;/h3&gt;
+&lt;p&gt;该问题一般是CDC连接kafka失败.请价差kafka状态.连接上kafka之后,改问题会自动恢复&lt;/p&gt;
+&lt;h2&gt;错误四&lt;/h2&gt;
+&lt;p&gt;错误描述&lt;/p&gt;
+&lt;p&gt;CDC connector状态正常,kafka状态也这很正常,binlog会产生日志,但是kafka收不到消息.&lt;/p&gt;
+&lt;h3&gt;解决办法&lt;/h3&gt;
+&lt;p&gt;各类错误一般是connector的配置错误,请检查connector的注册信息.包括&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;table.whitelist选项的表名称前是否携带数据库信息.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;错误五&lt;/h2&gt;
+&lt;p&gt;错误描述&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;org.apache.kafka.connect.errors.ConnectException: Could not open log file Error code: &lt;span class="m"&gt;1236&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; SQLSTATE: HY000.
+    at io.debezium.connector.mysql.AbstractReader.wrap&lt;span class="o"&gt;(&lt;/span&gt;AbstractReader.java:230&lt;span class="o"&gt;)&lt;/span&gt;
+    at io.debezium.connector.mysql.AbstractReader.failed&lt;span class="o"&gt;(&lt;/span&gt;AbstractReader.java:197&lt;span class="o"&gt;)&lt;/span&gt;
+    at io.debezium.connector.mysql.BinlogReader&lt;span class="nv"&gt;$ReaderThreadLifecycleListener&lt;/span&gt;.onCommunicationFailure&lt;span class="o"&gt;(&lt;/span&gt;BinlogReader.java:1018&lt;span class="o"&gt;)&lt;/span&gt;
+    at com.github.shyiko.mysql.binlog.BinaryLogClient.listenForEventPackets&lt;span class="o"&gt;(&lt;/span&gt;BinaryLogClient.java:950&lt;span class="o"&gt;)&lt;/span&gt;
+    at com.github.shyiko.mysql.binlog.BinaryLogClient.connect&lt;span class="o"&gt;(&lt;/span&gt;BinaryLogClient.java:580&lt;span class="o"&gt;)&lt;/span&gt;
+    at com.github.shyiko.mysql.binlog.BinaryLogClient&lt;span class="nv"&gt;$7&lt;/span&gt;.run&lt;span class="o"&gt;(&lt;/span&gt;BinaryLogClient.java:825&lt;span class="o"&gt;)&lt;/span&gt;
+    at java.lang.Thread.run&lt;span class="o"&gt;(&lt;/span&gt;Thread.java:745&lt;span class="o"&gt;)&lt;/span&gt;
+Caused by: com.github.shyiko.mysql.binlog.network.ServerException: Could not open log file
+    at com.github.shyiko.mysql.binlog.BinaryLogClient.listenForEventPackets&lt;span class="o"&gt;(&lt;/span&gt;BinaryLogClient.java:914&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;该错误一般是由于当前正在使用的binlog文件丢失,或者由于目中原因不能写入造成的.&lt;/p&gt;
+&lt;h3&gt;解决办法&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;运行命令&lt;code&gt;show master logs;&lt;/code&gt;,查看最新的binlog文件名.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;P&lt;img alt="2019-10-18-16-19-21" src="http://xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/images/67242febe1cece2c50ece0c17ed27205.png"&gt;&lt;/p&gt;
+&lt;p&gt;运行命名&lt;code&gt;show binlog events in 'binlog.000003';&lt;/code&gt;,查看最新binlog中的事件.&lt;/p&gt;
+&lt;p&gt;P&lt;img alt="2019-10-18-16-20-32" src="http://xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/xixuebin-blog-images.oss-cn-beijing.aliyuncs.com/images/def104c7d681600dcd40b62344b41efb.png"&gt;&lt;/p&gt;
+&lt;p&gt;如果显示如图所示,则证明文件已经丢失.请查看日志文件.再找回日志文件后重启connector.&lt;/p&gt;
+&lt;h2&gt;错误六&lt;/h2&gt;
+&lt;p&gt;错误描述&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;org.apache.kafka.connect.errors.ConnectException: The connector is trying to &lt;span class="nb"&gt;read&lt;/span&gt; binlog starting at binlog file &lt;span class="s1"&gt;&amp;#39;mariadb-bin.000003&amp;#39;&lt;/span&gt;, &lt;span class="nv"&gt;pos&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;63317395&lt;/span&gt;, skipping &lt;span class="m"&gt;0&lt;/span&gt; events plus &lt;span class="m"&gt;1&lt;/span&gt; rows, but this is no longer available on the server. Reconfigure the connector to use a snapshot when needed.
+    at io.debezium.connector.mysql.MySqlConnectorTask.start&lt;span class="o"&gt;(&lt;/span&gt;MySqlConnectorTask.java:127&lt;span class="o"&gt;)&lt;/span&gt;
+    at io.debezium.connector.common.BaseSourceTask.start&lt;span class="o"&gt;(&lt;/span&gt;BaseSourceTask.java:49&lt;span class="o"&gt;)&lt;/span&gt;
+    at org.apache.kafka.connect.runtime.WorkerSourceTask.execute&lt;span class="o"&gt;(&lt;/span&gt;WorkerSourceTask.java:198&lt;span class="o"&gt;)&lt;/span&gt;
+    at org.apache.kafka.connect.runtime.WorkerTask.doRun&lt;span class="o"&gt;(&lt;/span&gt;WorkerTask.java:175&lt;span class="o"&gt;)&lt;/span&gt;
+    at org.apache.kafka.connect.runtime.WorkerTask.run&lt;span class="o"&gt;(&lt;/span&gt;WorkerTask.java:219&lt;span class="o"&gt;)&lt;/span&gt;
+    at java.util.concurrent.Executors&lt;span class="nv"&gt;$RunnableAdapter&lt;/span&gt;.call&lt;span class="o"&gt;(&lt;/span&gt;Executors.java:511&lt;span class="o"&gt;)&lt;/span&gt;
+    at java.util.concurrent.FutureTask.run&lt;span class="o"&gt;(&lt;/span&gt;FutureTask.java:266&lt;span class="o"&gt;)&lt;/span&gt;
+    at java.util.concurrent.ThreadPoolExecutor.runWorker&lt;span class="o"&gt;(&lt;/span&gt;ThreadPoolExecutor.java:1149&lt;span class="o"&gt;)&lt;/span&gt;
+    at java.util.concurrent.ThreadPoolExecutor&lt;span class="nv"&gt;$Worker&lt;/span&gt;.run&lt;span class="o"&gt;(&lt;/span&gt;ThreadPoolExecutor.java:624&lt;span class="o"&gt;)&lt;/span&gt;
+    at java.lang.Thread.run&lt;span class="o"&gt;(&lt;/span&gt;Thread.java:748&lt;span class="o"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;该错误是connector所要寻找的binlog已经不在了,无法读取.有可能是因为过期导致的.&lt;/p&gt;
+&lt;h3&gt;解决办法&lt;/h3&gt;
+&lt;p&gt;更新connector,snapshot.mode参数使用when_needed参数.&lt;/p&gt;
+&lt;h2&gt;错误七&lt;/h2&gt;
+&lt;p&gt;在注册connector的时候,返回400错误,错误信息如下:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;{&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;error_code&amp;quot;&lt;/span&gt;:400,&lt;span class="s2"&gt;&amp;quot;message&amp;quot;&lt;/span&gt;:&lt;span class="s2"&gt;&amp;quot;Connector configuration is invalid and contains the following 1 error(s):\nUnable to connect: Communications link failure\n\nThe last packet sent successfully to the server was 0 milliseconds ago. The driver has not received any packets from the server.\nYou can also find the above list of errors at the endpoint `/{connectorType}/config/validate`&amp;quot;&lt;/span&gt;&lt;span class="o"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;该错误一般是由于我们注册的时候,填写的mysql的配置信息有问题,导致connector连接不上mysql数据库导致的.&lt;/p&gt;
+&lt;h3&gt;解决办法&lt;/h3&gt;
+&lt;p&gt;检查注册信息中的connector配置,特别是mysql链接相关的配置后,重新注册&lt;/p&gt;
+&lt;h2&gt;参考&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://www.percona.com/blog/2014/10/08/mysql-replication-got-fatal-error-1236-causes-and-cures/"&gt;https://www.percona.com/blog/2014/10/08/mysql-replication-got-fatal-error-1236-causes-and-cures/&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://github.com/zendesk/maxwell/issues/1083"&gt;https://github.com/zendesk/maxwell/issues/1083&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://gitter.im/debezium/dev/archives/2019/05/07"&gt;https://gitter.im/debezium/dev/archives/2019/05/07&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><category term="database"></category><category term="CDC"></category></entry><entry><title>Debezium趟坑记录</title><link href="xixuebin.github.io/2019-07-19-151913-ch.html" rel="alternate"></link><published>2019-07-19T15:19:13+08:00</published><updated>2019-07-19T15:19:13+08:00</updated><author><name>kevin.xi</name></author><id>tag:None,2019-07-19:xixuebin.github.io/2019-07-19-151913-ch.html</id><summary type="html">&lt;p&gt;Summary&lt;/p&gt;</summary><content type="html">&lt;!-- https://code.visualstudio.com/docs/editor/userdefinedsnippets --&gt;
 
 &lt;h1&gt;Debezium趟坑记录&lt;/h1&gt;
 &lt;h2&gt;创建表导致connector报错&lt;/h2&gt;
